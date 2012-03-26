@@ -2,7 +2,7 @@
 
 	/**********************************************************************
 	*  Author: Justin Vincent (jv@jvmultimedia.com)
-         *         Stefanie Janine Stoelting (mail@stefanie-stoelting.de)
+        *          Stefanie Janine Stoelting (mail@stefanie-stoelting.de)
 	*  Web...: http://twitter.com/justinvincent
 	*  Name..: ezSQL_mysql
 	*  Desc..: mySQL component (part of ezSQL databse abstraction library)
