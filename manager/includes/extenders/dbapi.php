@@ -45,7 +45,7 @@ class DBAPI {
      * The database object.
      * @var object
      */
-    private $db = null;
+    public $conn = null;
     
     /**
      *The configuration array.
@@ -158,7 +158,7 @@ class DBAPI {
             switch ($this->currentDBEngine) {
                 case self::DB_MYSQL_MYISAM:
                 case self::DB_MYSQL_INNODB:
-                    $this->db = new ezSQL_mysql($uid, $pwd, $dbase, $host, $charset);
+                    $this->conn = new ezSQL_mysql($uid, $pwd, $dbase, $host, $charset);
                     
                     break;
 
@@ -166,7 +166,7 @@ class DBAPI {
                     if (empty($port)) {
                         $this->config['port'] = self::POSTGRESQL_DEFAULT_PORT;
                     }
-                    $this->db = new ezSQL_postgresql($uid, $pwd, $dbase, $host, $this->config['port']);
+                    $this->conn = new ezSQL_postgresql($uid, $pwd, $dbase, $host, $this->config['port']);
 
                     break;
 
@@ -185,7 +185,7 @@ class DBAPI {
      */
     public function disconnect()
     {
-        $this->db->disconnect();
+        $this->conn->disconnect();
     } // disconnect
 
     /**
@@ -196,7 +196,7 @@ class DBAPI {
      */
     public function escape($instr)
     {
-        return $this->db->escape($instr);
+        return $this->conn->escape($instr);
     } // escape
 
     /**
@@ -215,7 +215,7 @@ class DBAPI {
             $this->connect();
         }
         // Run the query and set the result
-        $result = $this->db->get_results($sql);
+        $result = $this->conn->get_results($sql);
 
         $tend = $modx->getMicroTime();
         $totaltime = $tend - $tstart;
@@ -279,7 +279,7 @@ class DBAPI {
         $result = 0;
         
         if (!is_resource($conn)) {
-            $conn =& $this->db;
+            $conn =& $this->conn;
         }
         
         switch ($this->currentDBEngine) {
@@ -314,7 +314,7 @@ class DBAPI {
         $result = 0;
         
         if (!is_resource($conn)) {
-            $conn =& $this->db;
+            $conn =& $this->conn;
         }
         
         switch ($this->currentDBEngine) {
@@ -348,7 +348,7 @@ class DBAPI {
         $result = '';
         
         if (!is_resource($conn)) {
-            $conn =& $this->db;
+            $conn =& $this->conn;
         }
         
         switch ($this->currentDBEngine) {
@@ -385,7 +385,7 @@ class DBAPI {
                 break;
             
             case self::DB_POSTGRESQL:
-                $result = pg_version($this->db);
+                $result = pg_version($this->conn);
                 $result = $result['server'];
                 
                 break;
