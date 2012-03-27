@@ -56,17 +56,18 @@ class DBAPI {
     /**
      * Database constructor
      *
-     * @param string $db_type One of the constants defined in this class.
-     * @param string $basePath The MODX base path.
+     * @param array $config The array with all database configuration parameters.
      * @return boolean
      */
-    public function __construct($db_type, $basePath)
+    public function __construct($config)
     {
         $result = false;
         
-        include $basePath . 'manager/lib/ezSQL/shared/ez_sql_core.php';
+        $this->config = $config;
+        
+        include $this->config['basePath'] . 'manager/lib/ezSQL/shared/ez_sql_core.php';
 
-        switch ($db_type) {
+        switch ($this->config['db_type']) {
             case self::DB_MYSQL_MYISAM:
                 $this->currentDBEngine = self::DB_MYSQL_MYISAM;
                 include $basePath . 'manager/lib/ezSQL/mysql/ez_sql_mysql.php';
