@@ -10,24 +10,29 @@
 class DBAPI {
 
     /**
-     * Database type MySQL MyISAM
+     * Database type MySQL MyISAM.
      */
     const DB_MYSQL_MYISAM = 'MySQL:MyISAM';
 
     /**
-     * Database type MySQL InnoDB
+     * Database type MySQL InnoDB.
      */
     const DB_MYSQL_INNODB = 'MySQL:InnoDB';
 
     /**
-     * Database type PostgreSQL
+     * Database type PostgreSQL.
      */
     const DB_POSTGRESQL = 'PostgreSQL';
     
     /**
-     * Default PostgreSQL TCP/IP port is 5432 
+     * Default PostgreSQL TCP/IP port is 5432. 
      */
     const POSTGRESQL_DEFAULT_PORT = '5432';
+    
+    /**
+     * Default path to the ezSQL class files. 
+     */
+    const EZSQL_PATH = 'manager/includes/lib/ezSQL/';
 
     /**
      * The name of the current database engine.
@@ -51,7 +56,7 @@ class DBAPI {
      *The configuration array.
      * @var array
      */
-    private $config;
+    public $config = array();
 
     /**
      * Database constructor
@@ -65,12 +70,12 @@ class DBAPI {
         
         $this->config = $config;
         
-        include $this->config['basePath'] . 'manager/lib/ezSQL/shared/ez_sql_core.php';
+        include $this->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_core.php';
 
         switch ($this->config['db_type']) {
             case self::DB_MYSQL_MYISAM:
                 $this->currentDBEngine = self::DB_MYSQL_MYISAM;
-                include $basePath . 'manager/lib/ezSQL/mysql/ez_sql_mysql.php';
+                include $this->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
                 
                 $result = true;
 
@@ -78,14 +83,14 @@ class DBAPI {
 
             case self::DB_MYSQL_INNODB:
                 $this->currentDBEngine = self::DB_MYSQL_INNODB;
-                include $basePath . 'manager/lib/ezSQL/mysql/ez_sql_mysql.php';
+                include $this->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
                 $result = true;
 
                 break;
 
             case self::DB_POSTGRESQL:
                 $this->currentDBEngine = self::DB_POSTGRESQL;
-                include $basePath . 'manager/lib/ezSQL/postgresql/ez_sql_postgresql.php';
+                include $basePath . self::EZSQL_PATH . 'postgresql/ez_sql_postgresql.php';
                 $result = true;
 
                 break;
