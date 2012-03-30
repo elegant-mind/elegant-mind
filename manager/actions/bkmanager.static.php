@@ -334,7 +334,7 @@ class Mysqldumper {
 	// Private function loadObjectList.
 	function loadObjectList($key='', $resource) {
 		$array = array();
-		while ($row = mysql_fetch_object($resource)) {
+                foreach ($resource as $row) {
 			if ($key)
 			        $array[$row->$key] = $row;
 			else    $array[] = $row;
