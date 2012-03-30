@@ -1,7 +1,9 @@
 <?php
 /**
- *	MODx Document Parser
- *	Function: This class contains the main document parsing functions
+ * MODx Document Parser
+ * Function: This class contains the main document parsing functions
+ * 
+ * @version 1.1.alpha1
  *
  */
 class DocumentParser {
@@ -62,31 +64,56 @@ class DocumentParser {
         @ ini_set("track_errors", "1"); // enable error tracking in $php_errormsg
     }
 
-    // loads an extension from the extenders folder
+    /**
+     * Loads an extension from the extenders folder. By now it does load the 
+     * database classes and the manager API class.
+     * 
+     * @todo Change the database type with the configuration
+     * 
+     * @global string $database_type
+     * @param string $extname
+     * @return boolean 
+     */
     function loadExtension($extname) {
         global $database_type;
+        
+        $result = false;
 
         switch ($extname) {
             // Database API
             case 'DBAPI' :
-                if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/dbapi.' . $database_type . '.class.inc.php')
-                    return false;
-                $this->db= new DBAPI;
-                return true;
+                if (require MODX_BASE_PATH . 'manager/includes/extenders/dbapi.php') { 
+                    $config['host'] = $host ? $host : $GLOBALS['database_server'];
+                    $config['dbase'] = $dbase ? $dbase : $GLOBALS['dbase'];
+                    $config['user'] = $uid ? $uid : $GLOBALS['database_user'];
+                    $config['pass'] = $pwd ? $pwd : $GLOBALS['database_password'];
+                    $config['charset'] = $charset ? $charset : $GLOBALS['database_connection_charset'];
+                    $config['connection_method'] =  $this->_dbconnectionmethod = (isset($GLOBALS['database_connection_method']) ? $GLOBALS['database_connection_method'] : $connection_method);
+                    $config['table_prefix'] = ($pre !== NULL) ? $pre : $GLOBALS['table_prefix'];
+                    $config['db_type'] = DBAPI::DB_MYSQL_MYISAM;
+                    $config['basePath'] = MODX_BASE_PATH;
+                    
+                    $this->db = new DBAPI($config);                    
+                    
+                    $result = true;
+                    }
                 break;
 
                 // Manager API
             case 'ManagerAPI' :
-                if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php')
-                    return false;
-                $this->manager= new ManagerAPI;
-                return true;
+                if (include_once MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php') {
+                    $this->manager= new ManagerAPI;
+                    
+                    $result = true;
+                }
                 break;
 
             default :
-                return false;
+                $result = false;
         }
-    }
+        
+        return $result;
+    } // loadExtension
 
     function getMicroTime() {
         list ($usec, $sec)= explode(' ', microtime());

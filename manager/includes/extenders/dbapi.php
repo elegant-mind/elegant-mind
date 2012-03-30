@@ -69,6 +69,7 @@ class DBAPI {
         $result = false;
         
         $this->config = $config;
+        //$this->config['dbase'] = str_replace('`', '', $this->config['port']);
         
         include $this->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_core.php';
 
@@ -102,7 +103,7 @@ class DBAPI {
 
                 break;
         }
-
+        
         return $result;
     } // __construct
 
@@ -154,17 +155,27 @@ class DBAPI {
             throw new ErrorException('No database connection initialized.');
         } else {
             // Set configuration
-            $this->config['user'] = $uid;
-            $this->config['pass'] = $pwd;
-            $this->config['host'] = $host;
-            $this->config['dbase'] = $dbase;
-            $this->config['charset'] = $charset;
-            $this->config['port'] = $port;
+            
+            $this->config['user'] = !empty($uid) ? $uid : $this->config['user'];
+            $this->config['pass'] = !empty($pwd) ? $pwd : $this->config['pass'];
+            $this->config['dbase'] = !empty($dbase) ? $dbase : $this->config['dbase'];
+            $this->config['host'] = !empty($host) ? $host : $this->config['host'];
+            $this->config['charset'] = !empty($charset) ? $charset : $this->config['charset'];
+            $this->config['port'] = !empty($port) ? $port : $this->config['port'];
+            
+            // Remove backticks from the database name
+            $this->config['dbase'] = str_replace('`', '', $this->config['dbase']);
 
             switch ($this->currentDBEngine) {
                 case self::DB_MYSQL_MYISAM:
                 case self::DB_MYSQL_INNODB:
-                    $this->conn = new ezSQL_mysql($uid, $pwd, $dbase, $host, $charset);
+                    $this->conn = new ezSQL_mysql(
+                            $this->config['user'], 
+                            $this->config['pass'], 
+                            $this->config['dbase'], 
+                            $this->config['host'],
+                            $this->config['charset']
+                    );
                     
                     break;
 
@@ -172,7 +183,13 @@ class DBAPI {
                     if (empty($port)) {
                         $this->config['port'] = self::POSTGRESQL_DEFAULT_PORT;
                     }
-                    $this->conn = new ezSQL_postgresql($uid, $pwd, $dbase, $host, $this->config['port']);
+                    $this->conn = new ezSQL_postgresql(
+                            $this->config['user'], 
+                            $this->config['pass'], 
+                            $this->config['dbase'], 
+                            $this->config['host'], 
+                            $this->config['port']
+                    );
 
                     break;
 
@@ -214,7 +231,7 @@ class DBAPI {
     public function query($sql)
     {
         global $modx;
-
+        
         $tstart = $modx->getMicroTime();
 
         if (!$this->connected) {
