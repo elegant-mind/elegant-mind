@@ -11,3 +11,5 @@
 !.gitignore
 /nbproject/private/
 /nbproject/
+/.htaccess
+/manager/includes/config.ini
