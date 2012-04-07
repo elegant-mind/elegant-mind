@@ -4,8 +4,8 @@
  * original DBAPI class in dbapi.mysql.class.inc.php.
  *
  * @author  Stefanie Janine Stoelting, mail@stefanie-stoelting.de
- * @since   2012/03/26
- * @version 1.1.alpha.1
+ * @link    http://www.modx.com
+ * @package MODX
  */
 class DBAPI {
 
@@ -25,6 +25,11 @@ class DBAPI {
     const DB_POSTGRESQL = 'PostgreSQL';
     
     /**
+     * Database type SQLite.
+     */
+    const DB_SQLITE = 'SQLite';
+    
+    /**
      * Default PostgreSQL TCP/IP port is 5432. 
      */
     const POSTGRESQL_DEFAULT_PORT = '5432';
@@ -33,6 +38,12 @@ class DBAPI {
      * Default path to the ezSQL class files. 
      */
     const EZSQL_PATH = 'manager/includes/lib/ezSQL/';
+    
+    /**
+     * The instance of the DBAPI class
+     * @var object Default: null
+     */
+    private static $instance = null;
 
     /**
      * The name of the current database engine.
@@ -47,6 +58,12 @@ class DBAPI {
     private $connected = false;
     
     /**
+     * The number of the current record, is set in queries
+     * @var int
+     */
+    private $curRecord = 0;
+    
+    /**
      * The database object.
      * @var object
      */
@@ -59,61 +76,85 @@ class DBAPI {
     public $config = array();
 
     /**
-     * Database constructor
+     * Empty and private constructor for the singleton
+     */
+    private function __construct() {}
+    
+    /**
+     * Disallow clone from outsite the DBAPI class
+     */
+    private function __clone() {}
+        
+    /**
+     * No deserializing with singltons 
+     */
+    private function __wakeup() {}
+    
+    /**
+     * Database constructor for singleton
      *
      * @param array $config The array with all database configuration parameters.
      * @return boolean
+     * @todo Variable database engine from configuration
      */
-    public function __construct($config)
-    {
-        $result = false;
-        
-        $this->config = $config;
-        //$this->config['dbase'] = str_replace('`', '', $this->config['port']);
-        
-        include $this->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_core.php';
+    public static function getInstance($config) {
+        if (NULL === self::$instance) {
+            self::$instance = new self;
 
-        switch ($this->config['db_type']) {
-            case self::DB_MYSQL_MYISAM:
-                $this->currentDBEngine = self::DB_MYSQL_MYISAM;
-                include $this->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
-                
-                $result = true;
+            self::$instance->config = $config;
 
-                break;
+            include self::$instance->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_core.php';
 
-            case self::DB_MYSQL_INNODB:
-                $this->currentDBEngine = self::DB_MYSQL_INNODB;
-                include $this->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
-                $result = true;
+            switch (self::$instance->config['db_type']) {
+                case self::DB_MYSQL_MYISAM:
+                    self::$instance->currentDBEngine = self::DB_MYSQL_MYISAM;
+                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
 
-                break;
+                    break;
 
-            case self::DB_POSTGRESQL:
-                $this->currentDBEngine = self::DB_POSTGRESQL;
-                include $basePath . self::EZSQL_PATH . 'postgresql/ez_sql_postgresql.php';
-                $result = true;
+                case self::DB_MYSQL_INNODB:
+                    self::$instance->currentDBEngine = self::DB_MYSQL_INNODB;
+                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
+                    
+                    break;
 
-                break;
+                case self::DB_POSTGRESQL:
+                    self::$instance->currentDBEngine = self::DB_POSTGRESQL;
+                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'postgresql/ez_sql_postgresql.php';
+                    if (array_key_exists('port', self::$instance->config)) {
+                        if (empty(self::$instance->config['port'])) {
+                            self::$instance->config['port'] = self::POSTGRESQL_DEFAULT_PORT;
+                        } 
+                    } else {
+                        self::$instance->config['port'] = self::POSTGRESQL_DEFAULT_PORT;
+                    }
 
-            default:
-                $this->currentDBEngine = '';
+                    break;
 
-                throw new ErrorException($db_type . ' is not a valid database connection name.');
+                case self::DB_SQLITEL:
+                    self::$instance->currentDBEngine = self::DB_SQLITE;
+                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'pdo/ez_sql_pdo.php';
 
-                break;
+                    break;
+
+                default:
+                    self::$instance->currentDBEngine = '';
+
+                    throw new ErrorException(self::$instance->config['db_type'] . ' is not a valid database connection name.');
+
+                    break;
+            }
+
+            return self::$instance;
         }
-        
-        return $result;
-    } // __construct
+    } // getInstance
 
     /**
      * Getter for the current database.
      *
      * @return string The name of the current database engine.
      */
-    public function getCurrentDatabaseEngine()
-    {
+    public function getCurrentDatabaseEngine() {
         $result = '';
 
         if (empty($this->currentDBEngine)) {
@@ -130,8 +171,7 @@ class DBAPI {
      *
      * @return boolean
      */
-    public function getConnected()
-    {
+    public function getConnected() {
         return $this->connected;
     }
 
@@ -148,8 +188,7 @@ class DBAPI {
      *                   is PostgreSQL, then the default port is used.
      * @throws ErrorException 
      */
-    public function connect($host = '', $dbase = '', $uid = '', $pwd = '', $persist = 0, $charset='', $port = '')
-    {
+    public function connect($host = '', $dbase = '', $uid = '', $pwd = '', $persist = 0, $charset='', $port = '') {
         
         if (empty($this->currentDBEngine)) {
             throw new ErrorException('No database connection initialized.');
@@ -160,8 +199,6 @@ class DBAPI {
             $this->config['pass'] = !empty($pwd) ? $pwd : $this->config['pass'];
             $this->config['dbase'] = !empty($dbase) ? $dbase : $this->config['dbase'];
             $this->config['host'] = !empty($host) ? $host : $this->config['host'];
-            $this->config['charset'] = !empty($charset) ? $charset : $this->config['charset'];
-            $this->config['port'] = !empty($port) ? $port : $this->config['port'];
             
             // Remove backticks from the database name
             $this->config['dbase'] = str_replace('`', '', $this->config['dbase']);
@@ -169,6 +206,8 @@ class DBAPI {
             switch ($this->currentDBEngine) {
                 case self::DB_MYSQL_MYISAM:
                 case self::DB_MYSQL_INNODB:
+                    // Connection charset is for MySQL only
+                    $this->config['charset'] = !empty($charset) ? $charset : $this->config['charset'];
                     $this->conn = new ezSQL_mysql(
                             $this->config['user'], 
                             $this->config['pass'], 
@@ -206,8 +245,7 @@ class DBAPI {
     /**
      * Disconnect the current database connection
      */
-    public function disconnect()
-    {
+    public function disconnect() {
         $this->conn->disconnect();
     } // disconnect
 
@@ -217,8 +255,7 @@ class DBAPI {
      * @param string $instr The string that has to be escaped
      * @return string The escaped string
      */
-    public function escape($instr)
-    {
+    public function escape($instr) {
         return $this->conn->escape($instr);
     } // escape
 
@@ -228,8 +265,7 @@ class DBAPI {
      * @param string $sql The SQL statement to execute.
      * @return object The result of the executed SQL statement.
      */
-    public function query($sql)
-    {
+    public function query($sql) {
         global $modx;
         
         $tstart = $modx->getMicroTime();
@@ -249,6 +285,9 @@ class DBAPI {
         }
 
         $modx->executedQueries = $modx->executedQueries + 1;
+        
+        // Reset record position
+        $this->curRecord = 0;
 
         return $result;
     } // query
@@ -258,8 +297,7 @@ class DBAPI {
      * 
      * @return array The configuration array.
      */
-    public function getConfiguration()
-    {
+    public function getConfiguration() {
         return $this->config;
     } // getConfiguration
     
@@ -271,8 +309,7 @@ class DBAPI {
      * @param type $fields
      * @return type 
      */
-    public function delete($from, $where='', $fields='')
-    {
+    public function delete($from, $where='', $fields='') {
         if (!$from)
             $result = false;
         else {
@@ -297,8 +334,7 @@ class DBAPI {
         return $result;
     } // delete
 
-    function getInsertId($conn=NULL)
-    {
+    function getInsertId($conn=NULL) {
         $result = 0;
         
         if (!is_resource($conn)) {
@@ -326,48 +362,13 @@ class DBAPI {
     }
     
     /**
-     * Get the affected number of rows
-     * 
-     * @param object $conn The connection, to check, by default the current
-     *                     connection is used.
-     * @return integer The number of affected rows.
-     */ 
-    public function getAffectedRows($conn=NULL)
-    {
-        $result = 0;
-        
-        if (!is_resource($conn)) {
-            $conn =& $this->conn;
-        }
-        
-        switch ($this->currentDBEngine) {
-            case self::DB_MYSQL_MYISAM:
-            case self::DB_MYSQL_INNODB:
-                $result = mysql_affected_rows($conn);
-
-                break;
-            
-            case self::DB_POSTGRESQL:
-                $result = pg_affected_rows($conn);
-                
-                break;
-
-            default:
-                break;
-        }
-        
-        return $result;
-    } // getAffectedRows
-
-    /**
      * Get the last database error.
      * 
      * @param object $conn The connection, to check, by default the current
      *                     connection is used.
      * @return string The database error message.
      */
-    public function getLastError($conn=NULL) 
-    {
+    public function getLastError($conn=NULL)  {
         $result = '';
         
         if (!is_resource($conn)) {
@@ -419,5 +420,40 @@ class DBAPI {
         
         return $result;
     } // getVersion
+    
+    /**
+     * Returns the count of records
+     * 
+     * @param arrays $ds
+     * @return int
+     */
+    public function getRecordCount($ds) {
+        return count($ds);
+    } // getRecordCount
+
+    /**
+     * Returns the current record and increases the current record position
+     * 
+     * @param array $ds
+     * @param string $mode only for compatibility, not used at all
+     * @return type 
+     */
+    public function getRow($ds, $mode='assoc') {
+        $result = $ds[$this->curRecord];
+
+        $this->curRecord++;
+
+        return $result;
+    } // getRow
+    
+    /**
+     * Returns the affected rows of the last query
+     * 
+     * @param object $conn Only for compatiblity, not used anymore
+     * @return int
+     */
+    public function getAffectedRows($conn=NULL) {
+        return $this->conn->affectedRows();
+    } // getAffectedRows
 
 } // DBAPI
