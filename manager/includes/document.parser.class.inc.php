@@ -75,8 +75,6 @@ class DocumentParser {
      * @return boolean 
      */
     function loadExtension($extname) {
-        global $database_type;
-        
         $result = false;
 
         switch ($extname) {
@@ -90,10 +88,13 @@ class DocumentParser {
                     $config['charset'] = $charset ? $charset : $GLOBALS['database_connection_charset'];
                     $config['connection_method'] =  $this->_dbconnectionmethod = (isset($GLOBALS['database_connection_method']) ? $GLOBALS['database_connection_method'] : $connection_method);
                     $config['table_prefix'] = ($pre !== NULL) ? $pre : $GLOBALS['table_prefix'];
-                    $config['db_type'] = DBAPI::DB_MYSQL_MYISAM;
                     $config['basePath'] = MODX_BASE_PATH;
+                    /**
+                     *@todo Variable DBAPI database type
+                     */
+                    $config['db_type'] = DBAPI::DB_MYSQL_MYISAM;
                     
-                    $this->db = new DBAPI($config);                    
+                    $this->db = DBAPI::getInstance($config);                    
                     
                     $result = true;
                     }
