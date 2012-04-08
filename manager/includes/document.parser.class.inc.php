@@ -9,6 +9,31 @@
 class DocumentParser
 {
     /**
+     * Constant string for redirect refresh 
+     */
+    const REDIRECT_REFRESH = 'REDIRECT_REFRESH';
+    
+    /**
+     * Constant string for redirect meta 
+     */
+    const REDIRECT_META = 'REDIRECT_META';
+    
+    /**
+     * Constant string for redirect header 
+     */
+    const REDIRECT_HEADER = 'REDIRECT_HEADER';
+    
+    /**
+     * Constant string for getting the page by alias 
+     */
+    const PAGE_BY_ALIAS = 'alias';
+    
+    /**
+     * Constant string for getting the page by ID
+     */
+    const PAGE_BY_ID = 'id';
+    
+    /**
      * The instance of the DocumentParser class
      * @var object Default: null
      */
@@ -19,46 +44,47 @@ class DocumentParser
      * @var object
      */
     public $db; // db object
-    var $event, $Event; // event object
-    var $pluginEvent;
-    var $config= null;
-    var $rs;
-    var $result;
-    var $sql;
-    var $table_prefix;
-    var $debug;
-    var $documentIdentifier;
-    var $documentMethod;
-    var $documentGenerated;
-    var $documentContent;
-    var $tstart;
-    var $minParserPasses;
-    var $maxParserPasses;
-    var $documentObject;
-    var $templateObject;
-    var $snippetObjects;
-    var $stopOnNotice;
-    var $executedQueries;
-    var $queryTime;
-    var $currentSnippet;
-    var $documentName;
-    var $aliases;
-    var $visitor;
-    var $entrypage;
-    var $documentListing;
-    var $dumpSnippets;
-    var $chunkCache;
-    var $snippetCache;
-    var $contentTypes;
-    var $dumpSQL;
-    var $queryCode;
-    var $virtualDir;
-    var $placeholders;
-    var $sjscripts;
-    var $jscripts;
-    var $loadedjscripts;
-    var $documentMap;
-    var $forwards= 3;
+    
+    public $event, $Event; // event object
+    public $pluginEvent;
+    public $config= null;
+    public $rs;
+    public $result;
+    public $sql;
+    public $table_prefix;
+    public $debug;
+    public $documentIdentifier;
+    public $documentMethod;
+    public $documentGenerated;
+    public $documentContent;
+    public $tstart;
+    public $minParserPasses;
+    public $maxParserPasses;
+    public $documentObject;
+    public $templateObject;
+    public $snippetObjects;
+    public $stopOnNotice;
+    public $executedQueries;
+    public $queryTime;
+    public $currentSnippet;
+    public $documentName;
+    public $aliases;
+    public $visitor;
+    public $entrypage;
+    public $documentListing;
+    public $dumpSnippets;
+    public $chunkCache;
+    public $snippetCache;
+    public $contentTypes;
+    public $dumpSQL;
+    public $queryCode;
+    public $virtualDir;
+    public $placeholders;
+    public $sjscripts;
+    public $jscripts;
+    public $loadedjscripts;
+    public $documentMap;
+    public $forwards= 3;
 
     /**
      * Empty and private constructor for the singleton
@@ -152,12 +178,28 @@ class DocumentParser
         return $result;
     } // loadExtension
 
+    /**
+     * Returns the current micro time
+     * 
+     * @return float
+     */
     function getMicroTime() {
         list ($usec, $sec)= explode(' ', microtime());
         return ((float) $usec + (float) $sec);
-    }
+    } // getMicroTime
 
-    function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '') {
+    /**
+     * Execute redirect
+     *
+     * @global string $base_url
+     * @global string $site_url
+     * @param string $url
+     * @param int $count_attempts
+     * @param type $type
+     * @param type $responseCode
+     * @return boolean 
+     */
+    function sendRedirect($url, $count_attempts=0, $type='', $responseCode='') {
         if (empty ($url)) {
             return false;
         } else {
@@ -175,15 +217,15 @@ class DocumentParser
                     }
                 }
             }
-            if ($type == 'REDIRECT_REFRESH') {
+            if ($type == self::REDIRECT_REFRESH) {
                 $header= 'Refresh: 0;URL=' . $url;
             }
-            elseif ($type == 'REDIRECT_META') {
+            elseif ($type == self::REDIRECT_META) {
                 $header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
                 echo $header;
                 exit;
             }
-            elseif ($type == 'REDIRECT_HEADER' || empty ($type)) {
+            elseif ($type == self::REDIRECT_HEADER || empty ($type)) {
                 // check if url has /$base_url
                 global $base_url, $site_url;
                 if (substr($url, 0, strlen($base_url)) == $base_url) {
@@ -202,14 +244,20 @@ class DocumentParser
             header($header);
             exit();
         }
-    }
+    } // sendRedirect
 
-    function sendForward($id, $responseCode= '') {
+    /**
+     * Forward to an other page
+     * 
+     * @param int $id
+     * @param string $responseCode 
+     */
+    function sendForward($id, $responseCode='') {
         if ($this->forwards > 0) {
             $this->forwards= $this->forwards - 1;
             $this->documentIdentifier= $id;
-            $this->documentMethod= 'id';
-            $this->documentObject= $this->getDocumentObject('id', $id);
+            $this->documentMethod= self::PAGE_BY_ID;
+            $this->documentObject= $this->getDocumentObject(self::PAGE_BY_ID, $id);
             if ($responseCode) {
                 header($responseCode);
             }
@@ -219,16 +267,24 @@ class DocumentParser
             header('HTTP/1.0 500 Internal Server Error');
             die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
         }
-    }
+    } // sendForward
 
+    /**
+     * Redirect to the error page, by calling sendForward. This is called for 
+     * example when the page was not found.
+     */
     function sendErrorPage() {
         // invoke OnPageNotFound event
         $this->invokeEvent('OnPageNotFound');
 //        $this->sendRedirect($this->makeUrl($this->config['error_page'], '', '&refurl=' . urlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'])), 1);
         $this->sendForward($this->config['error_page'] ? $this->config['error_page'] : $this->config['site_start'], 'HTTP/1.0 404 Not Found');
         exit();
-    }
+    } // sendErrorPage
 
+    /**
+     * Redirect to the unauthorized page, for example on calling a page, without
+     * having the right to see this page. 
+     */
     function sendUnauthorizedPage() {
         // invoke OnPageUnauthorized event
         $_REQUEST['refurl'] = $this->documentIdentifier;
@@ -242,47 +298,79 @@ class DocumentParser
         }
         $this->sendForward($unauthorizedPage, 'HTTP/1.1 401 Unauthorized');
         exit();
-    }
+    } // sendUnauthorizedPage
 
-    // function to connect to the database
-    // - deprecated use $modx->db->connect()
+    /**
+     * Function to connect to the database
+     * 
+     * @deprecated use $modx->db->connect()
+     */
     function dbConnect() {
         $this->db->connect();
         $this->rs= $this->db->conn; // for compatibility
-    }
+    } // dbConnect
 
-    // function to query the database
-    // - deprecated use $modx->db->query()
+    /**
+     * Function to query the database
+     * 
+     * @deprecated use $modx->db->query()
+     * @param string $sql The SQL statement to execute
+     * @return array Query result
+     */
     function dbQuery($sql) {
         return $this->db->query($sql);
-    }
+    } // dbQuery
 
-    // function to count the number of rows in a record set
+    /**
+     * Function to count the number of rows in a record set
+     *
+     * @param array $rs
+     * @return int
+     */
     function recordCount($rs) {
         return $this->db->getRecordCount($rs);
-    }
+    } // recordCount
 
-    // - deprecated, use $modx->db->getRow()
-    function fetchRow($rs, $mode= 'assoc') {
+    /**
+     * @deprecated use $modx->db->getRow()
+     * @param array $rs
+     * @param string $mode
+     * @return array
+     */
+    function fetchRow($rs, $mode='assoc') {
         return $this->db->getRow($rs, $mode);
-    }
+    } // fetchRow
 
-    // - deprecated, use $modx->db->getAffectedRows()
+    /**
+     * @deprecated use $modx->db->getAffectedRows()
+     * @param array $rs
+     * @return int 
+     */
     function affectedRows($rs) {
         return $this->db->getAffectedRows($rs);
-    }
+    } // affectedRows
 
-    // - deprecated, use $modx->db->getInsertId()
+    /**
+     * @deprecated use $modx->db->getInsertId()
+     * @param array $rs
+     * @return int
+     */
     function insertId($rs) {
         return $this->db->getInsertId($rs);
-    }
+    } // insertId
 
-    // function to close a database connection
-    // - deprecated, use $modx->db->disconnect()
+    /**
+     * Function to close a database connection
+     * 
+     * @deprecated use $modx->db->disconnect()
+     */
     function dbClose() {
         $this->db->disconnect();
-    }
+    } // dbClose
 
+    /**
+     * Setup MODX settings
+     */
     function getSettings() {
         if (!is_array($this->config) || empty ($this->config)) {
             if ($included= file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
@@ -359,37 +447,48 @@ class DocumentParser
             }
             $this->config= array_merge($this->config, $usrSettings);
         }
-    }
+    } // getSettings
 
+    /**
+     * Returns the requested document method, whether it was by alias or by id
+     * 
+     * @return string 
+     */
     function getDocumentMethod() {
         // function to test the query and find the retrieval method
         if (isset ($_REQUEST['q'])) {
-            return "alias";
+            return self::PAGE_BY_ALIAS;
         }
-        elseif (isset ($_REQUEST['id'])) {
-            return "id";
+        elseif (isset ($_REQUEST[self::PAGE_BY_ID])) {
+            return self::PAGE_BY_ID;
         } else {
-            return "none";
+            return 'none';
         }
-    }
+    } // getDocumentMethod
 
+    /**
+     * Returns the document identifier of the current request
+     * 
+     * @param string $method id and alias are allowed
+     * @return int
+     */
     function getDocumentIdentifier($method) {
         // function to test the query and find the retrieval method
         $docIdentifier= $this->config['site_start'];
         switch ($method) {
-            case 'alias' :
+            case self::PAGE_BY_ALIAS :
                 $docIdentifier= $this->db->escape($_REQUEST['q']);
                 break;
-            case 'id' :
-                if (!is_numeric($_REQUEST['id'])) {
+            case self::PAGE_BY_ID :
+                if (!is_numeric($_REQUEST[self::PAGE_BY_ID])) {
                     $this->sendErrorPage();
                 } else {
-                    $docIdentifier= intval($_REQUEST['id']);
+                    $docIdentifier= intval($_REQUEST[self::PAGE_BY_ID]);
                 }
                 break;
         }
         return $docIdentifier;
-    }
+    } // getDocumentIdentifier
 
     // check for manager login session
     function checkSession() {
@@ -451,21 +550,21 @@ class DocumentParser
             /* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
             if ($this->config['use_alias_path'] == 1) {
                 if ((($this->virtualDir != '' && !$this->documentListing[$this->virtualDir . '/' . $q]) || ($this->virtualDir == '' && !$this->documentListing[$q])) && (($this->virtualDir != '' && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1))) || ($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1))))) {
-                    $this->documentMethod= 'id';
+                    $this->documentMethod= self::PAGE_BY_ID;
                     return $q;
                 } else { /* not a valid id in terms of virtualDir, treat as alias */
-                    $this->documentMethod= 'alias';
+                    $this->documentMethod= self::PAGE_BY_ALIAS;
                     return $q;
                 }
             } else {
-                $this->documentMethod= 'id';
+                $this->documentMethod= self::PAGE_BY_ID;
                 return $q;
             }
         } else { /* we didn't get an ID back, so instead we assume it's an alias */
             if ($this->config['friendly_alias_urls'] != 1) {
                 $q= $qOrig;
             }
-            $this->documentMethod= 'alias';
+            $this->documentMethod= self::PAGE_BY_ALIAS;
             return $q;
         }
     }
@@ -579,8 +678,8 @@ class DocumentParser
 //            if (($this->documentIdentifier == $this->config['error_page']) || $redirect_error)
 //                header('HTTP/1.0 404 Not Found');
             if (!$this->checkPreview() && $this->documentObject['content_dispo'] == 1) {
-                if ($this->documentObject['alias'])
-                    $name= $this->documentObject['alias'];
+                if ($this->documentObject[self::PAGE_BY_ALIAS])
+                    $name= $this->documentObject[self::PAGE_BY_ALIAS];
                 else {
                     // strip title of special characters
                     $name= $this->documentObject['pagetitle'];
@@ -994,7 +1093,7 @@ class DocumentParser
         if ($this->config['friendly_urls'] == 1) {
             $aliases= array ();
             foreach ($this->aliasListing as $item) {
-                $aliases[$item['id']]= (strlen($item['path']) > 0 ? $item['path'] . '/' : '') . $item['alias'];
+                $aliases[$item[self::PAGE_BY_ID]]= (strlen($item['path']) > 0 ? $item['path'] . '/' : '') . $item[self::PAGE_BY_ALIAS];
             }
             $in= '!\[\~([0-9]+)\~\]!ise'; // Use preg_replace with /e to make it evaluate PHP
             $isfriendly= ($this->config['friendly_alias_urls'] == 1 ? 1 : 0);
@@ -1022,12 +1121,12 @@ class DocumentParser
         $tbldg= $this->getFullTableName("document_groups");
 
         // allow alias to be full path
-        if($method == 'alias') {
+        if($method == self::PAGE_BY_ALIAS) {
             $identifier = $this->cleanDocumentIdentifier($identifier);
             $method = $this->documentMethod;
         }
-        if($method == 'alias' && $this->config['use_alias_path'] && array_key_exists($identifier, $this->documentListing)) {
-            $method = 'id';
+        if($method == self::PAGE_BY_ALIAS && $this->config['use_alias_path'] && array_key_exists($identifier, $this->documentListing)) {
+            $method = self::PAGE_BY_ID;
             $identifier = $this->documentListing[$identifier];
         }
         // get document groups for current user
@@ -1046,7 +1145,7 @@ class DocumentParser
         if ($rowCount < 1) {
             if ($this->config['unauthorized_page']) {
                 // method may still be alias, while identifier is not full path alias, e.g. id not found above
-                if ($method === 'alias') {
+                if ($method === self::PAGE_BY_ALIAS) {
                     $q = "SELECT dg.id FROM $tbldg dg, $tblsc sc WHERE dg.document = sc.id AND sc.alias = '{$identifier}' LIMIT 1;";
                 } else {
                     $q = "SELECT id FROM $tbldg WHERE document = '{$identifier}' LIMIT 1;";
@@ -1073,7 +1172,7 @@ class DocumentParser
         $sql= "SELECT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value ";
         $sql .= "FROM " . $this->getFullTableName("site_tmplvars") . " tv ";
         $sql .= "INNER JOIN " . $this->getFullTableName("site_tmplvar_templates")." tvtpl ON tvtpl.tmplvarid = tv.id ";
-        $sql .= "LEFT JOIN " . $this->getFullTableName("site_tmplvar_contentvalues")." tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '" . $documentObject['id'] . "' ";
+        $sql .= "LEFT JOIN " . $this->getFullTableName("site_tmplvar_contentvalues")." tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '" . $documentObject[self::PAGE_BY_ID] . "' ";
         $sql .= "WHERE tvtpl.templateid = '" . $documentObject['template'] . "'";
         $rs= $this->db->query($sql);
         $rowCount= $this->db->getRecordCount($rs);
@@ -1221,7 +1320,7 @@ class DocumentParser
             } else {
                 $this->documentIdentifier= $this->documentListing[$this->documentIdentifier];
             }
-            $this->documentMethod= 'id';
+            $this->documentMethod= self::PAGE_BY_ID;
         }
 
         // invoke OnWebPageInit event
@@ -1337,7 +1436,7 @@ class DocumentParser
             $thisid = $id;
             $id = $this->aliasListing[$id]['parent'];
             if (!$id) break;
-            $pkey = strlen($this->aliasListing[$thisid]['path']) ? $this->aliasListing[$thisid]['path'] : $this->aliasListing[$id]['alias'];
+            $pkey = strlen($this->aliasListing[$thisid]['path']) ? $this->aliasListing[$thisid]['path'] : $this->aliasListing[$id][self::PAGE_BY_ALIAS];
             if (!strlen($pkey)) $pkey = "{$id}";
             $parents[$pkey] = $id;
         }
@@ -1361,7 +1460,7 @@ class DocumentParser
             $depth--;
 
             foreach ($documentMap_cache[$id] as $childId) {
-                $pkey = (strlen($this->aliasListing[$childId]['path']) ? "{$this->aliasListing[$childId]['path']}/" : '') . $this->aliasListing[$childId]['alias'];
+                $pkey = (strlen($this->aliasListing[$childId]['path']) ? "{$this->aliasListing[$childId]['path']}/" : '') . $this->aliasListing[$childId][self::PAGE_BY_ALIAS];
                 if (!strlen($pkey)) $pkey = "{$childId}";
                     $children[$pkey] = $childId;
 
@@ -1612,8 +1711,8 @@ class DocumentParser
             $tbl= $this->getFullTableName("site_snippets");
             $rs= $this->db->query("SELECT id FROM $tbl WHERE name='" . $this->db->escape($this->currentSnippet) . "' LIMIT 1");
             $row= @ $this->db->getRow($rs);
-            if ($row['id'])
-                return $row['id'];
+            if ($row[self::PAGE_BY_ID])
+                return $row[self::PAGE_BY_ID];
         }
         return 0;
     }
@@ -1679,8 +1778,8 @@ class DocumentParser
             if ($this->config['friendly_alias_urls'] == 1) {
                 $al= $this->aliasListing[$id];
                 $alPath= !empty ($al['path']) ? $al['path'] . '/' : '';
-                if ($al && $al['alias'])
-                    $alias= $al['alias'];
+                if ($al && $al[self::PAGE_BY_ALIAS])
+                    $alias= $al[self::PAGE_BY_ALIAS];
             }
             $alias= $alPath . $f_url_prefix . $alias . $f_url_suffix;
             $url= $alias . $args;
@@ -1756,7 +1855,7 @@ class DocumentParser
         if ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
             // web user
             $userdetails['loggedIn']= true;
-            $userdetails['id']= $_SESSION['webInternalKey'];
+            $userdetails[self::PAGE_BY_ID]= $_SESSION['webInternalKey'];
             $userdetails['username']= $_SESSION['webShortname'];
             $userdetails['usertype']= 'web'; // added by Raymond
             return $userdetails;
@@ -1764,7 +1863,7 @@ class DocumentParser
             if ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
                 // manager user
                 $userdetails['loggedIn']= true;
-                $userdetails['id']= $_SESSION['mgrInternalKey'];
+                $userdetails[self::PAGE_BY_ID]= $_SESSION['mgrInternalKey'];
                 $userdetails['username']= $_SESSION['mgrShortname'];
                 $userdetails['usertype']= 'manager'; // added by Raymond
                 return $userdetails;
@@ -1775,7 +1874,7 @@ class DocumentParser
 
     function getKeywords($id= 0) {
         if ($id == 0) {
-            $id= $this->documentObject['id'];
+            $id= $this->documentObject[self::PAGE_BY_ID];
         }
         $tblKeywords= $this->getFullTableName('site_keywords');
         $tblKeywordXref= $this->getFullTableName('keyword_xref');
@@ -1794,7 +1893,7 @@ class DocumentParser
 
     function getMETATags($id= 0) {
         if ($id == 0) {
-            $id= $this->documentObject['id'];
+            $id= $this->documentObject[self::PAGE_BY_ID];
         }
         $sql= "SELECT smt.* " .
         "FROM " . $this->getFullTableName("site_metatags") . " smt " .
@@ -1951,7 +2050,7 @@ class DocumentParser
 
                 $tvs= array ();
                 $docRow= $docs[$i];
-                $docid= $docRow['id'];
+                $docid= $docRow[self::PAGE_BY_ID];
 
                 $sql= "SELECT $fields, IF(tvc.value!='',tvc.value,tv.default_text) as value ";
                 $sql .= "FROM " . $this->getFullTableName('site_tmplvars') . " tv ";
@@ -1992,7 +2091,7 @@ class DocumentParser
             for ($i= 0; $i < count($docs); $i++) {
                 $tvs= $this->getTemplateVarOutput($tvidnames, $docs[$i]["id"], $published);
                 if ($tvs)
-                    $result[$docs[$i]['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
+                    $result[$docs[$i][self::PAGE_BY_ID]]= $tvs; // Use docid as key - netnoise 2006/08/14
             }
             return $result;
         }
@@ -2078,7 +2177,7 @@ class DocumentParser
 		include_once $baspath . "/tmplvars.commands.inc.php";
 		for ($i= 0; $i < count($result); $i++) {
 			$row= $result[$i];
-			if (!$row['id'])
+			if (!$row[self::PAGE_BY_ID])
 				$output[$row['name']]= $row['value'];
 			else	$output[$row['name']]= getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
 		}
@@ -2145,7 +2244,7 @@ class DocumentParser
             $rs= $this->db->query($sql);
             if ($this->db->getRecordCount($rs)) {
                 $rs= $this->db->getRow($rs);
-                $to= $rs['id'];
+                $to= $rs[self::PAGE_BY_ID];
             }
         }
         if (!is_numeric($from)) {
@@ -2154,7 +2253,7 @@ class DocumentParser
             $rs= $this->db->query($sql);
             if ($this->db->getRecordCount($rs)) {
                 $rs= $this->db->getRow($rs);
-                $from= $rs['id'];
+                $from= $rs[self::PAGE_BY_ID];
             }
         }
         // insert a new message into user_messages
@@ -2883,7 +2982,7 @@ class DocumentParser
 	 */
     function stripAlias($alias) {
         // let add-ons overwrite the default behavior
-        $results = $this->invokeEvent('OnStripAlias', array ('alias'=>$alias));
+        $results = $this->invokeEvent('OnStripAlias', array (self::PAGE_BY_ALIAS=>$alias));
         if (!empty($results)) {
             // if multiple plugins are registered, only the last one is used
             return end($results);
@@ -2901,17 +3000,22 @@ class DocumentParser
 
     // End of class.
 
-}
+} // DocumentParser
 
-// SystemEvent Class
-class SystemEvent {
-    var $name;
-    var $_propagate;
-    var $_output;
-    var $activated;
-    var $activePlugin;
+/**
+ * Class for system events
+ * 
+ * @package MODX
+ */
+class SystemEvent 
+{
+    public $name;
+    public $_propagate;
+    public $_output;
+    public $activated;
+    public $activePlugin;
 
-    function SystemEvent($name= "") {
+    function SystemEvent($name='') {
         $this->_resetEventObject();
         $this->name= $name;
     }
@@ -2919,11 +3023,13 @@ class SystemEvent {
     // used for displaying a message to the user
     function alert($msg) {
         global $SystemAlertMsgQueque;
-        if ($msg == "")
+        if ($msg == '')
             return;
         if (is_array($SystemAlertMsgQueque)) {
             if ($this->name && $this->activePlugin)
-                $title= "<div><b>" . $this->activePlugin . "</b> - <span style='color:maroon;'>" . $this->name . "</span></div>";
+                $title= '<div><b>' . $this->activePlugin 
+                      . '</b> - <span style="color:maroon;">' . $this->name 
+                      . '</span></div>';
             $SystemAlertMsgQueque[]= "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
         }
     }
@@ -2944,4 +3050,5 @@ class SystemEvent {
         $this->_propagate= true;
         $this->activated= false;
     }
-} // DocumentParser
+
+} // SystemEvent
