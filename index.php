@@ -110,7 +110,7 @@ startCMSSession();
 
 // initiate a new document parser
 include_once(MODX_MANAGER_PATH.'/includes/document.parser.class.inc.php');
-$modx = new DocumentParser;
+$modx = DocumentParser::getInstance();
 $etomite = &$modx; // for backward compatibility
 
 // set some parser options

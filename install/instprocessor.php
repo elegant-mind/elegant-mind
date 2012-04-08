@@ -700,7 +700,7 @@ define('MODX_BASE_PATH', $base_path);
 $database_type = 'mysql';
 // initiate a new document parser
 include_once('../manager/includes/document.parser.class.inc.php');
-$modx = new DocumentParser;
+$modx = DocumentParser::getInstance();
 $modx->db->connect();
 // always empty cache after install
 include_once "../manager/processors/cache_sync.class.processor.php";

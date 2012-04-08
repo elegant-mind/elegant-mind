@@ -4,10 +4,21 @@
  * Function: This class contains the main document parsing functions
  * 
  * @version 1.1.alpha1
- *
+ * @package MODX
  */
-class DocumentParser {
-    var $db; // db object
+class DocumentParser 
+{
+    /**
+     * The instance of the DocumentParser class
+     * @var object Default: null
+     */
+    private static $instance = null;
+
+    /**
+     * ezSQL database object
+     * @var object 
+     */
+    public $db; // db object
     var $event, $Event; // event object
     var $pluginEvent;
     var $config= null;
@@ -49,20 +60,45 @@ class DocumentParser {
     var $documentMap;
     var $forwards= 3;
 
-    // constructor
-    function DocumentParser() {
-        $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-        $this->dbConfig= & $this->db->config; // alias for backward compatibility
-        $this->jscripts= array ();
-        $this->sjscripts= array ();
-        $this->loadedjscripts= array ();
-        // events
-        $this->event= new SystemEvent();
-        $this->Event= & $this->event; //alias for backward compatibility
-        $this->pluginEvent= array ();
-        // set track_errors ini variable
-        @ ini_set("track_errors", "1"); // enable error tracking in $php_errormsg
-    }
+    /**
+     * Empty and private constructor for the singleton
+     */
+    private function __construct() {}
+    
+    /**
+     * Disallow clone from outsite the DBAPI class
+     */
+    private function __clone() {}
+        
+    /**
+     * No deserializing with singltons 
+     */
+    private function __wakeup() {}
+    
+    /**
+     * Document constructor for the singleton
+     * 
+     * @return DocumentParser
+     */
+    public static function getInstance() {
+        if (NULL === self::$instance) {
+            self::$instance = new self;
+            
+            self::$instance->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
+            self::$instance->dbConfig= & self::$instance->db->config; // alias for backward compatibility
+            self::$instance->jscripts= array ();
+            self::$instance->sjscripts= array ();
+            self::$instance->loadedjscripts= array ();
+            // events
+            self::$instance->event= new SystemEvent();
+            self::$instance->Event= & $this->event; //alias for backward compatibility
+            self::$instance->pluginEvent= array ();
+            // set track_errors ini variable
+            @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
+        }
+        
+            return self::$instance;
+    } // getInstance
 
     /**
      * Loads an extension from the extenders folder. By now it does load the 
@@ -2908,5 +2944,4 @@ class SystemEvent {
         $this->_propagate= true;
         $this->activated= false;
     }
-}
-?>
+} // DocumentParser

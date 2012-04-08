@@ -5,7 +5,7 @@ $manage_path = '../../../../manager/';
 include($manage_path . 'includes/config.inc.php');
 include($manage_path . 'includes/document.parser.class.inc.php');
 startCMSSession();
-$modx = new DocumentParser;
+$modx = DocumentParser::getInstance();
 
 /* only display if manager user is logged in */
 if ($modx->getLoginUserType() !== 'manager') {

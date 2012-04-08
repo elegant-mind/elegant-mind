@@ -41,13 +41,13 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque']
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // include_once the error handler
-include_once "error.class.inc.php";
+include_once 'error.class.inc.php';
 $e = new errorHandler;
 
 // initiate the content manager class
-include_once "document.parser.class.inc.php";
-$modx = new DocumentParser;
-$modx->loadExtension("ManagerAPI");
+include_once 'document.parser.class.inc.php';
+$modx = DocumentParser::getInstance();
+$modx->loadExtension('ManagerAPI');
 $modx->getSettings();
 $etomite = &$modx; // for backward compatibility
 
@@ -55,14 +55,14 @@ $username = $modx->db->escape($_REQUEST['username']);
 $givenPassword = $modx->db->escape($_REQUEST['password']);
 $captcha_code = $_REQUEST['captcha_code'];
 $rememberme= $_REQUEST['rememberme'];
-$failed_allowed = $modx->config["failed_login_attempts"];
+$failed_allowed = $modx->config['failed_login_attempts'];
 
 // invoke OnBeforeManagerLogin event
-$modx->invokeEvent("OnBeforeManagerLogin",
+$modx->invokeEvent('OnBeforeManagerLogin',
                         array(
-                            "username"      => $username,
-                            "userpassword"  => $givenPassword,
-                            "rememberme"    => $rememberme
+                            'username'      => $username,
+                            'userpassword'  => $givenPassword,
+                            'rememberme'    => $rememberme
                         ));
 
 $sql = "SELECT $dbase.`".$table_prefix."manager_users`.*, $dbase.`".$table_prefix."user_attributes`.* FROM $dbase.`".$table_prefix."manager_users`, $dbase.`".$table_prefix."user_attributes` WHERE BINARY $dbase.`".$table_prefix."manager_users`.username = '".$username."' and $dbase.`".$table_prefix."user_attributes`.internalKey=$dbase.`".$table_prefix."manager_users`.id;";

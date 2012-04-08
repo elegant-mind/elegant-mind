@@ -112,7 +112,7 @@ include_once "config.inc.php";
 
 // initiate the content manager class
 include_once "document.parser.class.inc.php";
-$modx = new DocumentParser;
+$modx = DocumentParser::getInstance();
 $modx->loadExtension("ManagerAPI");
 $modx->getSettings();
 $etomite = &$modx; // for backward compatibility

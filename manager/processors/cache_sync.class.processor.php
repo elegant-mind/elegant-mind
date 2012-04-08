@@ -183,7 +183,7 @@ class synccache{
         $limit_tmp = $modx->db->getRecordCount($rs);
         $config = array();
         $tmpPHP .= '$c=&$this->config;'."\n";
-        while(list($key,$value) = $modx->db->getRow($rs,'num')) {
+        foreach ($rs as $key => $value) {
             $tmpPHP .= '$c[\''.$key.'\']'.' = "'.$this->escapeDoubleQuotes($value)."\";\n";
             $config[$key] = $value;
         }

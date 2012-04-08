@@ -94,7 +94,7 @@ class DBAPI {
      * Database constructor for singleton
      *
      * @param array $config The array with all database configuration parameters.
-     * @return boolean
+     * @return DBAPI
      * @todo Variable database engine from configuration
      */
     public static function getInstance($config) {

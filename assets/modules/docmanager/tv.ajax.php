@@ -7,7 +7,7 @@ require_once '../../../manager/includes/protect.inc.php';
 include_once ('../../../manager/includes/config.inc.php');
 include_once (MODX_BASE_PATH.'manager/includes/document.parser.class.inc.php');
 include_once (MODX_BASE_PATH.'assets/modules/docmanager/classes/docmanager.class.php');
-$modx = new DocumentParser;
+$modx = DocumentParser::DocumentParser;
 $modx->getSettings();
 
 $dm = new DocManager($modx);
@@ -17,7 +17,11 @@ $dm->getTheme();
  $output = '';
  
  if(isset($_POST['tplID']) && is_numeric($_POST['tplID'])) {
- 	$sql = "SELECT * FROM ".$modx->getFullTableName('site_tmplvars')." tv LEFT JOIN ".$modx->getFullTableName('site_tmplvar_templates')." ON tv.id = ".$modx->getFullTableName('site_tmplvar_templates').".tmplvarid WHERE ".$modx->getFullTableName('site_tmplvar_templates').".templateid ='". $_POST['tplID']."'";
+ 	$sql = 'SELECT * FROM ' . $modx->getFullTableName('site_tmplvars') 
+             . ' tv LEFT JOIN ' . $modx->getFullTableName('site_tmplvar_templates') 
+             . ' ON tv.id = ' . $modx->getFullTableName('site_tmplvar_templates')
+             . '.tmplvarid WHERE ' . $modx->getFullTableName('site_tmplvar_templates') 
+             . '.templateid =\'' . $_POST['tplID'] . '\'';
  	$rs = $modx->db->query($sql);
  	$limit = $modx->db->getRecordCount($rs);
  	
@@ -35,7 +39,7 @@ $dm->getTheme();
 					<span class=\'warning\'><input type=\'checkbox\' name=\'update_tv_' . $row['id'] . '\' id=\'cb_update_tv_' . $row['id'] . '\' value=\'yes\' />&nbsp;'.$row['caption'].'</span><br /><span class=\'comment\'>'.$row['description'].'</span>
 				</td>
 				<td valign="top" style="position:relative">';
-				$base_url = str_replace("assets/modules/docmanager/", "", MODX_BASE_URL);
+				$base_url = str_replace('assets/modules/docmanager/', '', MODX_BASE_URL);
 				$output.= renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $row['value'], ' style="width:300px;"');
 				$output.= '</td></tr>';
 		}

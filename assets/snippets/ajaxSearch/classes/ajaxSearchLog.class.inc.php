@@ -124,13 +124,13 @@ class AjaxSearchLog {
     function _purgeLogs() {
         global $modx;
 
-        $sql = "SELECT COUNT(*) AS count FROM " . $this->_tbName;
+        $sql = 'SELECT COUNT(*) AS count FROM ' . $this->_tbName;
         $rs = $modx->db->query($sql);
         $row = $modx->db->getRow($rs);
         $nbLogs = $row['count'];
 
         if ($nbLogs + 1 > $this->_purge) {
-            $sql = "DELETE LOW_PRIORITY FROM " . $this->_tbName;
+            $sql = 'DELETE LOW_PRIORITY FROM ' . $this->_tbName;
             $rs = $modx->db->query($sql);
         }
     }
@@ -161,7 +161,7 @@ if ($_POST['logid'] && $_POST['ascmt']) {
         define('MODX_API_MODE', true);
 
         include_once (MODX_MANAGER_PATH . '/includes/document.parser.class.inc.php');
-        $modx = new DocumentParser;
+        $modx = DocumentParser::getInstance();
         $modx->db->connect();
         $modx->getSettings();
         $asLog = new AjaxSearchLog();
