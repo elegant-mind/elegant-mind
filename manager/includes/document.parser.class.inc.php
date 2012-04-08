@@ -2,11 +2,11 @@
 /**
  * MODx Document Parser
  * Function: This class contains the main document parsing functions
- * 
+ *
  * @version 1.1.alpha1
  * @package MODX
  */
-class DocumentParser 
+class DocumentParser
 {
     /**
      * The instance of the DocumentParser class
@@ -16,7 +16,7 @@ class DocumentParser
 
     /**
      * ezSQL database object
-     * @var object 
+     * @var object
      */
     public $db; // db object
     var $event, $Event; // event object
@@ -64,26 +64,26 @@ class DocumentParser
      * Empty and private constructor for the singleton
      */
     private function __construct() {}
-    
+
     /**
      * Disallow clone from outsite the DBAPI class
      */
     private function __clone() {}
-        
+
     /**
-     * No deserializing with singltons 
+     * No deserializing with singltons
      */
     private function __wakeup() {}
-    
+
     /**
      * Document constructor for the singleton
-     * 
+     *
      * @return DocumentParser
      */
     public static function getInstance() {
         if (NULL === self::$instance) {
             self::$instance = new self;
-            
+
             self::$instance->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
             self::$instance->dbConfig= & self::$instance->db->config; // alias for backward compatibility
             self::$instance->jscripts= array ();
@@ -96,19 +96,19 @@ class DocumentParser
             // set track_errors ini variable
             @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
         }
-        
+
             return self::$instance;
     } // getInstance
 
     /**
-     * Loads an extension from the extenders folder. By now it does load the 
+     * Loads an extension from the extenders folder. By now it does load the
      * database classes and the manager API class.
-     * 
+     *
      * @todo Change the database type with the configuration
-     * 
+     *
      * @global string $database_type
      * @param string $extname
-     * @return boolean 
+     * @return boolean
      */
     function loadExtension($extname) {
         $result = false;
@@ -116,7 +116,7 @@ class DocumentParser
         switch ($extname) {
             // Database API
             case 'DBAPI' :
-                if (require MODX_BASE_PATH . 'manager/includes/extenders/dbapi.php') { 
+                if (require MODX_BASE_PATH . 'manager/includes/extenders/dbapi.php') {
                     $config['host'] = $host ? $host : $GLOBALS['database_server'];
                     $config['dbase'] = $dbase ? $dbase : $GLOBALS['dbase'];
                     $config['user'] = $uid ? $uid : $GLOBALS['database_user'];
@@ -129,9 +129,9 @@ class DocumentParser
                      *@todo Variable DBAPI database type
                      */
                     $config['db_type'] = DBAPI::DB_MYSQL_MYISAM;
-                    
-                    $this->db = DBAPI::getInstance($config);                    
-                    
+
+                    $this->db = DBAPI::getInstance($config);
+
                     $result = true;
                     }
                 break;
@@ -140,7 +140,7 @@ class DocumentParser
             case 'ManagerAPI' :
                 if (include_once MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php') {
                     $this->manager= new ManagerAPI;
-                    
+
                     $result = true;
                 }
                 break;
@@ -148,7 +148,7 @@ class DocumentParser
             default :
                 $result = false;
         }
-        
+
         return $result;
     } // loadExtension
 
@@ -1868,7 +1868,7 @@ class DocumentParser
     function toDateFormat($timestamp = 0, $mode = '') {
         $timestamp = trim($timestamp);
         $timestamp = intval($timestamp);
-        
+
         switch($this->config['datetime_format']) {
             case 'YYYY/mm/dd':
                 $dateFormat = '%Y/%m/%d';
@@ -1885,7 +1885,7 @@ class DocumentParser
                 break;
             */
         }
-        
+
         if (empty($mode)) {
             $strTime = strftime($dateFormat . " %H:%M:%S", $timestamp);
         } elseif ($mode == 'dateOnly') {
@@ -2874,7 +2874,7 @@ class DocumentParser
     function getRegisteredClientStartupScripts() {
         return implode("\n", $this->sjscripts);
     }
-    
+
 	/**
 	 * Format alias to be URL-safe. Strip invalid characters.
 	 *
@@ -2897,7 +2897,7 @@ class DocumentParser
             return $alias;
         }
     }
-    
+
 
     // End of class.
 
