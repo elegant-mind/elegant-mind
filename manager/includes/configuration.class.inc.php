@@ -16,7 +16,7 @@ class Configuration
     const CONFIG_INI_FILE = 'config.ini.inc.php';
 
     /**
-     * Constant string 
+     * Constant string
      */
     const PROPERTY_MAIN_AREA = 'MODX_base_configuration';
     /**
@@ -90,7 +90,7 @@ class Configuration
      * @var array Default: Empty array
      */
     private $properties = array();
-    
+
     /**
      * The path and file name of the configuration ini file
      * @var string
@@ -116,7 +116,7 @@ class Configuration
      * Document constructor for the singleton.
      *
      * @param string $iniFile The variable should contain the full path and name
-     *                        of the ini file. An empty ini file is used as 
+     *                        of the ini file. An empty ini file is used as
      *                        default and in this case we take the current
      *                        directory and the default ini file name as defined
      *                        in CONFIG_INI_FILE
@@ -127,7 +127,7 @@ class Configuration
     public static function getInstance($iniFile='') {
         if (NULL === self::$instance) {
             self::$instance = new self;
-            
+
             // With an empty ini file, we take the default one
             if (empty($iniFile)) {
                 self::$instance->iniFile = __DIR__ . '/' . self::CONFIG_INI_FILE;
@@ -187,17 +187,17 @@ class Configuration
               '<?php'
             , ';die(); // For further security'
             , ';/*'
-            
+
         );
 
         foreach ($this->properties as $areaName => $areaProperties) {
             $data[] = '[' . $areaName . ']';
-            
+
             foreach ($areaProperties as $key => $value) {
                 $data[] = $key . ' = ' . $value;
             }
         }
-        
+
         $data[] = ';*/';
         $data[] = ';?>';
 
@@ -233,7 +233,7 @@ class Configuration
      *
      * @param string $property
      * @param string $value
-     * @param string $area 
+     * @param string $area
      * @return boolean
      * @throws Exception Property does not exist
      */
@@ -252,5 +252,25 @@ class Configuration
 
         return $result;
     } // writeProperty
+    
+    /**
+     * Free the instance of this singleton
+     * 
+     * @return boolean 
+     */
+    public function freeInstance() {
+        self::$instance = null;
+
+        return true;
+    } // freeInstance
+
+    /**
+     * Returns the current ini file
+     *
+     * @return stringtype
+     */
+    public function getIniFile() {
+        return $this->iniFile;
+    } // getIniFile
 
 } // Configuration

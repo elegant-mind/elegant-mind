@@ -25,12 +25,12 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp() {
         $iniFile = __DIR__ . '/test.' . Configuration::CONFIG_INI_FILE;
-        
+
         // Create a copy of the current ini file
         if (is_writable($iniFile)) {
             copy($iniFile, $iniFile . 'backup');
         }
-        
+
         $this->object = Configuration::getInstance($iniFile);
     } // setUp
 
@@ -40,9 +40,9 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
      */
     protected function tearDown() {
         $this->object = null;
-        
+
         $iniFile = __DIR__ . '/' . Configuration::CONFIG_INI_FILE;
-        
+
         // Restore the original ini file
         if (is_writable($iniFile)) {
             unlink($iniFile);
@@ -56,8 +56,18 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetInstance() {
         $result = Configuration::getInstance();
-        
+
         $this->assertTrue(is_a($result, 'Configuration'));
+
+        try {
+            $this->object = null;
+
+            $result = $this->object = Configuration::getInstance('DoesNotExist.inc.php');
+            $this->assertTrue(is_a($result, 'Configuration'));
+        } catch (Exception $exc) {
+            echo "ERROR\n";
+            $this->assertEquals($exc->getMessage(), 'Configuration file DoesNotExist.inc.php not found!');
+        }
     } // testGetInstance
 
     /**
@@ -80,16 +90,42 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
      */
     public function testWriteProperty() {
         $oldValue = $this->object->getProperty(Configuration::PROPERTY_DATABASE_TYPE);
-        
+
         $value = 'postgresql';
-        
+
         $this->assertTrue($this->object->writeProperty(Configuration::PROPERTY_DATABASE_TYPE, $value));
-        
+
         $this->assertEquals($value, $this->object->getProperty(Configuration::PROPERTY_DATABASE_TYPE));
-        
+
         $this->assertTrue($this->object->writeProperty(Configuration::PROPERTY_DATABASE_TYPE, $oldValue));
-        
+
         $this->assertEquals($oldValue, $this->object->getProperty(Configuration::PROPERTY_DATABASE_TYPE));
     } // testWriteProperty
+
+    /**
+     * @covers Configuration::getIniFile
+     */
+    public function testGetIniFile() {
+        try {
+            $this->assertEquals(__DIR__ . '/test.' . Configuration::CONFIG_INI_FILE, $this->object->getIniFile());
+
+            $this->object->freeInstance();
+            $this->object = null;
+
+            $result = $this->object = Configuration::getInstance('DoesNotExist.inc.php');
+            $this->assertTrue(is_a($result, 'Configuration'));
+            $this->assertEquals('DoesNotExist.inc.php', $this->object->getIniFile());
+        } catch (Exception $exc) {
+            $this->assertEquals($exc->getMessage(), 'Configuration file DoesNotExist.inc.php not found!');
+        }
+    } // testGetIniFile
+
+    /**
+     * @covers Configuration::freeInstance
+     */
+    public function testFreeInstance() {
+        $this->object->freeInstance();
+        $this->assertNotNull($this->object);
+    } // testFreeInstance
 
 } // ConfigurationTest
