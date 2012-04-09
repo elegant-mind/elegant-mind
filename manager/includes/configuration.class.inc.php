@@ -90,6 +90,12 @@ class Configuration
      * @var array Default: Empty array
      */
     private $properties = array();
+    
+    /**
+     * The path and file name of the configuration ini file
+     * @var string
+     */
+    private $iniFile = '';
 
     /**
      * Empty and private constructor for the singleton.
@@ -109,21 +115,31 @@ class Configuration
     /**
      * Document constructor for the singleton.
      *
+     * @param string $iniFile The variable should contain the full path and name
+     *                        of the ini file. An empty ini file is used as 
+     *                        default and in this case we take the current
+     *                        directory and the default ini file name as defined
+     *                        in CONFIG_INI_FILE
+     *                        Default: empty string
      * @return Configuration
      * @throws Exeption Configuration file not found
      */
-    public static function getInstance() {
+    public static function getInstance($iniFile='') {
         if (NULL === self::$instance) {
             self::$instance = new self;
-
-            if (file_exists(__DIR__ . '/' . self::CONFIG_INI_FILE)) {
-                self::$instance->properties = parse_ini_file(__DIR__ . '/' . self::CONFIG_INI_FILE, true);
-                //print_r(self::$instance->properties);
-
+            
+            // With an empty ini file, we take the default one
+            if (empty($iniFile)) {
+                self::$instance->iniFile = __DIR__ . '/' . self::CONFIG_INI_FILE;
             } else {
-                throw new Exception('Configuration file ' . __DIR__ . '/' . self::CONFIG_INI_FILE . ' not found!');
+                self::$instance->iniFile = $iniFile;
             }
 
+            if (file_exists(self::$instance->iniFile)) {
+                self::$instance->properties = parse_ini_file(self::$instance->iniFile, true);
+            } else {
+                throw new Exception('Configuration file ' . self::$instance->iniFile . ' not found!');
+            }
         }
 
         return self::$instance;
@@ -156,7 +172,7 @@ class Configuration
      * @return boolean
      */
     public function isWritable() {
-        return is_writable(__DIR__ . '/' . self::CONFIG_INI_FILE);
+        return is_writable($this->iniFile);
     } // isWritable
 
     /**
@@ -185,7 +201,7 @@ class Configuration
         $data[] = ';*/';
         $data[] = ';?>';
 
-        if ($fp = fopen(__DIR__ . '/' . self::CONFIG_INI_FILE, 'w')) {
+        if ($fp = fopen($this->iniFile, 'w')) {
             $dataToSave = implode("\r\n", $data);
 
             $startTime = microtime();

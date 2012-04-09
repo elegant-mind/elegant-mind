@@ -24,14 +24,14 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $iniFile = '../../manager/includes/' . Configuration::CONFIG_INI_FILE;
+        $iniFile = __DIR__ . '/test.' . Configuration::CONFIG_INI_FILE;
         
         // Create a copy of the current ini file
         if (is_writable($iniFile)) {
             copy($iniFile, $iniFile . 'backup');
         }
         
-        $this->object = Configuration::getInstance();
+        $this->object = Configuration::getInstance($iniFile);
     } // setUp
 
     /**
@@ -41,7 +41,7 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
     protected function tearDown() {
         $this->object = null;
         
-        $iniFile = '../../manager/includes/' . Configuration::CONFIG_INI_FILE;
+        $iniFile = __DIR__ . '/' . Configuration::CONFIG_INI_FILE;
         
         // Restore the original ini file
         if (is_writable($iniFile)) {
