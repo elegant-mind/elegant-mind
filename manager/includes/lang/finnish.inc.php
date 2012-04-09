@@ -7,6 +7,10 @@
  * Date:           17.5.2010
  * Version:        -
  * MODx version:   Evolution 1.0.4
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.4
+ * @author Mikko Lammi, www.maagit.fi
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'fi';

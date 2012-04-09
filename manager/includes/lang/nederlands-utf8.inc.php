@@ -14,6 +14,18 @@
  * Date:           30 July 2009
  * Version:        2.0.3
  * MODx version:   Evolution 1.0
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0
+ * @author Stefan van Zanden (21-03-2009 Update to 0.9.6.3 + large amount of typo / consistency / translation fixes)
+ * @author Stefan van Zanden (23-06-2009 Update to Evolution 1.0.0rc1)
+ * @author Gauke Pieter Sietzema - Sterc.nl (25-06-2009 typo's and naming of features)
+ * @author Stefan van Zanden (18-07-2009 Additional fixes for the Evolution 1.0.0rc2)
+ * @author Stefan van Zanden with help of Gauke Pieter Sietzema - Sterc.nl (25-07-2009 Update to Evolution 1.0.0rc3)
+ * @author Gauke Pieter Sietzema - Sterc.nl + small changes from Stefan van Zanden (28-07-2009 Additional fixes in translation for Evolution 1.0)
+ * @author Stefan van Zanden (29-07-2009 Small fix pointed out by user octoris)
+ * @author Stefan van Zanden (30-07-2009 Added 2 missing datetime fields)
+ * 
 */
 $modx_lang_attribute = 'nl'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';

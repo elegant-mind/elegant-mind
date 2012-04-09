@@ -6,6 +6,10 @@
  * Date:           15 Oct 2008
  * Version:        3.13
  * MODx version:   0.9.6.3 RC-2
+ * @package MODX
+ * @subpackage translation
+ * @version 0.9.6.3 RC-2
+ * @author Mohsen Zare (MotSmart ~ www.modxcms.ir)
 */
 $modx_textdir = 'rtl';
 $modx_lang_attribute = 'fa'; // Manager HTML and XML Language Attribute

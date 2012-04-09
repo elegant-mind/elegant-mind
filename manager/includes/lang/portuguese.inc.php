@@ -7,6 +7,10 @@
  * Date:           01 May 2007
  * Version:        2.1 - updated for MODx 0.9.6 RC3
  * MODx version:   0.9.6 RC3
+ * @package MODX
+ * @subpackage translation
+ * @version 0.9.6 RC3
+ * @author João Peixoto <joeindio@gmail.com>
 */
 $modx_lang_attribute = 'pt'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';

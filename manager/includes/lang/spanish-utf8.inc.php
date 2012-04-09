@@ -7,6 +7,10 @@
  * Version:        2.0.3
  * MODx version:   Evolution 1.0
  *
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.0
+ * @author The MODx Project Team
 */
 $modx_lang_attribute = 'es'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'utf-8';

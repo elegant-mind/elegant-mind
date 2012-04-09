@@ -6,6 +6,10 @@
  * Date:           20 Oct 2008
  * Version:        2.01
  * MODx version:   0.9.6.3
+ * @package MODX
+ * @subpackage translation
+ * @version 0.9.6.3
+ * @author The MODx Project Team
 */
 $modx_lang_attribute = 'bg'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';

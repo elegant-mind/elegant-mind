@@ -7,6 +7,12 @@
  * Date:           2010/12/19
  * Version:        2.0.7
  * MODx version:   Evolution 1.0.5J
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.5
+ * @author eastbind
+ * @author MEGU
+ * @author yamamoto
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute

@@ -6,6 +6,11 @@
  * Date:           2010-12-25
  * Version:        1.0
  * MODx version:   Evolution 1.0.5
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.5
+ * @author Pontus Ågren (Pont)
+ * @author Johnny Chadda
 */
 
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges

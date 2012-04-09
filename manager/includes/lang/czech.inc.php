@@ -11,6 +11,8 @@
  * Filename:       /install/lang/czech.inc.php
  * Language:       Czech
  * Encoding:       utf-8
+ * @package MODX
+ * @subpackage translation
  */
 
 $modx_lang_attribute = 'cs'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
