@@ -50,27 +50,27 @@
  */
 
 // get start time
-$mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
+$mtime = microtime(); $mtime = explode(' ', $mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
 
-define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
+define('IN_MANAGER_MODE', 'true');  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
 
 // harden it
 require_once('./includes/protect.inc.php');
 
 // send anti caching headers
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-header("X-UA-Compatible: IE=edge;FF=3;OtherUA=4");
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
 
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
-// check PHP version. MODX Evolution is compatible with php 4 (4.3.3+)
-$php_ver_comp =  version_compare(phpversion(), "4.3.3");
+// check PHP version. MODX Evolution is compatible with php 5 (5.2+)
+$php_ver_comp =  version_compare(phpversion(), '5.2');
         // -1 if left is less, 0 if equal, +1 if left is higher
 if($php_ver_comp < 0) {
     echo sprintf($_lang['php_version_check'], phpversion());
@@ -78,48 +78,48 @@ if($php_ver_comp < 0) {
 }
 
 // set some runtime options
-$incPath = str_replace("\\","/",dirname(__FILE__)."/includes/"); // Mod by Raymond
+$incPath = str_replace("\\","/",dirname(__FILE__) . '/includes/'); // Mod by Raymond
 set_include_path(get_include_path() . PATH_SEPARATOR . $incPath);
 
-if (version_compare(phpversion(), "5.3") < 0) {
+if (version_compare(phpversion(), '5.3') < 0) {
     @set_magic_quotes_runtime(0);
 
     // include_once the magic_quotes_gpc workaround
-    include_once "quotes_stripper.inc.php";
+    include_once 'quotes_stripper.inc.php';
 }
 
-if (!defined("ENT_COMPAT")) define("ENT_COMPAT", 2);
-if (!defined("ENT_NOQUOTES")) define("ENT_NOQUOTES", 0);
-if (!defined("ENT_QUOTES")) define("ENT_QUOTES", 3);
+if (!defined('ENT_COMPAT')) define('ENT_COMPAT', 2);
+if (!defined('ENT_NOQUOTES')) define('ENT_NOQUOTES', 0);
+if (!defined('ENT_QUOTES')) define('ENT_QUOTES', 3);
 
 // set the document_root :|
-if(!isset($_SERVER["DOCUMENT_ROOT"]) || empty($_SERVER["DOCUMENT_ROOT"])) {
-    $_SERVER["DOCUMENT_ROOT"] = str_replace($_SERVER["PATH_INFO"], "", preg_replace("/\\\\/", "/", $_SERVER["PATH_TRANSLATED"]))."/";
+if(!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
+    $_SERVER['DOCUMENT_ROOT'] = str_replace($_SERVER['PATH_INFO'], '', preg_replace("/\\\\/", "/", $_SERVER['PATH_TRANSLATED'])) . "/";
 }
 
-define("IN_ETOMITE_SYSTEM", "true"); // for backward compatibility with 0.6
+define('IN_ETOMITE_SYSTEM', 'true'); // for backward compatibility with 0.6
 
 // include_once config file
-$config_filename = "./includes/config.inc.php";
+$config_filename = './includes/config.inc.php';
 if (!file_exists($config_filename)) {
-    echo "<h3>Unable to load configuration settings</h3>";
-    echo "Please run the MODx <a href='../install'>install utility</a>";
+    echo '<h3>Unable to load configuration settings</h3>';
+    echo 'Please run the MODx <a href="../install">install utility</a>';
     exit;
 }
 
 // include the database configuration file
-include_once "config.inc.php";
+include_once 'config.inc.php';
 
 // initiate the content manager class
-include_once "document.parser.class.inc.php";
+include_once 'document.parser.class.inc.php';
 $modx = DocumentParser::getInstance();
-$modx->loadExtension("ManagerAPI");
+$modx->loadExtension('ManagerAPI');
 $modx->getSettings();
 $etomite = &$modx; // for backward compatibility
 
 // connect to the database
 if(@!$modxDBConn = mysql_connect($database_server, $database_user, $database_password)) {
-    die("<h2>Failed to create the database connection!</h2>. Please run the MODx <a href='../install'>install utility</a>");
+    die('<h2>Failed to create the database connection!</h2>. Please run the MODx <a href="../install">install utility</a>');
 } else {
     mysql_select_db(str_replace('`', '', $dbase));
     @mysql_query("{$database_connection_method} {$database_connection_charset}");
@@ -135,45 +135,45 @@ include_once "settings.inc.php";
 include_once "user_settings.inc.php";
 
 // include_once the language file
-if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH."includes/lang/".$manager_language.".inc.php")) {
-    $manager_language = "english"; // if not set, get the english language file.
+if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH . 'includes/lang/' . $manager_language . '.inc.php')) {
+    $manager_language = 'english'; // if not set, get the english language file.
 }
 $_lang = array();
-include_once "lang/english.inc.php";
+include_once 'lang/english.inc.php';
 $length_eng_lang = count($_lang);
 
-if($manager_language!="english" && file_exists(MODX_MANAGER_PATH."includes/lang/".$manager_language.".inc.php")) {
-    include_once "lang/".$manager_language.".inc.php";
+if($manager_language!='english' && file_exists(MODX_MANAGER_PATH . 'includes/lang/' . $manager_language . '.inc.php')) {
+    include_once 'lang/' . $manager_language . '.inc.php';
 }
 
 // send the charset header
-header('Content-Type: text/html; charset='.$modx_manager_charset);
+header('Content-Type: text/html; charset=' . $modx_manager_charset);
 
 // include version info
-include_once "version.inc.php";
+include_once 'version.inc.php';
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
-include_once "accesscontrol.inc.php";
+include_once 'accesscontrol.inc.php';
 
 // double check the session
 if(!isset($_SESSION['mgrValidated'])){
-    echo "Not Logged In!";
+    echo 'Not Logged In!';
     exit;
 }
 
 // include_once the style variables file
 if(isset($manager_theme) && !isset($_style)) {
     $_style = array();
-    include_once "media/style/".$manager_theme."/style.php";
+    include_once 'media/style/' . $manager_theme . '/style.php';
 }
 
 // check if user is allowed to access manager interface
 if(isset($allow_manager_access) && $allow_manager_access==0) {
-    include_once "manager.lockout.inc.php";
+    include_once 'manager.lockout.inc.php';
 }
 
 // include_once the error handler
-include_once "error.class.inc.php";
+include_once 'error.class.inc.php';
 $e = new errorHandler;
 
 // Initialize System Alert Message Queque
@@ -183,7 +183,7 @@ $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 // first we check to see if this is a frameset request
 if(!isset($_POST['a']) && !isset($_GET['a']) && ($e->getError()==0) && !isset($_POST['updateMsgCount'])) {
     // this looks to be a top-level frameset request, so let's serve up a frameset
-    include_once "frames/1.php";
+    include_once 'frames/1.php';
     exit;
 }
 
@@ -227,7 +227,7 @@ if (isset($modx->config['validate_referer']) && intval($modx->config['validate_r
 }
 
 // invoke OnManagerPageInit event
-$modx->invokeEvent("OnManagerPageInit", array("action" => $action));
+$modx->invokeEvent('OnManagerPageInit', array('action' => $action));
 
 
 // Now we decide what to do according to the action request. This is a BIG list :)
@@ -241,107 +241,107 @@ switch ($action) {
         if($frame>9) {
             $enable_debug=false;    // this is to stop the debug thingy being attached to the framesets
         }
-        include_once "frames/".$frame.".php";
+        include_once 'frames/' . $frame . '.php';
     break;
 /********************************************************************/
 /* show the homepage                                                */
 /********************************************************************/
     case 2:
         // get the home page
-        include_once "header.inc.php";
-        include_once "actions/welcome.static.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/welcome.static.php';
+        include_once 'footer.inc.php';
     break;
 /********************************************************************/
 /* document data                                                    */
 /********************************************************************/
     case 3:
         // get the page to show document's data
-        include_once "header.inc.php";
-        include_once "actions/document_data.static.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/document_data.static.php';
+        include_once 'footer.inc.php';
     break;
 /********************************************************************/
 /* content management                                               */
 /********************************************************************/
     case 85:
         // get the mutate page for adding a folder
-        include_once "header.inc.php";
-        include_once "actions/mutate_content.dynamic.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/mutate_content.dynamic.php';
+        include_once 'footer.inc.php';
     break;
     case 27:
         // get the mutate page for changing content
-        include_once "header.inc.php";
-        include_once "actions/mutate_content.dynamic.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/mutate_content.dynamic.php';
+        include_once 'footer.inc.php';
     break;
     case 4:
         // get the mutate page for adding content
-        include_once "header.inc.php";
-        include_once "actions/mutate_content.dynamic.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/mutate_content.dynamic.php';
+        include_once 'footer.inc.php';
     break;
     case 5:
         // get the save processor
-        include_once "processors/save_content.processor.php";
+        include_once 'processors/save_content.processor.php';
     break;
     case 6:
         // get the delete processor
-        include_once "processors/delete_content.processor.php";
+        include_once 'processors/delete_content.processor.php';
     break;
     case 63:
         // get the undelete processor
-        include_once "processors/undelete_content.processor.php";
+        include_once 'processors/undelete_content.processor.php';
     break;
     case 51:
         // get the move action
-        include_once "header.inc.php";
-        include_once "actions/move_document.dynamic.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/move_document.dynamic.php';
+        include_once 'footer.inc.php';
     break;
     case 52:
         // get the move document processor
-        include_once "processors/move_document.processor.php";
+        include_once 'processors/move_document.processor.php';
     break;
     case 61:
         // get the processor for publishing content
-        include_once "processors/publish_content.processor.php";
+        include_once 'processors/publish_content.processor.php';
     break;
     case 62:
         // get the processor for publishing content
-        include_once "processors/unpublish_content.processor.php";
+        include_once 'processors/unpublish_content.processor.php';
     break;
 /********************************************************************/
 /* show the wait page - gives the tree time to refresh (hopefully)  */
 /********************************************************************/
     case 7:
         // get the wait page (so the tree can reload)
-        include_once "header.inc.php";
-        include_once "actions/wait.static.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/wait.static.php';
+        include_once 'footer.inc.php';
     break;
 /********************************************************************/
 /* let the user log out                                             */
 /********************************************************************/
     case 8:
         // get the logout processor
-        include_once "processors/logout.processor.php";
+        include_once 'processors/logout.processor.php';
     break;
 /********************************************************************/
 /* user management                                                  */
 /********************************************************************/
     case 87:
         // get the new web user page
-        include_once "header.inc.php";
-        include_once "actions/mutate_web_user.dynamic.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/mutate_web_user.dynamic.php';
+        include_once 'footer.inc.php';
     break;
     case 88:
         // get the edit web user page
-        include_once "header.inc.php";
-        include_once "actions/mutate_web_user.dynamic.php";
-        include_once "footer.inc.php";
+        include_once 'header.inc.php';
+        include_once 'actions/mutate_web_user.dynamic.php';
+        include_once 'footer.inc.php';
     break;
     case 89:
         // get the save web user processor
