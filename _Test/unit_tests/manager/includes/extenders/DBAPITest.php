@@ -18,13 +18,28 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
      * @var DBAPI
      */
     protected $object;
+    
+    /**
+     * Configuration array, set in setUp method
+     * @var array
+     */
+    protected $config;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->object = DBAPI::getInstance(array());
+        $iniFile = __DIR__ . '/../test.config.ini.inc.php';
+        
+        $testConfig = parse_ini_file($iniFile, true);
+        
+        $this->config = array(
+              'basePath'    => __DIR__ . '/../../../../../'
+            , 'db_type'     => $testConfig['MODX_base_configuration']['database_type']
+        );
+
+        $this->object = DBAPI::getInstance($this->config);
     } // setUp
 
     /**
@@ -32,40 +47,28 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        
+        //$this->object = null;        
     } // tearDown
 
     /**
      * @covers DBAPI::getInstance
-     * @todo Implement testGetInstance().
      */
     public function testGetInstance() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->assertTrue(is_a($this->object, 'DBAPI'));
+    } // testGetInstance
 
     /**
      * @covers DBAPI::getCurrentDatabaseEngine
-     * @todo Implement testGetCurrentDatabaseEngine().
      */
     public function testGetCurrentDatabaseEngine() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->assertEquals(DBAPI::DB_MYSQL_MYISAM, $this->object->getCurrentDatabaseEngine());
+    } // testGetCurrentDatabaseEngine
 
     /**
      * @covers DBAPI::getConnected
-     * @todo Implement testGetConnected().
      */
     public function testGetConnected() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->assertFalse($this->object->get_connected());
     }
 
     /**
