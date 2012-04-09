@@ -4,7 +4,6 @@
  * MODx language File
  *
  * @author modxcms.cz
- * @package MODx
  * @version 1.5
  * @updated 2010-12-11
  *
