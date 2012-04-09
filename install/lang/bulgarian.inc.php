@@ -3,7 +3,8 @@
  * MODx language File
  *
  * @author davaeron
- * @package MODx installer
+ * @package MODX
+ * @subpackage installer_translations
  * @version 1.0
  * @translation     INFORMATOR TEAM www.informator.org  23.05.2009
  * Filename:       /install/lang/bulgarian/bulgarian.inc.php

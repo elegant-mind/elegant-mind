@@ -3,7 +3,8 @@
  * MODx language File
  *
  * @author MEGU, yamamoto, TxO
- * @package MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version 1.0.4J-r1
  * 
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php

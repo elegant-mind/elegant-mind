@@ -3,7 +3,8 @@
  * MODx language File
  *
  * @author davaeron
- * @package MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version 1.0
  *
  * Filename:       /install/lang/svenska/svenska.inc.php

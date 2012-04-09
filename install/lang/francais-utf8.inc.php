@@ -3,7 +3,8 @@
  * MODx language File (modifié le 03/08/09)
  *
  * @author Grégory Pakosz (guardian) - Modifié par Coroico et Jean-Christophe Brebion (Fairytree) pour EVO 1.0.3
- * @package MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version 1.0.3
  * 
  * Filename:       /install/lang/francais-utf8/francais-utf8.inc.php

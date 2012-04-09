@@ -3,9 +3,10 @@
  * MODx language File
  *
  * @author Henrik Nielsen - Proofreading: Mads Vestmar
- * @package MODx Evolution 1.0.5
+ * @package MODX
+ * @subpackage installer_translations
  * @date 27/12/10 18.02
- * @version 1.0.4
+ * @version 1.0.5
  * 
  * Filename:       /install/lang/danish.inc.php
  * Language:       Danish

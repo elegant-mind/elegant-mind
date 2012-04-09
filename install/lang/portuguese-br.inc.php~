@@ -3,8 +3,8 @@
  * MODx language File
  *
  * @author Daniel Miguel de Melo
- * @package MODX
- * @subpackage installer_translations
+ * @package MODx installer
+ * @version 1.0
  * @translation
  * Filename:       /install/lang/portuguese-br/portuguese-br.inc.php
  * Language:       Português do Brasil

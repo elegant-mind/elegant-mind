@@ -3,7 +3,8 @@
  * MODx language File
  *
  * @author MotSmart ~ Mohsen Zare [MotSmart@Gmail.com]| www.modxcms.ir
- * @package MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version 1.0
  * @Update by AliAqua
  * Filename:       /install/lang/persian/persian.inc.php

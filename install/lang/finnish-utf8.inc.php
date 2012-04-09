@@ -3,7 +3,8 @@
  * MODx language File
  *
  * @author        Anssi Rajakallio
- * @package       MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version       1.0
  * 
  * Filename:      /install/lang/finnish/finnish.inc.php

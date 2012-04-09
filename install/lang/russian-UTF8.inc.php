@@ -3,7 +3,8 @@
  * MODx language File
  *
  * @author davaeron
- * @package MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version 1.0.1
  * 
  * Filename:       /install/lang/russian-utf8.inc.php
