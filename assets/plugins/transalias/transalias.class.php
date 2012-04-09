@@ -3,8 +3,8 @@
  * @name TransAlias
  * @desc Handle the task of loading transliteration tables and applying them
  *      to a string for the purpose of creating a friendly URL alias.
- * @package modx
- * @subpackage modx.plugins.transalias
+ * @package MODX
+ * @subpackage plugins.transalias
  * @author Olivier B. Deland
  * @license GNU General Public License
  */
