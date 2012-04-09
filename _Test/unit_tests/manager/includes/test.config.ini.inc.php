@@ -2,7 +2,7 @@
 ;die(); // For further security
 ;/*
 [MODX_base_configuration]
-database_type = mysql
+database_type = MySQL:MyISAM
 database_server = localhost
 database_user = evo-db-user
 database_password = evo-db-user

@@ -74,7 +74,7 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
      * @covers Configuration::getProperty
      */
     public function testGetProperty() {
-        $this->assertEquals('mysql', $this->object->getProperty(Configuration::PROPERTY_DATABASE_TYPE));
+        $this->assertEquals('MySQL:MyISAM', $this->object->getProperty(Configuration::PROPERTY_DATABASE_TYPE));
         $this->assertEquals('localhost', $this->object->getProperty(Configuration::PROPERTY_DATABASE_SERVER));
     } // testGetProperty
 
@@ -91,7 +91,7 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase {
     public function testWriteProperty() {
         $oldValue = $this->object->getProperty(Configuration::PROPERTY_DATABASE_TYPE);
 
-        $value = 'postgresql';
+        $value = 'PostgreSQL';
 
         $this->assertTrue($this->object->writeProperty(Configuration::PROPERTY_DATABASE_TYPE, $value));
 
