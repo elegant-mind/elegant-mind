@@ -245,9 +245,13 @@ class DBAPI {
 
     /**
      * Disconnect the current database connection
+     * 
+     * @return boolean
      */
     public function disconnect() {
         $this->conn->disconnect();
+        
+        return true;
     } // disconnect
 
     /**

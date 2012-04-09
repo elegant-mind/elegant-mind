@@ -11,6 +11,8 @@ require_once dirname(__FILE__) . '/../../../../../manager/includes/extenders/dba
  * @package MODX
  * @subpackage unitTests
  * @license LGPL
+ * @todo After supporting more databases, more test for these databases have to
+ *       be implented.
  */
 class DBAPITest extends PHPUnit_Framework_TestCase {
 
@@ -24,6 +26,12 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
      * @var array
      */
     protected $config;
+    
+    /**
+     * Configuration array, contains the loaded test ini file
+     * @var array
+     */
+    protected $testConfig;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -32,11 +40,11 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
     protected function setUp() {
         $iniFile = __DIR__ . '/../test.config.ini.inc.php';
         
-        $testConfig = parse_ini_file($iniFile, true);
+        $this->testConfig = parse_ini_file($iniFile, true);
         
         $this->config = array(
               'basePath'    => __DIR__ . '/../../../../../'
-            , 'db_type'     => $testConfig['MODX_base_configuration']['database_type']
+            , 'db_type'     => $this->testConfig['MODX_base_configuration']['database_type']
         );
 
         $this->object = DBAPI::getInstance($this->config);
@@ -73,36 +81,35 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DBAPI::connect
-     * @todo Implement testConnect().
      */
     public function testConnect() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->object->connect(
+              $this->testConfig['MODX_base_configuration']['database_server']
+            , $this->testConfig['MODX_base_configuration']['dbase']
+            , $this->testConfig['MODX_base_configuration']['database_user']
+            , $this->testConfig['MODX_base_configuration']['database_password']
+            , 0
+            , $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
-    }
+        $this->assertTrue($this->object->get_connected());
+    } // testConnect
 
     /**
      * @covers DBAPI::disconnect
-     * @todo Implement testDisconnect().
      */
     public function testDisconnect() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->testConnect();
+        $this->assertTrue($this->object->disconnect());
+    } // testDisconnect
 
     /**
      * @covers DBAPI::escape
-     * @todo Implement testEscape().
      */
     public function testEscape() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $result = $this->object->escape("This is'nt escaped.");
+
+        $this->assertEquals("This is\\'nt escaped.", $result);
+    } // testEscape
 
     /**
      * @covers DBAPI::query
@@ -150,9 +157,12 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DBAPI::getLastError
-     * @todo Implement testGetLastError().
+     * @todo Implement testGetRecordCount().
      */
     public function testGetLastError() {
+        $this->testConnect();
+        
+        //echo 'last error ' . $this->object->getLastError($this->object->conn);
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
@@ -161,13 +171,11 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DBAPI::getVersion
-     * @todo Implement testGetVersion().
      */
     public function testGetVersion() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->testConnect();
+        
+        $this->assertNotEmpty($this->object->getVersion());
     }
 
     /**
