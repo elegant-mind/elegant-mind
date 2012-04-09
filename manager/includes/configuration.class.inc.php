@@ -89,7 +89,7 @@ class Configuration
      * Contains the ini properties
      * @var array Default: Empty array
      */
-    private $properties = array();
+    private $_properties = array();
 
     /**
      * The path and file name of the configuration ini file
@@ -136,7 +136,7 @@ class Configuration
             }
 
             if (file_exists(self::$instance->iniFile)) {
-                self::$instance->properties = parse_ini_file(self::$instance->iniFile, true);
+                self::$instance->_properties = parse_ini_file(self::$instance->iniFile, true);
             } else {
                 throw new Exception('Configuration file ' . self::$instance->iniFile . ' not found!');
             }
@@ -157,8 +157,8 @@ class Configuration
     public function getProperty($property, $area=self::PROPERTY_MAIN_AREA) {
         $result = '';
 
-        if (array_key_exists($property, $this->properties[self::PROPERTY_MAIN_AREA])) {
-            $result = $this->properties[$area][$property];
+        if (array_key_exists($property, $this->_properties[self::PROPERTY_MAIN_AREA])) {
+            $result = $this->_properties[$area][$property];
         } else {
             throw new Exception('Property ' . $property . ' in ' . $area . ' does not exist');
         }
@@ -180,7 +180,7 @@ class Configuration
      *
      * @return boolean
      */
-    private function writeIni() {
+    private function _writeIni() {
         $result = false;
 
         $data = array(
@@ -190,7 +190,7 @@ class Configuration
 
         );
 
-        foreach ($this->properties as $areaName => $areaProperties) {
+        foreach ($this->_properties as $areaName => $areaProperties) {
             $data[] = '[' . $areaName . ']';
 
             foreach ($areaProperties as $key => $value) {
@@ -241,10 +241,10 @@ class Configuration
         $result = false;
 
         if ($this->isWritable()) {
-            if (array_key_exists($property, $this->properties[$area])) {
-                $this->properties[$area][$property] = $value;
+            if (array_key_exists($property, $this->_properties[$area])) {
+                $this->_properties[$area][$property] = $value;
                 $result = true;
-                $result = $this->writeIni();
+                $result = $this->_writeIni();
             } else {
                 throw new Exception('Property ' . $property . ' in ' . $area . ' does not exist');
             }
