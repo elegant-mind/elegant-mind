@@ -34,11 +34,27 @@ class DocumentParser
     const PAGE_BY_ID = 'id';
     
     /**
+     * Constant string Extension name 
+     */
+    const EXTENSION_DBAPI = 'DBAPI';
+    
+    /**
+     * Constant string Extension name 
+     */
+    const EXTENSION_CONFIG = 'Configuration';
+    
+    /**
      * The instance of the DocumentParser class
      * @var object Default: null
      */
     private static $instance = null;
 
+    /**
+     * The Evolution base path
+     * @var string Default: Empty string
+     */
+    private $_basePath = '';
+    
     /**
      * ezSQL database object
      * @var object
@@ -104,20 +120,30 @@ class DocumentParser
     /**
      * Document constructor for the singleton
      *
+     * @param string $basePath
      * @return DocumentParser
      */
-    public static function getInstance() {
+    public static function getInstance($basePath='') {
         if (NULL === self::$instance) {
             self::$instance = new self;
+            
+            if (empty($basePath)) {
+                
+            }
 
-            self::$instance->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-            self::$instance->dbConfig= & self::$instance->db->config; // alias for backward compatibility
+            // Load Configuration class
+            self::$instance->loadExtension(self::EXTENSION_CONFIG) or die('Could not load DBAPI class.'); 
+            // Load DBAPI class
+            self::$instance->loadExtension(self::EXTENSION_DBAPI) or die('Could not load DBAPI class.');
+            // Alias for backward compatibility
+            self::$instance->dbConfig= & self::$instance->db->config; 
             self::$instance->jscripts= array ();
             self::$instance->sjscripts= array ();
             self::$instance->loadedjscripts= array ();
             // events
             self::$instance->event= new SystemEvent();
-            self::$instance->Event= & $this->event; //alias for backward compatibility
+            // Alias for backward compatibility
+            self::$instance->Event= & self::$instance->event; 
             self::$instance->pluginEvent= array ();
             // set track_errors ini variable
             @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
@@ -140,8 +166,13 @@ class DocumentParser
         $result = false;
 
         switch ($extname) {
+            // Configuration
+            case self::EXTENSION_CONFIG :
+                
+                break;
+            
             // Database API
-            case 'DBAPI' :
+            case self::EXTENSION_DBAPI :
                 if (require MODX_BASE_PATH . 'manager/includes/extenders/dbapi.php') {
                     $config['host'] = $host ? $host : $GLOBALS['database_server'];
                     $config['dbase'] = $dbase ? $dbase : $GLOBALS['dbase'];
@@ -3009,19 +3040,53 @@ class DocumentParser
  */
 class SystemEvent 
 {
+    /**
+     *
+     * string type 
+     */
     public $name;
+    
+    /**
+     * 
+     * boolean type 
+     */
     public $_propagate;
+    
+    /**
+     *
+     * @var string
+     */
     public $_output;
+    
+    /**
+     * 
+     * @var boolean
+     */
     public $activated;
+    
+    /**
+     *
+     * @var string
+     */
     public $activePlugin;
 
-    function SystemEvent($name='') {
+    /**
+     *
+     * @param string $name 
+     */
+    public function __construct($name='') {
         $this->_resetEventObject();
         $this->name= $name;
-    }
+    } // __construct(
 
-    // used for displaying a message to the user
-    function alert($msg) {
+    /**
+     * Used for displaying a message to the user
+     *
+     * @global array $SystemAlertMsgQueque
+     * @param string $msg
+     * @return string
+     */
+    public function alert($msg) {
         global $SystemAlertMsgQueque;
         if ($msg == '')
             return;
@@ -3032,23 +3097,30 @@ class SystemEvent
                       . '</span></div>';
             $SystemAlertMsgQueque[]= "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
         }
-    }
+    } // alert
 
-    // used for rendering an out on the screen
-    function output($msg) {
+    /**
+     * Used for rendering an out on the screen
+     * 
+     * @param string $msg 
+     */
+    public function output($msg) {
         $this->_output .= $msg;
-    }
+    } // output
 
-    function stopPropagation() {
+    public function stopPropagation() {
         $this->_propagate= false;
-    }
+    } // stopPropagation
 
-    function _resetEventObject() {
-        unset ($this->returnedValues);
-        $this->name= "";
-        $this->_output= "";
-        $this->_propagate= true;
-        $this->activated= false;
-    }
+    /**
+     * Reset EventObjects 
+     */
+    public function _resetEventObject() {
+        //unset ($this->returnedValues);
+        $this->name = '';
+        $this->_output = '';
+        $this->_propagate = true;
+        $this->activated = false;
+    } // _resetEventObject
 
 } // SystemEvent

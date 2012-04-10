@@ -25,58 +25,76 @@ class SystemEventTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp() {
         $this->object = new SystemEvent;
-    }
+    } // setUp
 
     /**
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        
-    }
+        $this->object = null;
+    } // tearDown
 
     /**
      * @covers SystemEvent::alert
-     * @todo Implement testAlert().
      */
     public function testAlert() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->object = null;
+        $this->object = new SystemEvent('TestEvent');
+        $this->object->activePlugin = 'TestPlugin';
+        
+        $GLOBALS['SystemAlertMsgQueque'] = array();
+        
+        global $SystemAlertMsgQueque;
+
+
+        $this->assertTrue(is_a($this->object, 'SystemEvent'));
+        
+        ($this->object->alert('Test message'));
+        
+        $this->assertTrue(is_array($SystemAlertMsgQueque));
+        
+        $this->assertContains('TestEvent', $SystemAlertMsgQueque[0]);
+        $this->assertContains('TestPlugin', $SystemAlertMsgQueque[0]);
+        $this->assertContains('Test message', $SystemAlertMsgQueque[0]);
+    } // testAlert
 
     /**
      * @covers SystemEvent::output
-     * @todo Implement testOutput().
      */
     public function testOutput() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->object->output('Test-1');      
+        $this->assertEquals('Test-1', $this->object->_output);
+        
+        $this->object->output(';Test-2');        
+        $this->assertEquals('Test-1;Test-2', $this->object->_output);
+    } // testOutput
 
     /**
      * @covers SystemEvent::stopPropagation
-     * @todo Implement testStopPropagation().
      */
     public function testStopPropagation() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->assertTrue($this->object->_propagate);
+        
+        $this->object->stopPropagation();
+        
+        $this->assertFalse($this->object->_propagate);
+    } // testStopPropagation
 
     /**
      * @covers SystemEvent::_resetEventObject
-     * @todo Implement test_resetEventObject().
      */
     public function test_resetEventObject() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->object->stopPropagation();
+        $this->object->output('Test-1');      
+        
+        $this->assertFalse($this->object->_propagate);
+        $this->assertEquals('Test-1', $this->object->_output);
+        
+        $this->object->_resetEventObject();
+        
+        $this->assertTrue($this->object->_propagate);
+        $this->assertEmpty($this->object->_output);
+    } // test_resetEventObject
 
 } // SystemEventTest
