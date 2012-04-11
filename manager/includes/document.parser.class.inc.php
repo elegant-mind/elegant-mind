@@ -2,47 +2,52 @@
 /**
  * MODx Document Parser
  * Function: This class contains the main document parsing functions
+ * At the moment, all variables are public, because there where no get/set
+ * methods. Step by step the get/set methods will be implented.
+ * The advantage is more control over properties and easier development.
  *
- * @version 1.1.alpha1
+ * @author  The MODX community
+ * @author  Stefanie Janine Stoelting (mail@stefanie-stoelting.de)
+ * @name    DBAPI
  * @package MODX
  */
 class DocumentParser
 {
     /**
-     * Constant string for redirect refresh 
+     * Constant string for redirect refresh
      */
     const REDIRECT_REFRESH = 'REDIRECT_REFRESH';
-    
+
     /**
-     * Constant string for redirect meta 
+     * Constant string for redirect meta
      */
     const REDIRECT_META = 'REDIRECT_META';
-    
+
     /**
-     * Constant string for redirect header 
+     * Constant string for redirect header
      */
     const REDIRECT_HEADER = 'REDIRECT_HEADER';
-    
+
     /**
-     * Constant string for getting the page by alias 
+     * Constant string for getting the page by alias
      */
     const PAGE_BY_ALIAS = 'alias';
-    
+
     /**
      * Constant string for getting the page by ID
      */
     const PAGE_BY_ID = 'id';
-    
+
     /**
-     * Constant string Extension name 
+     * Constant string Extension name
      */
     const EXTENSION_DBAPI = 'DBAPI';
-    
+
     /**
-     * Constant string Extension name 
+     * Constant string Extension name
      */
     const EXTENSION_CONFIG = 'Configuration';
-    
+
     /**
      * The instance of the DocumentParser class
      * @var object Default: null
@@ -54,13 +59,13 @@ class DocumentParser
      * @var string Default: Empty string
      */
     private $_basePath = '';
-    
+
     /**
      * ezSQL database object
      * @var object
      */
     public $db; // db object
-    
+
     public $event, $Event; // event object
     public $pluginEvent;
     public $config= null;
@@ -92,7 +97,13 @@ class DocumentParser
     public $chunkCache;
     public $snippetCache;
     public $contentTypes;
+
+    /**
+     * @deprecated Use function getDumpSQL()
+     * @var boolean
+     */
     public $dumpSQL;
+
     public $queryCode;
     public $virtualDir;
     public $placeholders;
@@ -126,24 +137,24 @@ class DocumentParser
     public static function getInstance($basePath='') {
         if (NULL === self::$instance) {
             self::$instance = new self;
-            
+
             if (empty($basePath)) {
-                
+
             }
 
             // Load Configuration class
-            self::$instance->loadExtension(self::EXTENSION_CONFIG) or die('Could not load DBAPI class.'); 
+            self::$instance->loadExtension(self::EXTENSION_CONFIG) or die('Could not load DBAPI class.');
             // Load DBAPI class
             self::$instance->loadExtension(self::EXTENSION_DBAPI) or die('Could not load DBAPI class.');
             // Alias for backward compatibility
-            self::$instance->dbConfig= & self::$instance->db->config; 
+            self::$instance->dbConfig= & self::$instance->db->config;
             self::$instance->jscripts= array ();
             self::$instance->sjscripts= array ();
             self::$instance->loadedjscripts= array ();
             // events
             self::$instance->event= new SystemEvent();
             // Alias for backward compatibility
-            self::$instance->Event= & self::$instance->event; 
+            self::$instance->Event= & self::$instance->event;
             self::$instance->pluginEvent= array ();
             // set track_errors ini variable
             @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
@@ -168,9 +179,9 @@ class DocumentParser
         switch ($extname) {
             // Configuration
             case self::EXTENSION_CONFIG :
-                
+
                 break;
-            
+
             // Database API
             case self::EXTENSION_DBAPI :
                 if (require MODX_BASE_PATH . 'manager/includes/extenders/dbapi.php') {
@@ -211,7 +222,7 @@ class DocumentParser
 
     /**
      * Returns the current micro time
-     * 
+     *
      * @return float
      */
     function getMicroTime() {
@@ -228,7 +239,7 @@ class DocumentParser
      * @param int $count_attempts
      * @param type $type
      * @param type $responseCode
-     * @return boolean 
+     * @return boolean
      */
     function sendRedirect($url, $count_attempts=0, $type='', $responseCode='') {
         if (empty ($url)) {
@@ -279,9 +290,9 @@ class DocumentParser
 
     /**
      * Forward to an other page
-     * 
+     *
      * @param int $id
-     * @param string $responseCode 
+     * @param string $responseCode
      */
     function sendForward($id, $responseCode='') {
         if ($this->forwards > 0) {
@@ -301,7 +312,7 @@ class DocumentParser
     } // sendForward
 
     /**
-     * Redirect to the error page, by calling sendForward. This is called for 
+     * Redirect to the error page, by calling sendForward. This is called for
      * example when the page was not found.
      */
     function sendErrorPage() {
@@ -314,7 +325,7 @@ class DocumentParser
 
     /**
      * Redirect to the unauthorized page, for example on calling a page, without
-     * having the right to see this page. 
+     * having the right to see this page.
      */
     function sendUnauthorizedPage() {
         // invoke OnPageUnauthorized event
@@ -333,7 +344,7 @@ class DocumentParser
 
     /**
      * Function to connect to the database
-     * 
+     *
      * @deprecated use $modx->db->connect()
      */
     function dbConnect() {
@@ -343,7 +354,7 @@ class DocumentParser
 
     /**
      * Function to query the database
-     * 
+     *
      * @deprecated use $modx->db->query()
      * @param string $sql The SQL statement to execute
      * @return array Query result
@@ -375,7 +386,7 @@ class DocumentParser
     /**
      * @deprecated use $modx->db->getAffectedRows()
      * @param array $rs
-     * @return int 
+     * @return int
      */
     function affectedRows($rs) {
         return $this->db->getAffectedRows($rs);
@@ -392,7 +403,7 @@ class DocumentParser
 
     /**
      * Function to close a database connection
-     * 
+     *
      * @deprecated use $modx->db->disconnect()
      */
     function dbClose() {
@@ -482,8 +493,8 @@ class DocumentParser
 
     /**
      * Returns the requested document method, whether it was by alias or by id
-     * 
-     * @return string 
+     *
+     * @return string
      */
     function getDocumentMethod() {
         // function to test the query and find the retrieval method
@@ -499,7 +510,7 @@ class DocumentParser
 
     /**
      * Returns the document identifier of the current request
-     * 
+     *
      * @param string $method id and alias are allowed
      * @return int
      */
@@ -3028,42 +3039,76 @@ class DocumentParser
         }
     }
 
+    /**
+     * Add and return query times
+     *
+     * @param float $add
+     * @return float
+     */
+    public function queryTime($add=0) {
+        $this->queryTime = $this->queryCode + $add;
 
-    // End of class.
+        return $this->queryTime;
+    } // queryTime
+
+    /**
+     * Whether SQL dump is active, or not
+     *
+     * @return boolean
+     */
+    public function getDumpSQL() {
+        return $this->dumpSQL;
+    } // getDumpSQL
+
+    /**
+     * Returns the count of executed queries
+     *
+     * @return int
+     */
+    public function getExecutedQueries() {
+        return $this->executedQueries;
+    } // getExecutedQueries
+
+    /**
+     *  Adds one to the executed queries counter
+     */
+    public function setExecutedQueries() {
+        $this->executedQueries++;
+    } // setExecutedQueries
 
 } // DocumentParser
 
 /**
  * Class for system events
- * 
+ *
  * @package MODX
  */
-class SystemEvent 
+class SystemEvent
 {
     /**
      *
-     * string type 
+     * string type
      */
     public $name;
-    
+
     /**
-     * 
-     * boolean type 
+     *
+     * boolean type
      */
     public $_propagate;
-    
+
     /**
      *
      * @var string
      */
     public $_output;
-    
+
     /**
-     * 
+     *
      * @var boolean
      */
     public $activated;
-    
+
     /**
      *
      * @var string
@@ -3072,7 +3117,7 @@ class SystemEvent
 
     /**
      *
-     * @param string $name 
+     * @param string $name
      */
     public function __construct($name='') {
         $this->_resetEventObject();
@@ -3092,8 +3137,8 @@ class SystemEvent
             return;
         if (is_array($SystemAlertMsgQueque)) {
             if ($this->name && $this->activePlugin)
-                $title= '<div><b>' . $this->activePlugin 
-                      . '</b> - <span style="color:maroon;">' . $this->name 
+                $title= '<div><b>' . $this->activePlugin
+                      . '</b> - <span style="color:maroon;">' . $this->name
                       . '</span></div>';
             $SystemAlertMsgQueque[]= "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
         }
@@ -3101,8 +3146,8 @@ class SystemEvent
 
     /**
      * Used for rendering an out on the screen
-     * 
-     * @param string $msg 
+     *
+     * @param string $msg
      */
     public function output($msg) {
         $this->_output .= $msg;
@@ -3113,7 +3158,7 @@ class SystemEvent
     } // stopPropagation
 
     /**
-     * Reset EventObjects 
+     * Reset EventObjects
      */
     public function _resetEventObject() {
         //unset ($this->returnedValues);

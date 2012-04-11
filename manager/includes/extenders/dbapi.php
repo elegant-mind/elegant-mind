@@ -1,13 +1,16 @@
 <?php
 /**
- * Extend Zend Db class to use it in MODX. It also emulates the methods of the
+ * Implements ezSQL to use it in MODX. It also emulates the methods of the
  * original DBAPI class in dbapi.mysql.class.inc.php.
  *
- * @author  Stefanie Janine Stoelting, mail@stefanie-stoelting.de
+ * @author  Stefanie Janine Stoelting (mail@stefanie-stoelting.de)
+ * @name    DBAPI
+ * @uses    ezSQL
  * @link    http://www.modx.com
  * @package MODX
  */
-class DBAPI {
+class DBAPI
+{
 
     /**
      * Database type MySQL MyISAM.
@@ -172,9 +175,9 @@ class DBAPI {
      *
      * @return boolean
      */
-    public function get_connected() {
+    public function getConnected() {
         return $this->_connected;
-    }
+    } // getConnected
 
     /**
      * Establish a connection to of the database type.
@@ -245,12 +248,12 @@ class DBAPI {
 
     /**
      * Disconnect the current database connection
-     * 
+     *
      * @return boolean
      */
     public function disconnect() {
         $this->conn->disconnect();
-        
+
         return true;
     } // disconnect
 
@@ -283,13 +286,13 @@ class DBAPI {
 
         $tend = $modx->getMicroTime();
         $totaltime = $tend - $tstart;
-        $modx->queryTime = $modx->queryTime + $totaltime;
+        $modx->queryTime($totaltime);
 
-        if ($modx->dumpSQL) {
+        if ($modx->getDumpSQL()) {
             $modx->queryCode .= "<fieldset style='text-align:left'><legend>Query " . ($this->executedQueries + 1) . " - " . sprintf("%2.4f s", $totaltime) . "</legend>" . $sql . "</fieldset><br />";
         }
 
-        $modx->executedQueries = $modx->executedQueries + 1;
+        $modx->setExecutedQueries();
 
         // Reset record position
         $this->_curRecord = 0;
@@ -383,12 +386,12 @@ class DBAPI {
         switch ($this->_currentDBEngine) {
             case self::DB_MYSQL_MYISAM:
             case self::DB_MYSQL_INNODB:
-                $result = mysql_error($conn);
+                $result = mysql_error();
 
                 break;
 
             case self::DB_POSTGRESQL:
-                $result = pg_errormessage($conn);
+                $result = pg_errormessage();
 
                 break;
 

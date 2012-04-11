@@ -55,8 +55,42 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        //$this->object = null;        
+        $this->object = null;        
     } // tearDown
+    
+    /**
+     * Creates a mock object of the DocumentObject as global $modx
+     * 
+     * @global object $modx 
+     */
+    protected function createMock() {
+        $methods = array(
+            'getMicroTime'
+            , 'queryTime'
+            , 'getDumpSQL'
+            , 'setExecutedQueries'
+        );
+        $GLOBALS['modx'] = $this->getMock(
+                'DocumentParser'
+                , $methods
+                , array()
+                , ''
+                , false
+            );
+        
+        global $modx;
+        $modx->expects($this->any())
+             ->method('getMicroTime')
+             ->will($this->returnValue('1'));
+        $modx->expects($this->any())
+             ->method('queryTime')
+             ->will($this->returnValue('1'));
+        $modx->expects($this->any())
+             ->method('getDumpSQL')
+             ->will($this->returnValue(false));
+        $modx->expects($this->any())
+             ->method('setExecutedQueries');        
+    }
 
     /**
      * @covers DBAPI::getInstance
@@ -76,7 +110,7 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
      * @covers DBAPI::getConnected
      */
     public function testGetConnected() {
-        $this->assertFalse($this->object->get_connected());
+        $this->assertFalse($this->object->getConnected());
     }
 
     /**
@@ -84,22 +118,30 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
      */
     public function testConnect() {
         $this->object->connect(
-              $this->testConfig['MODX_base_configuration']['database_server']
-            , $this->testConfig['MODX_base_configuration']['dbase']
-            , $this->testConfig['MODX_base_configuration']['database_user']
-            , $this->testConfig['MODX_base_configuration']['database_password']
-            , 0
-            , $this->testConfig['MODX_base_configuration']['database_connection_charset']
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
-        $this->assertTrue($this->object->get_connected());
+        $this->assertTrue($this->object->getConnected());
     } // testConnect
 
     /**
      * @covers DBAPI::disconnect
      */
     public function testDisconnect() {
-        $this->testConnect();
-        $this->assertTrue($this->object->disconnect());
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
+        );
+        //$this->assertTrue($this->object->getConnected());
+        //$this->assertTrue($this->object->disconnect());
     } // testDisconnect
 
     /**
@@ -113,13 +155,26 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DBAPI::query
-     * @todo Implement testQuery().
      */
     public function testQuery() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->createMock();
+
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
+        $this->assertTrue($this->object->getConnected());
+        
+        $sql = 'SELECT * FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
+        
+        $result = $this->object->query($sql);
+        
+        $this->assertTrue(is_array($result));
+        //$this->assertTrue(is_array($result));
     }
 
     /**
@@ -146,69 +201,148 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DBAPI::getInsertId
-     * @todo Implement testGetInsertId().
+     * @todo check getInsertId, it does not work as expected
      */
     public function testGetInsertId() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->createMock();
+        
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
+
+        $this->assertTrue($this->object->getConnected());
+        
+        $sql = 'INSERT INTO ' . $this->testConfig['MODX_base_configuration']['table_prefix'] 
+                . 'event_log(eventid, type, source, description)'
+                . ' VALUES(0, 1, \'UnitTest\', \'Unit test call\')';
+        
+        $result = $this->object->query($sql);
+        
+        //echo "test-insert" . $this->object->getInsertId($result) . "\r\n";
     }
 
     /**
      * @covers DBAPI::getLastError
-     * @todo Implement testGetRecordCount().
      */
     public function testGetLastError() {
-        $this->testConnect();
+        $this->createMock();
         
-        //echo 'last error ' . $this->object->getLastError($this->object->conn);
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
+
+        $this->assertTrue($this->object->getConnected());
+        
+        try {
+            $this->object->query('SELECT * FROM does_not_exist');
+        } catch (Exception $exc) {
+            // Do nothing
+        }
+
+        $this->assertEquals('Table \'evolution.does_not_exist\' doesn\'t exist', $this->object->getLastError());
+        
     }
 
     /**
      * @covers DBAPI::getVersion
      */
     public function testGetVersion() {
-        $this->testConnect();
-        
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
+        );
+
         $this->assertNotEmpty($this->object->getVersion());
-    }
+    } // testGetVersion
 
     /**
      * @covers DBAPI::getRecordCount
-     * @todo Implement testGetRecordCount().
      */
     public function testGetRecordCount() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->createMock();
+        
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
+
+        $this->assertTrue($this->object->getConnected());
+        
+        $sql = 'SELECT COUNT(*) AS testCount FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
+        
+        $result = $this->object->query($sql);
+        
+        $this->assertEquals(1, $this->object->getRecordCount($result));
     }
 
     /**
      * @covers DBAPI::getRow
-     * @todo Implement testGetRow().
      */
     public function testGetRow() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->createMock();
+        
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
-    }
+
+        $this->assertTrue($this->object->getConnected());
+        
+        $sql = 'SELECT COUNT(*) AS testCount, \'Test\' AS testText FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
+        
+        $result = $this->object->query($sql);
+                
+        $row = $this->object->getRow($result);
+        
+        $this->assertEquals('Test', $row->testText);
+        
+        $this->assertTrue(is_numeric($row->testCount));
+    } // testGetRow
 
     /**
      * @covers DBAPI::getAffectedRows
-     * @todo Implement testGetAffectedRows().
      */
     public function testGetAffectedRows() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->createMock();
+        
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
-    }
+
+        $this->assertTrue($this->object->getConnected());
+        
+        $sql = 'SELECT COUNT(*) AS testCount FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
+        
+        $result = $this->object->query($sql);
+        
+        $this->assertEquals(0, $this->object->getAffectedRows($this->object->conn));
+    } // testGetAffectedRows
 
 } // DBAPITest
