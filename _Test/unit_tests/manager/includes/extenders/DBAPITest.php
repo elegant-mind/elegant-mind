@@ -174,30 +174,28 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
         $result = $this->object->query($sql);
         
         $this->assertTrue(is_array($result));
-        //$this->assertTrue(is_array($result));
     }
 
     /**
      * @covers DBAPI::getConfiguration
-     * @todo Implement testGetConfiguration().
      */
     public function testGetConfiguration() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->object->connect(
+            $this->testConfig['MODX_base_configuration']['database_server'],
+            $this->testConfig['MODX_base_configuration']['dbase'],
+            $this->testConfig['MODX_base_configuration']['database_user'],
+            $this->testConfig['MODX_base_configuration']['database_password'],
+            0,
+            $this->testConfig['MODX_base_configuration']['database_connection_charset']
         );
-    }
+        $this->assertTrue($this->object->getConnected());
 
-    /**
-     * @covers DBAPI::delete
-     * @todo Implement testDelete().
-     */
-    public function testDelete() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $result = $this->object->getConfiguration();
+        
+        $this->assertTrue(is_array($result));
+        
+        $this->assertArrayHasKey('host', $result);
+    } // testGetConfiguration
 
     /**
      * @covers DBAPI::getInsertId
@@ -217,13 +215,16 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->getConnected());
         
-        $sql = 'INSERT INTO ' . $this->testConfig['MODX_base_configuration']['table_prefix'] 
-                . 'event_log(eventid, type, source, description)'
-                . ' VALUES(0, 1, \'UnitTest\', \'Unit test call\')';
-        
-        $result = $this->object->query($sql);
-        
-        //echo "test-insert" . $this->object->getInsertId($result) . "\r\n";
+        if ($this->object->getCurrentDatabaseEngine() == (DBAPI::DB_MYSQL_MYISAM || 
+                $this->object->getCurrentDatabaseEngine() == DBAPI::DB_MYSQL_INNODB)) {
+            $sql = 'INSERT INTO ' . $this->testConfig['MODX_base_configuration']['table_prefix'] 
+                    . 'event_log(eventid, type, source, description)'
+                    . ' VALUES(0, 1, \'UnitTest\', \'Unit test call\')';
+
+            $this->object->query($sql);
+
+            $this->assertTrue(is_numeric($this->object->getInsertId()));
+        }
     }
 
     /**
@@ -338,11 +339,14 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->getConnected());
         
-        $sql = 'SELECT COUNT(*) AS testCount FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
-        
-        $result = $this->object->query($sql);
-        
-        $this->assertEquals(0, $this->object->getAffectedRows($this->object->conn));
+        if ($this->object->getCurrentDatabaseEngine() == (DBAPI::DB_MYSQL_MYISAM || 
+                $this->object->getCurrentDatabaseEngine() == DBAPI::DB_MYSQL_INNODB)) {
+            $sql = 'SELECT COUNT(*) AS testCount FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
+
+            $result = $this->object->query($sql);
+
+            $this->assertEquals(0, $this->object->getAffectedRows($this->object->conn));
+        }
     } // testGetAffectedRows
 
 } // DBAPITest

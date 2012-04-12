@@ -68,7 +68,7 @@ class DBAPI
 
     /**
      * The database object.
-     * @var object
+     * @var ezSQL_mysql
      */
     public $conn = null;
 
@@ -312,10 +312,13 @@ class DBAPI
     /**
      * Execute a DELETE statement.
      *
-     * @param string $from The name of the table.
-     * @param string $where The WHERE cl
+     * @param string $from 
+     * @param string $where
      * @param type $fields
-     * @return type
+     * @return boolean
+     * @deprecated You should not use this method, because the fields parameter
+     *             does not use fields, it means tables, see
+     *             https://dev.mysql.com/doc/refman/5.1/de/delete.html
      */
     public function delete($from, $where='', $fields='') {
         if (!$from)
@@ -352,7 +355,7 @@ class DBAPI
         switch ($this->_currentDBEngine) {
             case self::DB_MYSQL_MYISAM:
             case self::DB_MYSQL_INNODB:
-                $result = mysql_insert_id($conn);
+                $result = $this->conn->getInsertId();
 
                 break;
 
