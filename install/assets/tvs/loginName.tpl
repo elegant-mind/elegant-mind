@@ -13,6 +13,6 @@
  * @internal        @output_widget_params
  * @internal        @lock_tv 0
  * @internal        @template_assignments MODxHost
- * @internal        @modx_category Demo Content
+ * @internal        @modx_category Login
  * @internal        @installset sample
  */

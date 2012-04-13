@@ -3,7 +3,7 @@
 *************************************************************************
 	MODx Content Management System and PHP Application Framework 
 	Managed and maintained by Raymond Irving, Ryan Thrash and the
-	MODx community
+	MODx community 
 *************************************************************************
 	MODx is an opensource PHP/MySQL content management system and content
 	management framework that is flexible, adaptable, supports XHTML/CSS

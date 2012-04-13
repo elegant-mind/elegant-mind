@@ -209,12 +209,7 @@ if(is_array($evtOut)) {
 }
 
 // load template file
-$customWelcome = $base_path.'manager/media/style/'.$modx->config['manager_theme'] .'/welcome.html';
-if( is_readable($customWelcome) ) {
-    $tplFile = $customWelcome;
-} else {
-    $tplFile = $base_path.'assets/templates/manager/welcome.html';
-}
+$tplFile = $base_path.'manager/media/style/'.$modx->config['manager_theme'] .'/templates/welcome.html';
 $handle = fopen($tplFile, "r");
 $tpl = fread($handle, filesize($tplFile));
 fclose($handle);

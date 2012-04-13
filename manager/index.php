@@ -167,9 +167,12 @@ if(isset($manager_theme) && !isset($_style)) {
     include_once "media/style/".$manager_theme."/style.php";
 }
 
-// check if user is allowed to access manager interface
-if(isset($allow_manager_access) && $allow_manager_access==0) {
-    include_once "manager.lockout.inc.php";
+// allow quickmanager access
+if(empty($_SERVER['HTTP_REFERER']) || !($_SESSION['in_qm'])) {  
+    // check if user is allowed to access manager interface
+    if(isset($allow_manager_access) && $allow_manager_access==0) {
+        include_once "manager.lockout.inc.php";
+    }
 }
 
 // include_once the error handler

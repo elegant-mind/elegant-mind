@@ -52,6 +52,9 @@ class Qm {
     //_______________________________________________________
     function Run() {
         
+        // set a session to allow Manager access
+        $_SESSION['in_qm'] = 1;
+        
         // Include MODx manager language file
         global $_lang;
 		

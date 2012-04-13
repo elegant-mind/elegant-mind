@@ -1,0 +1,107 @@
+/***************************************************
+			      Reset
+***************************************************/
+html,body,div,span,h1,h2,h3,h4,h5,h6,p,ol,ul,li,form,label,legend,caption,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary{margin:0;padding:0;border:0;outline:0;font-weight:inherit;font-style:inherit;font-size:100%;font-family:inherit;vertical-align:baseline;}
+aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}
+ol,ul{list-style:none;}
+a img{border:none}
+/***************************************************
+			      Global styles
+***************************************************/
+html{width:100%;height:100%;}
+body{font:14px Arial, Helvetica, Garuda, sans-serif;*font-size:small;*font: x-small;height:100%;line-height:18px;background:url(../img/bg.jpg) repeat center top;color:#333;}
+p{margin:0.2em 0 0.9em;}
+p.tags{margin:0;padding:0;}
+a,p a{text-decoration:none;color:#15714f;}
+a:hover{color:#cc3333;}
+h1,h2,h3,h4,h5,h6{font-weight:normal;font-style:normal;padding:0;margin:0;font-size:1em;}
+h1,h1 a{font-size:1.8em;line-height:0.9;text-align:left;margin-top:1em;margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid #ddd;}
+h1 a{text-decoration:none;}
+h2,h2 a{font-size:1.5em;line-height:0.9;text-align:left;margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid #ddd;}
+h2 a{text-decoration:none;}
+h3,h3 a{font-size:1.2em;line-height:0.9;color:#575757;text-align:left;margin-bottom:6px;padding-bottom:5px;}
+h3 a{text-decoration:none;}
+h4,h4 a{font-size:1.1em;line-height:0.9;color:#CC3333;text-align:left;margin-bottom:8px;padding-top:3px;}
+h4 a{text-decoration:none;}
+/***************************************************
+			    Main containers
+***************************************************/
+#wrapper{position:relative;width:100%;height:100%;margin:0 auto;padding-bottom:20px;background: url(../img/greenline.jpg) repeat-x center top;}
+#main{clear:both;width:980px;margin:0 auto;height:100%;}
+/***************************************************
+			        HEADER
+***************************************************/
+header{position:relative;width:980px;margin:auto;}
+header #logo{padding:57px 0 10px;width:360px;}
+header #logo img{margin-bottom:5px;}
+header #logo img:hover{filter:alpha(opacity=80);-moz-opacity: 0.8;-khtml-opacity: 0.8;opacity: 0.8;}
+header hgroup h3{color:#15714f;text-transform:uppercase;font-size:0.85em;}
+header #socialBlock{position:absolute;top:10px;right:25px;width:160px;}
+header #socialBlock li{display:inline;}
+/***************************************************
+				  SEARCH FORM
+***************************************************/
+header #searchBlock{width:300px;position:absolute;top:50px;right:0px;text-align:right;}
+header #ajaxSearch_form{}
+header #ajaxSearch_form fieldset{border:none;}
+header #ajaxSearch_form #ajaxSearch_input{border:1px solid #dddee0;padding:5px 30px 5px 4px;color:#928e8e;font-size:12px;width:180px;}
+header #ajaxSearch_form #ajaxSearch_submit{cursor:hand;cursor:pointer;width:25px;height:27px;background:url(../img/search.jpg) no-repeat center top;border:0;}
+/***************************************************
+				    MENU
+***************************************************/
+nav{width:100%;height:46px;margin:30px 0 0 0;background:url(../img/menu.jpg);}
+nav ul{width:980px;margin:auto;padding:0;list-style:none;}
+nav ul li{display: inline;}
+nav li ul{position: absolute;left: -999em;}
+nav ul li a{display: block;float:left;padding:14px 26px;text-transform:uppercase;color:#15714f;}
+nav ul li.active a{background:url(../img/menu-active.jpg) repeat-x center top;color:#fff;}
+nav ul li a:hover{background:url(../img/menu-hover.jpg) repeat-x center top;color:#025277;}
+nav ul li.active a:hover{background: url(../img/menu-active.jpg) repeat-x center top;}
+/***************************************************
+				  LEFT COLUMN
+***************************************************/
+#mainLeft{width:275px;float:left;margin-top:1.1em;}
+#mainLeft div{margin:1em 2em 0 0;}
+/***************************************************
+			       DITTO OUTPUT
+***************************************************/
+#mainLeft .sideBlock .ditto_item{padding-bottom:5px;margin-bottom:5px;border-bottom:1px dotted #333;}
+#mainLeft .sideBlock .ditto_pageTitle{font-size:0.95em;margin:0;padding:0;}
+#mainLeft .sideBlock .ditto_introText p{margin:0;padding:0;}
+#mainLeft .sideBlock .ditto_introText{margin-top:10px;}
+#mainLeft .sideBlock .ditto_commentCount{font-size:0.8em;}
+#mainLeft .sideBlock .ditto_postLink{display:block;text-align:right;}
+#mainLeft .sideBlock .ditto_documentInfo{display:none;}
+/***************************************************
+				 JOT COMMENTS
+***************************************************/
+
+/***************************************************
+				 RIGHT COLUMN
+***************************************************/
+#mainRight{width:700px;float:left;}
+#mainRight ul{list-style:disc;margin-left:2em;}
+#mainRight ol{list-style:decimal;margin-left:2em;}
+#mainRight li{margin-bottom:10px;}
+/***************************************************
+			        FOOTER
+***************************************************/
+footer{position:relative;clear:both;width:100%;background:url(../img/menu-active.jpg) repeat-x center top;color:#fff;}
+footer #footerBar{width:980px;height:46px;margin:auto;}
+footer li{display:inline;}
+footer li a{display:block;font-size:0.9em;float:left;padding:0 20px;color:#fff;text-decoration:none;line-height:46px;text-transform:uppercase;}
+footer li.active a,footer li a:hover{color:#fff;text-decoration:underline;}
+footer #copyright p{width:980px;margin:10px auto 0 auto;text-align:right;color:#919090;}
+/***************************************************
+			     MANAGER LOGIN
+***************************************************/
+#managerLoginForm{width:980px;text-align:right;margin:auto;}
+#managerLoginForm h3{text-align:right;}
+#managerLoginForm h3 a{font-size:0.8em;color:#CFD1D7}
+#managerLoginForm label{color:#000;}
+/**************************************************/
+/*    Safari, Google Chrome Hacks  	               
+/**************************************************/
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .searchbutton {top:3px;right:1px;}
+}
