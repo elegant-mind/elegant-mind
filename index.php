@@ -89,6 +89,7 @@ if($database_user=="") {
 	$rt = @include_once(dirname(__FILE__).'/manager/includes/config.inc.php');
 	// Be sure config.inc.php is there and that it contains some important values
 	if(!$rt || !$database_type || !$database_server || !$database_user || !$dbase) {
+header('Content-Type: text/html; charset=UTF-8');
 	echo "
 <style type=\"text/css\">
 *{margin:0;padding:0}
