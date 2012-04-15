@@ -41,8 +41,16 @@ if($modx->hasPermission('messages')) {
 		$_SESSION['nrnewmessages'] = $nrnewmessages;
 
     $msg = '<a href="index.php?a=10"><img src="'.$_style['icons_mail_large'].'" /></a>
-    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages']."</span>)":"").'</span><br />
-    <span class="comment">'.sprintf($_lang["welcome_messages"], $_SESSION['nrtotalmessages'], "<span style='color:red;'>".$_SESSION['nrnewmessages']."</span>").'</span>';
+    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages']."</span>)":"").'</span><br />';
+    if($_SESSION['nrnewmessages']>0)
+    {
+        $msg .= '<span class="comment">'
+             . sprintf($_lang["welcome_messages"], $_SESSION['nrtotalmessages'], "<span style='color:red;'>".$_SESSION['nrnewmessages']."</span>").'</span>';
+    }
+    else
+    {
+        $msg .= '<span class="comment">' . $_lang["messages_no_messages"] . '</span>';
+    }
     $modx->setPlaceholder('MessageInfo',$msg);
 }
 
@@ -209,7 +217,11 @@ if(is_array($evtOut)) {
 }
 
 // load template file
-$tplFile = $base_path.'manager/media/style/'.$modx->config['manager_theme'] .'/templates/welcome.html';
+$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
+if(file_exists($tplFile)==false)
+{
+	$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
+}
 $handle = fopen($tplFile, "r");
 $tpl = fread($handle, filesize($tplFile));
 fclose($handle);

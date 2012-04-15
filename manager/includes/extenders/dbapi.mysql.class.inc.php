@@ -101,6 +101,10 @@ class DBAPI {
          if ($modx->dumpSQL) {
             $modx->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection was created in %2.4f s", $totaltime) . "</fieldset><br />";
          }
+         if (function_exists('mysql_set_charset'))
+         {
+             mysql_set_charset($this->config['charset']);
+         }
          $this->isConnected = true;
          // FIXME (Fixed by line below):
          // this->queryTime = this->queryTime + $totaltime;
@@ -117,9 +121,12 @@ class DBAPI {
    }
 
    function escape($s) {
-      if (function_exists('mysql_real_escape_string') && $this->conn) {
+      if (function_exists('mysql_set_charset') && $this->conn)
+      {
          $s = mysql_real_escape_string($s, $this->conn);
-      } else {
+      }
+      else
+      {
          $s = mysql_escape_string($s);
       }
       return $s;

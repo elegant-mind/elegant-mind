@@ -1,10 +1,10 @@
 <?php
 /**
  * Filename:       includes/lang/japanese-utf8.inc.php
- * Function:       Language file.
+ * Function:       Japanese language file.
  * Encoding:       UTF8
  * Author:         eastbind, MEGU, yamamoto
- * Date:           2010/12/19
+ * Date:           2011/01/19
  * Version:        2.0.7
  * MODx version:   Evolution 1.0.5J
 */
@@ -98,8 +98,8 @@ $_lang["chunk_code"] = 'チャンク コード (html)';
 $_lang["chunk_multiple_id"] = 'エラー: 複数のチャンクが一つのユニークIDを利用しています。';
 $_lang["chunk_no_exist"] = 'チャンクが存在しません。';
 $_lang["cleaningup"] = 'クリーンアップ処理中';
-$_lang["clean_uploaded_filename"] = 'Use Transliteration for File Uploads';
-$_lang["clean_uploaded_filename_message"] = 'Use the default or transalias settings for the file name to clean special characters from uploaded file names, preserving dot-characters (periods)';
+$_lang["clean_uploaded_filename"] = 'アップロードファイルの名前の扱い';
+$_lang["clean_uploaded_filename_message"] = 'アップロードするファイルのファイル名を、transaliasルールを用いて正規化します。';
 $_lang["clear_log"] = 'ログをクリア';
 $_lang["click_to_context"] = 'クリックするとコンテキストメニュー';
 $_lang["click_to_edit_title"] = '編集はここをクリック';
@@ -141,7 +141,7 @@ $_lang["configcheck_unauthorizedpage_unavailable_msg"] = '設定した「権限�
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'グローバル設定で設定された権限外告知のページは公開されていません。';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外告知のページが誰でも見られるようにはなっていないことを意味します。権限外告知ページは全ての人「Public」に公開するようにしてください。';
 $_lang["configcheck_validate_referer"] = 'セキュリティ警告: 参照元チェックの設定';
-$_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。<br /><a href="javascript:hideHeaderVerificationWarning();"><em>今後この警告を表示しない</em></a>';
+$_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。';
 $_lang["configcheck_warning"] = '警告 ';
 $_lang["configcheck_what"] = 'どういう意味ですか?';
 $_lang["confirm_block"] = 'このアカウントを休止してもよろしいですか?';
@@ -216,11 +216,11 @@ $_lang["defaultsearch_message"] = '新しく作成するリソースをデフォ
 $_lang["defaultsearch_title"] = '検索可能デフォルト';
 $_lang["defaulttemplate_message"] = '新規に作成するリソースのデフォルトテンプレートを指定します。テンプレートはリソース単位で自由に選択できます。';
 $_lang["defaulttemplate_title"] = 'デフォルトテンプレート';
-$_lang["defaulttemplate_logic_title"] = 'Automatic Template Assignment';
-$_lang["defaulttemplate_logic_general_message"] = 'New Resources will have the following templates, falling back to higher levels if not found:';
-$_lang["defaulttemplate_logic_system_message"] = '<strong>System</strong>: the System Default Template.';
-$_lang["defaulttemplate_logic_parent_message"] = '<strong>Parent</strong>: the same Template as the parent container.';
-$_lang["defaulttemplate_logic_sibling_message"] = '<strong>Sibling</strong>: the same Template as other Resources in the same container.';
+$_lang["defaulttemplate_logic_title"] = 'デフォルトテンプレート';
+$_lang["defaulttemplate_logic_general_message"] = 'リソース新規作成時のテンプレートの初期設定。';
+$_lang["defaulttemplate_logic_system_message"] = '<strong>グローバル</strong>: ここで設定したテンプレートを無条件に初期設定として選択します。';
+$_lang["defaulttemplate_logic_parent_message"] = '<strong>ペアレント</strong>: 親リソースのテンプレートを継承します。';
+$_lang["defaulttemplate_logic_sibling_message"] = '<strong>シブリング</strong>: 同じ階層内の他のリソースの設定に合わせます。混在する場合は若いIDのリソースの設定を見ます。';
 
 $_lang["delete"] = '削除';
 $_lang["delete_resource"] = '削除する';
@@ -415,8 +415,8 @@ $_lang["link_attributes"] = 'リンク属性';
 $_lang["link_attributes_help"] = "このページ内の任意のリンクの属性を管理します。\n\n例：target=&quot;_blank&quot; ・rel=&quot;lightbox&quot;\nリソース変数：[*link_attributes*]\n\n※この変数はリンクの属性を管理するための特別な機能を持っていないので、他の用途に流用することもできます。";
 $_lang["list_mode"] = 'リストモードのON/OFF - グリッドに全てのレコードをリストするために使われます。';
 $_lang["loading_doc_tree"] = 'サイトツリーのローディング中';
-$_lang["loading_menu"] = 'メニューのローディング中';
-$_lang["loading_page"] = 'MODxはページをロードしています。お待ちください';
+$_lang["loading_menu"] = 'メニューをローディング中';
+$_lang["loading_page"] = 'ページを読み込み中';
 $_lang["localtime"] = 'ローカル時刻';
 $_lang["lock_htmlsnippet"] = 'チャンクの編集をロック';
 $_lang["lock_htmlsnippet_msg"] = 'Administrator(ロールID 1)のみ編集できます。';
