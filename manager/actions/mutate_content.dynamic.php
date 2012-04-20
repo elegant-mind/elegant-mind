@@ -371,6 +371,118 @@ function changeRTE() {
     document.mutate.submit();
 }
 
+/**
+ * Snippet properties
+ */
+
+var snippetParams = {};     // Snippet Params
+var currentParams = {};     // Current Params
+var lastsp, lastmod = {};
+
+function showParameters(ctrl) {
+    var c,p,df,cp;
+    var ar,desc,value,key,dt;
+
+    cp = {};
+    currentParams = {}; // reset;
+
+    if (ctrl) {
+        f = ctrl.form;
+    } else {
+        f= document.forms['mutate'];
+        ctrl = f.snippetlist;
+    }
+
+    // get display format
+    df = "";//lastsp = ctrl.options[ctrl.selectedIndex].value;
+
+    // load last modified param values
+    if (lastmod[df]) cp = lastmod[df].split("&");
+    for (p = 0; p < cp.length; p++) {
+        cp[p]=(cp[p]+'').replace(/^\s|\s$/,""); // trim
+        ar = cp[p].split("=");
+        currentParams[ar[0]]=ar[1];
+    }
+
+    // setup parameters
+    dp = (snippetParams[df]) ? snippetParams[df].split("&"):[""];
+    if (dp) {
+        t='<table width="100%" style="margin-bottom:3px;margin-left:14px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?php echo $_lang['parameter']?><\/td><td width="50%"><?php echo $_lang['value']?><\/td><\/tr><\/thead>';
+        for (p = 0; p < dp.length; p++) {
+            dp[p]=(dp[p]+'').replace(/^\s|\s$/,""); // trim
+            ar = dp[p].split("=");
+            key = ar[0]     // param
+            ar = (ar[1]+'').split(";");
+            desc = ar[0];   // description
+            dt = ar[1];     // data type
+            value = decode((currentParams[key]) ? currentParams[key]:(dt=='list') ? ar[3] : (ar[2])? ar[2]:'');
+            if (value!=currentParams[key]) currentParams[key] = value;
+            value = (value+'').replace(/^\s|\s$/,""); // trim
+            if (dt) {
+                switch(dt) {
+                    case 'int':
+                        c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" \/>';
+                        break;
+                    case 'list':
+                        c = '<select name="prop_'+key+'" height="1" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
+                        ls = (ar[2]+'').split(",");
+                        if (currentParams[key]==ar[2]) currentParams[key] = ls[0]; // use first list item as default
+                        for (i=0;i<ls.length;i++) {
+                            c += '<option value="'+ls[i]+'"'+((ls[i]==value)? ' selected="selected"':'')+'>'+ls[i]+'<\/option>';
+                        }
+                        c += '<\/select>';
+                        break;
+                    default:  // string
+                        c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" \/>';
+                        break;
+
+                }
+                t +='<tr><td bgcolor="#FFFFFF" width="50%">'+desc+'<\/td><td bgcolor="#FFFFFF" width="50%">'+c+'<\/td><\/tr>';
+            };
+        }
+        t+='<\/table>';
+        td = (document.getElementById) ? document.getElementById('snippetparams'):document.all['snippetparams'];
+        td.innerHTML = t;
+    }
+    implodeParameters();
+}
+
+function setParameter(key,dt,ctrl) {
+    var v;
+    if (!ctrl) return null;
+    switch (dt) {
+        case 'int':
+            ctrl.value = parseInt(ctrl.value);
+            if (isNaN(ctrl.value)) ctrl.value = 0;
+            v = ctrl.value;
+            break;
+        case 'list':
+            v = ctrl.options[ctrl.selectedIndex].value;
+            break;
+        default:
+            v = ctrl.value+'';
+            break;
+    }
+    currentParams[key] = v;
+    implodeParameters();
+}
+
+function resetParameters() {
+    document.mutate.params.value = "";
+    lastmod[lastsp]="";
+    showParameters();
+}
+// implode parameters
+function implodeParameters() {
+    var v, p, s = '';
+    for (p in currentParams) {
+        v = currentParams[p];
+        if (v) s += '&'+p+'='+ encode(v);
+    }
+    //document.forms['mutate'].params.value = s;
+    if (lastsp) lastmod[lastsp] = s;
+}
+
 function encode(s) {
     s = s+'';
     s = s.replace(/\=/g,'%3D'); // =
@@ -395,7 +507,6 @@ $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
 ));
 if (is_array($evtOut))
     echo implode('', $evtOut);
-$_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 ?>
 <input type="hidden" name="a" value="5" />
 <input type="hidden" name="id" value="<?php echo $content['id']?>" />
@@ -422,14 +533,15 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
             </select>
           </li>
           <?php
-            if ($_REQUEST['a'] == '4' || $_REQUEST['a'] == '72') { ?>
-          <li id="Button2" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']?></a></li>
-          <?php } else { ?>
+            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72') { ?>
           <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
           <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']?></a></li>
           <?php } ?>
           <li id="Button4"><a href="#" onclick="documentDirty=false;<?php echo $id==0 ? "document.location.href='index.php?a=2';" : "document.location.href='index.php?a=3&amp;id=$id';"?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+          <?php
+            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72') { ?>
           <li id="Button5"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img alt="icons_preview_resource" src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['preview']?></a></li>
+          <?php } ?>
       </ul>
 </div>
 
@@ -630,7 +742,79 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 <?php } ?>
 
 <?php if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type'] == 'reference' || $_REQUEST['a'] == 72)) { ?>
- 
+        <!-- Template Variables -->
+            <div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
+            <div class="sectionBody tmplvars" id="tv_body">
+<?php
+                $template = $default_template;
+                if (isset ($_REQUEST['newtemplate'])) {
+                    $template = $_REQUEST['newtemplate'];
+                } else {
+                    if (isset ($content['template']))
+                        $template = $content['template'];
+                }
+
+                $sql = 'SELECT DISTINCT tv.*, IF(tvc.value!=\'\',tvc.value,tv.default_text) as value '.
+                       'FROM '.$tbl_site_tmplvars.' AS tv '.
+                       'INNER JOIN '.$tbl_site_tmplvar_templates.' AS tvtpl ON tvtpl.tmplvarid = tv.id '.
+                       'LEFT JOIN '.$tbl_site_tmplvar_contentvalues.' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\''.$id.'\' '.
+                       'LEFT JOIN '.$tbl_site_tmplvar_access.' AS tva ON tva.tmplvarid=tv.id '.
+                       'WHERE tvtpl.templateid=\''.$template.'\' AND (1=\''.$_SESSION['mgrRole'].'\' OR ISNULL(tva.documentgroup)'.
+                       (!$docgrp ? '' : ' OR tva.documentgroup IN ('.$docgrp.')').
+                       ') ORDER BY tvtpl.rank,tv.rank, tv.id';
+                $rs = mysql_query($sql);
+                $limit = mysql_num_rows($rs);
+                if ($limit > 0) {
+                    echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
+                    require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
+                    require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
+                    for ($i = 0; $i < $limit; $i++) {
+                        // Go through and display all Template Variables
+                        $row = mysql_fetch_assoc($rs);
+                        if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea') {
+                            // Add richtext editor to the list
+                            if (is_array($replace_richtexteditor)) {
+                                $replace_richtexteditor = array_merge($replace_richtexteditor, array(
+                                    "tv" . $row['id'],
+                                ));
+                            } else {
+                                $replace_richtexteditor = array(
+                                    "tv" . $row['id'],
+                                );
+                            }
+                        }
+                        // splitter
+                        if ($i > 0 && $i < $limit)
+                            echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
+
+                        // post back value
+                        if(array_key_exists('tv'.$row['id'], $_POST)) {
+                            if($row['type'] == 'listbox-multiple') {
+                                $tvPBV = implode('||', $_POST['tv'.$row['id']]);
+                            } else {
+                                $tvPBV = $_POST['tv'.$row['id']];
+                            }
+                        } else {
+                            $tvPBV = $row['value'];
+                        }
+
+                        $zindex = $row['type'] == 'date' ? '100' : '500';
+                        echo "\t\t",'<tr style="height: 24px;"><td align="left" valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
+                             "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
+                             "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:{$zindex};' : ''),'">',"\n",
+                             "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row),"\n",
+                             "\t\t</td></tr>\n";
+                    }
+                    echo "\t</table>\n";
+                } else {
+                    // There aren't any Template Variables
+                    echo "\t<p>".$_lang['tmplvars_novars']."</p>\n";
+                }
+            ?>
+            </div>
+            <!-- end .sectionBody .tmplvars -->
+        <?php } ?>
+
     </div><!-- end #tabGeneral -->
 
     <!-- Settings -->
@@ -765,83 +949,6 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
             </tr>
         </table>
     </div><!-- end #tabSettings -->
-    
-            <!-- Template Variables -->
- <?php
-                $template = $default_template;
-                if (isset ($_REQUEST['newtemplate'])) {
-                    $template = $_REQUEST['newtemplate'];
-                } else {
-                    if (isset ($content['template']))
-                        $template = $content['template'];
-                }
-
-                $sql = 'SELECT DISTINCT tv.*, IF(tvc.value!=\'\',tvc.value,tv.default_text) as value '.
-                       'FROM '.$tbl_site_tmplvars.' AS tv '.
-                       'INNER JOIN '.$tbl_site_tmplvar_templates.' AS tvtpl ON tvtpl.tmplvarid = tv.id '.
-                       'LEFT JOIN '.$tbl_site_tmplvar_contentvalues.' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\''.$id.'\' '.
-                       'LEFT JOIN '.$tbl_site_tmplvar_access.' AS tva ON tva.tmplvarid=tv.id '.
-                       'WHERE tvtpl.templateid=\''.$template.'\' AND (1=\''.$_SESSION['mgrRole'].'\' OR ISNULL(tva.documentgroup)'.
-                       (!$docgrp ? '' : ' OR tva.documentgroup IN ('.$docgrp.')').
-                       ') ORDER BY tvtpl.rank,tv.rank, tv.id';
-                $rs = mysql_query($sql);
-                $limit = mysql_num_rows($rs);
-                if ($limit > 0) {
-?>
- 
-            
-            <div class="tab-page" id="tabTVs">
-        <h2 class="tab"><?php echo $_lang['settings_templvars']?></h2>
-        <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabTVs" ) );</script>
-<?php
-
-                    echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
-                    require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
-                    require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
-                    for ($i = 0; $i < $limit; $i++) {
-                        // Go through and display all Template Variables
-                        $row = mysql_fetch_assoc($rs);
-                        if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea') {
-                            // Add richtext editor to the list
-                            if (is_array($replace_richtexteditor)) {
-                                $replace_richtexteditor = array_merge($replace_richtexteditor, array(
-                                    "tv" . $row['id'],
-                                ));
-                            } else {
-                                $replace_richtexteditor = array(
-                                    "tv" . $row['id'],
-                                );
-                            }
-                        }
-                        // splitter
-                        if ($i > 0 && $i < $limit)
-                            echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
-
-                        // post back value
-                        if(array_key_exists('tv'.$row['id'], $_POST)) {
-                            if($row['type'] == 'listbox-multiple') {
-                                $tvPBV = implode('||', $_POST['tv'.$row['id']]);
-                            } else {
-                                $tvPBV = $_POST['tv'.$row['id']];
-                            }
-                        } else {
-                            $tvPBV = $row['value'];
-                        }
-
-                        $zindex = $row['type'] == 'date' ? '100' : '500';
-                        echo "\t\t",'<tr style="height: 24px;"><td align="left" valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
-                             "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
-                             "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:{$zindex};' : ''),'">',"\n",
-                             "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row),"\n",
-                             "\t\t</td></tr>\n";
-                    }
-                    echo "\t</table>\n";
-                } 
-            ?>
-            </div>
-            <!-- end .sectionBody .tmplvars -->
-        <?php } ?>
-
 
 <?php if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta']) {
     // get list of site keywords

@@ -5,11 +5,9 @@ if(!$modx->hasPermission('edit_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$theme = $manager_theme ? "$manager_theme/":"";
 
 // initialize page view state - the $_PAGE object
 $modx->manager->initPageViewState();
-
 // get and save search string
 if($_REQUEST['op']=='reset') {
 	$query = '';
@@ -29,8 +27,8 @@ $_PAGE['vs']['lm'] = $listmode;
 // context menu
 include_once $base_path."manager/includes/controls/contextmenu.php";
 $cm = new ContextMenu("cntxm", 150);
-$cm->addItem($_lang["edit"],"js:menuAction(1)","media/style/$manager_theme/images/icons/logging.gif",(!$modx->hasPermission('edit_user') ? 1:0));
-$cm->addItem($_lang["delete"], "js:menuAction(2)","media/style/$manager_theme/images/icons/delete.gif",(!$modx->hasPermission('delete_user') ? 1:0));
+$cm->addItem($_lang["edit"],   "js:menuAction(1)", $style_path . "icons/logging.gif",(!$modx->hasPermission('edit_user') ? 1:0));
+$cm->addItem($_lang["delete"], "js:menuAction(2)", $style_path . "icons/delete.gif",(!$modx->hasPermission('delete_user') ? 1:0));
 echo $cm->render();
 
 ?>
@@ -98,8 +96,8 @@ echo $cm->render();
 			<td nowrap="nowrap">
 				<table border="0" style="float:right"><tr><td><?php echo $_lang["search"]; ?></td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query; ?>" /></td>
 				<td><a href="#" class="searchbutton" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang['go']; ?></a></td>
-				<td><a href="#" class="searchbutton" title="<?php echo $_lang["reset"];?>" onclick="resetSearch();return false;"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/refresh.gif" width="16" height="16"/></a></td>
-				<td><a href="#" class="searchbutton" title="<?php echo $_lang["list_mode"];?>" onclick="changeListMode();return false;"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/table.gif" width="16" height="16"/></a></td>
+				<td><a href="#" class="searchbutton" title="<?php echo $_lang["reset"];?>" onclick="resetSearch();return false;"><img src="<?php echo $style_path; ?>icons/refresh.gif" width="16" height="16"/></a></td>
+				<td><a href="#" class="searchbutton" title="<?php echo $_lang["list_mode"];?>" onclick="changeListMode();return false;"><img src="<?php echo $style_path; ?>icons/table.gif" width="16" height="16"/></a></td>
 				</tr>
 				</table>
 			</td>

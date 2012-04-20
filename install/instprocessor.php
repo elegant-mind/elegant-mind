@@ -70,6 +70,11 @@ if (!@ $conn = mysql_connect($database_server, $database_user, $database_passwor
     echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
 }
 
+if (function_exists('mysql_set_charset'))
+{
+	mysql_set_charset($database_connection_charset);
+}
+
 // select database
 echo "<p>".$_lang['setup_database_selection']. str_replace("`", "", $dbase) . "`: ";
 if (!@ mysql_select_db(str_replace("`", "", $dbase), $conn)) {
@@ -205,8 +210,8 @@ $configString = '<?php
  */
 $database_type = \'mysql\';
 $database_server = \'' . $database_server . '\';
-$database_user = \'' . mysql_real_escape_string($database_user) . '\';
-$database_password = \'' . mysql_real_escape_string($database_password) . '\';
+$database_user = \'' . modx_escape($database_user) . '\';
+$database_password = \'' . modx_escape($database_password) . '\';
 $database_connection_charset = \'' . $database_connection_charset . '\';
 $database_connection_method = \'' . $database_connection_method . '\';
 $dbase = \'`' . str_replace("`", "", $dbase) . '`\';
@@ -331,10 +336,10 @@ if (isset ($_POST['template']) || $installData) {
     foreach ($moduleTemplates as $k=>$moduleTemplate) {
         $installSample = in_array('sample', $moduleTemplate[6]) && $installData == 1;
         if(in_array($k, $selTemplates) || $installSample) {
-            $name = mysql_real_escape_string($moduleTemplate[0]);
-            $desc = mysql_real_escape_string($moduleTemplate[1]);
-            $category = mysql_real_escape_string($moduleTemplate[4]);
-            $locked = mysql_real_escape_string($moduleTemplate[5]);
+            $name = modx_escape($moduleTemplate[0]);
+            $desc = modx_escape($moduleTemplate[1]);
+            $category = modx_escape($moduleTemplate[4]);
+            $locked = modx_escape($moduleTemplate[5]);
             $filecontent = $moduleTemplate[3];
             if (!file_exists($filecontent)) {
                 echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
@@ -344,7 +349,7 @@ if (isset ($_POST['template']) || $installData) {
 
                 // Strip the first comment up top
                 $template = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-                $template = mysql_real_escape_string($template);
+                $template = modx_escape($template);
 
                 // See if the template already exists
                 $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_templates` WHERE templatename='$name'", $sqlParser->conn);
@@ -376,18 +381,18 @@ if (isset ($_POST['tv']) || $installData) {
     foreach ($moduleTVs as $k=>$moduleTV) {
         $installSample = in_array('sample', $moduleTV[12]) && $installData == 1;
         if(in_array($k, $selTVs) || $installSample) {
-            $name = mysql_real_escape_string($moduleTV[0]);
-            $caption = mysql_real_escape_string($moduleTV[1]);
-            $desc = mysql_real_escape_string($moduleTV[2]);
-            $input_type = mysql_real_escape_string($moduleTV[3]);
-            $input_options = mysql_real_escape_string($moduleTV[4]);
-            $input_default = mysql_real_escape_string($moduleTV[5]);
-            $output_widget = mysql_real_escape_string($moduleTV[6]);
-            $output_widget_params = mysql_real_escape_string($moduleTV[7]);
+            $name = modx_escape($moduleTV[0]);
+            $caption = modx_escape($moduleTV[1]);
+            $desc = modx_escape($moduleTV[2]);
+            $input_type = modx_escape($moduleTV[3]);
+            $input_options = modx_escape($moduleTV[4]);
+            $input_default = modx_escape($moduleTV[5]);
+            $output_widget = modx_escape($moduleTV[6]);
+            $output_widget_params = modx_escape($moduleTV[7]);
             $filecontent = $moduleTV[8];
             $assignments = $moduleTV[9];
-            $category = mysql_real_escape_string($moduleTV[10]);
-            $locked = mysql_real_escape_string($moduleTV[11]);
+            $category = modx_escape($moduleTV[10]);
+            $locked = modx_escape($moduleTV[11]);
 
 
             // Create the category if it does not already exist
@@ -427,7 +432,7 @@ if (isset ($_POST['tv']) || $installData) {
 
                 // add tv -> template assignments
                 foreach ($assignments as $assignment) {
-                    $template = mysql_real_escape_string($assignment);
+                    $template = modx_escape($assignment);
                     $ts = mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_templates` WHERE templatename='$template';",$sqlParser->conn);
                     if ($ds && $ts) {
                         $tRow = mysql_fetch_assoc($ts);
@@ -448,10 +453,10 @@ if (isset ($_POST['chunk']) || $installData) {
         $installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
         if(in_array($k, $selChunks) || $installSample) {
 
-            $name = mysql_real_escape_string($moduleChunk[0]);
-            $desc = mysql_real_escape_string($moduleChunk[1]);
-            $category = mysql_real_escape_string($moduleChunk[3]);
-            $overwrite = mysql_real_escape_string($moduleChunk[4]);
+            $name = modx_escape($moduleChunk[0]);
+            $desc = modx_escape($moduleChunk[1]);
+            $category = modx_escape($moduleChunk[3]);
+            $overwrite = modx_escape($moduleChunk[4]);
             $filecontent = $moduleChunk[2];
 
             if (!file_exists($filecontent))
@@ -462,7 +467,7 @@ if (isset ($_POST['chunk']) || $installData) {
                 $category_id = getCreateDbCategory($category, $sqlParser);
 
                 $chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-                $chunk = mysql_real_escape_string($chunk);
+                $chunk = modx_escape($chunk);
                 $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_htmlsnippets` WHERE name='$name'", $sqlParser->conn);
                 $count_original_name = mysql_num_rows($rs);
                 if($overwrite == 'false') {
@@ -501,13 +506,13 @@ if (isset ($_POST['module']) || $installData) {
     foreach ($moduleModules as $k=>$moduleModule) {
         $installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
         if(in_array($k, $selModules) || $installSample) {
-            $name = mysql_real_escape_string($moduleModule[0]);
-            $desc = mysql_real_escape_string($moduleModule[1]);
+            $name = modx_escape($moduleModule[0]);
+            $desc = modx_escape($moduleModule[1]);
             $filecontent = $moduleModule[2];
-            $properties = mysql_real_escape_string($moduleModule[3]);
-            $guid = mysql_real_escape_string($moduleModule[4]);
-            $shared = mysql_real_escape_string($moduleModule[5]);
-            $category = mysql_real_escape_string($moduleModule[6]);
+            $properties = modx_escape($moduleModule[3]);
+            $guid = modx_escape($moduleModule[4]);
+            $shared = modx_escape($moduleModule[5]);
+            $category = modx_escape($moduleModule[6]);
             if (!file_exists($filecontent))
                 echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_module'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
             else {
@@ -518,7 +523,7 @@ if (isset ($_POST['module']) || $installData) {
                 $module = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
                 // remove installer docblock
                 $module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
-                $module = mysql_real_escape_string($module);
+                $module = modx_escape($module);
                 $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_modules` WHERE name='$name'", $sqlParser->conn);
                 if (mysql_num_rows($rs)) {
                     $row = mysql_fetch_assoc($rs);
@@ -547,17 +552,17 @@ if (isset ($_POST['plugin']) || $installData) {
     foreach ($modulePlugins as $k=>$modulePlugin) {
         $installSample = in_array('sample', $modulePlugin[8]) && $installData == 1;
         if(in_array($k, $selPlugs) || $installSample) {
-            $name = mysql_real_escape_string($modulePlugin[0]);
-            $desc = mysql_real_escape_string($modulePlugin[1]);
+            $name = modx_escape($modulePlugin[0]);
+            $desc = modx_escape($modulePlugin[1]);
             $filecontent = $modulePlugin[2];
-            $properties = mysql_real_escape_string($modulePlugin[3]);
+            $properties = modx_escape($modulePlugin[3]);
             $events = explode(",", $modulePlugin[4]);
-            $guid = mysql_real_escape_string($modulePlugin[5]);
-            $category = mysql_real_escape_string($modulePlugin[6]);
+            $guid = modx_escape($modulePlugin[5]);
+            $category = modx_escape($modulePlugin[6]);
             $leg_names = '';
             if(array_key_exists(7, $modulePlugin)) {
                 // parse comma-separated legacy names and prepare them for sql IN clause
-                $leg_names = "'" . implode("','", preg_split('/\s*,\s*/', mysql_real_escape_string($modulePlugin[7]))) . "'";
+                $leg_names = "'" . implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugin[7]))) . "'";
             }
             if (!file_exists($filecontent))
                 echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
@@ -575,7 +580,7 @@ if (isset ($_POST['plugin']) || $installData) {
                 $plugin = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
                 // remove installer docblock
                 $plugin = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $plugin, 1);
-                $plugin = mysql_real_escape_string($plugin);
+                $plugin = modx_escape($plugin);
                 $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name'", $sqlParser->conn);
                 if (mysql_num_rows($rs)) {
                     $insert = true;
@@ -632,11 +637,11 @@ if (isset ($_POST['snippet']) || $installData) {
     foreach ($moduleSnippets as $k=>$moduleSnippet) {
         $installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
         if(in_array($k, $selSnips) || $installSample) {
-            $name = mysql_real_escape_string($moduleSnippet[0]);
-            $desc = mysql_real_escape_string($moduleSnippet[1]);
+            $name = modx_escape($moduleSnippet[0]);
+            $desc = modx_escape($moduleSnippet[1]);
             $filecontent = $moduleSnippet[2];
-            $properties = mysql_real_escape_string($moduleSnippet[3]);
-            $category = mysql_real_escape_string($moduleSnippet[4]);
+            $properties = modx_escape($moduleSnippet[3]);
+            $category = modx_escape($moduleSnippet[4]);
             if (!file_exists($filecontent))
                 echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
             else {
@@ -647,7 +652,7 @@ if (isset ($_POST['snippet']) || $installData) {
                 $snippet = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent)));
                 // remove installer docblock
                 $snippet = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $snippet, 1);
-                $snippet = mysql_real_escape_string($snippet);
+                $snippet = modx_escape($snippet);
                 $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_snippets` WHERE name='$name'", $sqlParser->conn);
                 if (mysql_num_rows($rs)) {
                     $row = mysql_fetch_assoc($rs);
@@ -770,7 +775,7 @@ function getCreateDbCategory($category, $sqlParser) {
     $table_prefix = $sqlParser->prefix;
     $category_id = 0;
     if(!empty($category)) {
-        $category = mysql_real_escape_string($category);
+        $category = modx_escape($category);
         $rs = mysql_query("SELECT id FROM $dbase.`".$table_prefix."categories` WHERE category = '".$category."'");
         if(mysql_num_rows($rs) && ($row = mysql_fetch_assoc($rs))) {
             $category_id = $row['id'];
@@ -784,3 +789,17 @@ function getCreateDbCategory($category, $sqlParser) {
     }
     return $category_id;
 }
+
+function modx_escape($s) {
+global $database_connection_charset;
+  if (function_exists('mysql_set_charset'))
+  {
+     $s = mysql_real_escape_string($s);
+  }
+  else
+  {
+     $s = mysql_escape_string($s);
+  }
+  return $s;
+}
+?>

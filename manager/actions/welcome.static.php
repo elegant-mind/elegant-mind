@@ -107,18 +107,24 @@ $modx->setPlaceholder('modx_security_notices_content',$feedData['modx_security_n
 
 // recent document info
 $html = $_lang["activity_message"].'<br /><br /><ul>';
-$sql = "SELECT id, pagetitle, description FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND ($dbase.`".$table_prefix."site_content`.editedby=".$modx->getLoginUserID()." OR $dbase.`".$table_prefix."site_content`.createdby=".$modx->getLoginUserID().") ORDER BY editedon DESC LIMIT 10";
+$sql  = 'SELECT id, pagetitle, description, editedon, editedby';
+$sql .= ' FROM ' . $modx->getFullTableName('site_content');
+//$sql .= ' LEFT JOIN ' . $modx->getFullTableName('manager_log') . ' AS mlog ON mlog.internalKey = editedby';
+$sql .= ' WHERE deleted=0 AND editedby=' . $modx->getLoginUserID();
+$sql .= ' ORDER BY editedon DESC LIMIT 10';
 $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 if($limit<1) {
     $html .= '<li>'.$_lang['no_activity_message'].'</li>';
 } else {
     for ($i = 0; $i < $limit; $i++) {
-        $content = mysql_fetch_assoc($rs);
+        $row = mysql_fetch_assoc($rs);
         if($i==0) {
-            $syncid = $content['id'];
+            $syncid = $row['id'];
         }
-        $html.='<li><span style="width: 40px; text-align:right;">'.$content['id'].'</span> - <span style="width: 200px;"><a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a></span>'.($content['description']!='' ? ' - '.$content['description'] : '').'</li>';
+        
+        $html.='<li><b>' . $modx->toDateFormat($row['editedon']) . '</b> - [' . $row['id'] .'] <a href="index.php?a=3&amp;id='.$row['id'].'">'.$row['pagetitle'].'</a>'.($row['description']!='' ? ' - '.$row['description'] : '')
+        .'</li>';
     }
 }
 $html.='</ul>';
@@ -129,6 +135,12 @@ $modx->setPlaceholder('RecentInfo',$html);
 // user info
 $modx->setPlaceholder('info',$_lang['info']);
 $modx->setPlaceholder('yourinfo_title',$_lang['yourinfo_title']);
+if(!empty($_SESSION['mgrLastlogin']))
+{
+     $Lastlogin = $modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time);
+}
+else $Lastlogin = '-';
+
 $html = '
     <p>'.$_lang["yourinfo_message"].'</p>
     <table border="0" cellspacing="0" cellpadding="0">
@@ -145,7 +157,7 @@ $html = '
       <tr>
         <td>'.$_lang["yourinfo_previous_login"].'</td>
         <td>&nbsp;</td>
-        <td><b>'.$modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time).'</b></td>
+        <td><b>' . $Lastlogin . '</b></td>
       </tr>
       <tr>
         <td>'.$_lang["yourinfo_total_logins"].'</td>
@@ -166,10 +178,11 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
     $sql = "SELECT * FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.lasthit>'$timetocheck' ORDER BY username ASC";
     $rs = mysql_query($sql);
     $limit = mysql_num_rows($rs);
-    if($limit<1) {
+    if($limit<2) {
         $html = "<p>".$_lang['no_active_users_found']."</p>";
     } else {
-        $html = $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>):<br /><br />
+        $html = '<p>' . $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>)</p>';
+        $html .= '
                 <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
                   <thead>
                     <tr>

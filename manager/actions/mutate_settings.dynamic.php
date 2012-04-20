@@ -194,7 +194,7 @@ function confirmLangChange(el, lkey, elupd){
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <div class="tab-pane" id="settingsPane">
       <script type="text/javascript">
-		tpSettings = new WebFXTabPane( document.getElementById( "settingsPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+		tpSettings = new WebFXTabPane( document.getElementById( "settingsPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
 	</script>
 
 	<!-- Site Settings -->
