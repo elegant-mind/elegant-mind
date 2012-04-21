@@ -56,8 +56,9 @@
 				$field_html .=  "</select>";
 				break;
 			case "listbox": // handler for select boxes
-				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" onchange="documentDirty=true;" size="8">';	
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+				$count = (count($index_list)<8) ? count($index_list) : 8;
+				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" onchange="documentDirty=true;" size="' . $count . '">';	
 				while (list($item, $itemvalue) = each ($index_list))
 				{
 					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
@@ -67,9 +68,10 @@
 				$field_html .=  "</select>";
 				break;
 			case "listbox-multiple": // handler for select boxes where you can choose multiple items
-				$field_value = explode("||",$field_value);
-				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" onchange="documentDirty=true;" size="8">';
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+				$count = (count($index_list)<8) ? count($index_list) : 8;
+				$field_value = explode("||",$field_value);
+				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" onchange="documentDirty=true;" size="' . $count . '">';
 				while (list($item, $itemvalue) = each ($index_list))
 				{
 					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
@@ -99,17 +101,19 @@
 				{
 					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
 					if (strlen($itemvalue)==0) $itemvalue = $item;
-					$field_html .=  '<input type="checkbox" value="'.htmlspecialchars($itemvalue).'" id="tv_'.$i.'" name="tv'.$field_id.'[]" '. (in_array($itemvalue,$field_value)?" checked='checked'":"").' onchange="documentDirty=true;" /><label for="tv_'.$i.'">'.$item.'</label><br />';
+					$field_html .=  '<label for="tv_'.$i.'"><input type="checkbox" value="'.htmlspecialchars($itemvalue).'" id="tv_'.$i.'" name="tv'.$field_id.'[]" '. (in_array($itemvalue,$field_value)?" checked='checked'":"").' onchange="documentDirty=true;" />'.$item.'</label>';
 					$i++;
 				}
 				break;
 			case "option": // handles radio buttons
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+				static $i=0;
 				while (list($item, $itemvalue) = each ($index_list))
 				{
 					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
 					if (strlen($itemvalue)==0) $itemvalue = $item;
-					$field_html .=  '<input type="radio" value="'.htmlspecialchars($itemvalue).'" name="tv'.$field_id.'" '.($itemvalue==$field_value ?'checked="checked"':'').' onchange="documentDirty=true;" />'.$item.'<br />';
+					$field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.htmlspecialchars($itemvalue).'" id="tv_'.$i.'" name="tv'.$field_id.'" '.($itemvalue==$field_value ?'checked="checked"':'').' onchange="documentDirty=true;" />'.$item.'</label>';
+					$i++;
 				}
 				break;
 			case "image":	// handles image fields using htmlarea image manager

@@ -48,9 +48,10 @@ class synccache{
     }
 
     function emptyCache($modx = null) {
-        if((function_exists('is_a') && is_a($modx, 'DocumentParser') === false) || get_class($modx) !== 'DocumentParser') {
-            $modx = $GLOBALS['modx'];
-        }
+        $instance_name = get_class($modx);
+        $instance_name = strtolower($instance_name);
+        if($instance_name!=='documentparser') global $modx;
+        
         if(!isset($this->cachePath)) {
             echo "Cache path not set.";
             exit;

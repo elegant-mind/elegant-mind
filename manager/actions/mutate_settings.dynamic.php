@@ -930,9 +930,9 @@ function confirmLangChange(el, lkey, elupd){
             </tr>
              <tr>
       		   <td nowrap class="warning"><b><?php echo $_lang["tree_page_click"] ?></b></td>
-      		   <td> <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo $tree_page_click=='27' ? 'checked="checked"' : ""; ?> />
+      		   <td> <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo ($tree_page_click=='27' || !isset($tree_page_click)) ? 'checked="checked"' : ""; ?> />
       			 <?php echo $_lang["edit_resource"]?><br />
-      			 <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="3" <?php echo ($tree_page_click=='3' || !isset($tree_page_click)) ? 'checked="checked"' : ""; ?> />
+      			 <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="3" <?php echo ($tree_page_click=='3') ? 'checked="checked"' : ""; ?> />
       			 <?php echo $_lang["doc_data_title"]?></td>
       		 </tr>
              <tr>
@@ -942,11 +942,29 @@ function confirmLangChange(el, lkey, elupd){
              <tr>
               <td colspan="2"><div class='split'></div></td>
             </tr>
+            <?php
+                $remember_last_tab_checked2 = '';
+                $remember_last_tab_checked1 = '';
+                $remember_last_tab_checked0 = '';
+                switch($remember_last_tab)
+                {
+                    case '2':
+                    $remember_last_tab_checked2 = 'checked="checked"';
+                    break;
+                    case '1':
+                    $remember_last_tab_checked1 = 'checked="checked"';
+                    break;
+                    default:
+                    $remember_last_tab_checked0 = 'checked="checked"';
+                }
+            ?>
              <tr>
                <td nowrap class="warning"><b><?php echo $_lang["remember_last_tab"] ?></b></td>
-               <td> <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="1" <?php echo $remember_last_tab=='1' ? 'checked="checked"' : ""; ?> />
-                 <?php echo $_lang["yes"]?><br />
-                 <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="0" <?php echo (!isset($remember_last_tab) || $remember_last_tab=='0') ? 'checked="checked"' : ""; ?> />
+               <td> <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="2" <?php echo $remember_last_tab_checked2; ?> />
+                 <?php echo $_lang["yes"]?> (Full)<br />
+ <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="1" <?php echo $remember_last_tab_checked1; ?> />
+                 <?php echo $_lang["yes"]?> (Stay mode)<br />
+                 <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="0" <?php echo $remember_last_tab_checked0; ?> />
                  <?php echo $_lang["no"]?></td>
              </tr>
              <tr>
@@ -1064,20 +1082,6 @@ function confirmLangChange(el, lkey, elupd){
             <td colspan="2"><div class='split'></div></td>
           </tr>
           <tr>
-            <td nowrap class="warning"><b><?php echo $_lang["settings_strip_image_paths_title"]?></b></td>
-            <td><input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="1" <?php echo $strip_image_paths=='1' ? 'checked="checked"' : "" ; ?> />
-              <?php echo $_lang["yes"]?><br />
-              <input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="0" <?php echo ($strip_image_paths=='0' || !isset($strip_image_paths)) ? 'checked="checked"' : "" ; ?> />
-              <?php echo $_lang["no"]?> </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["settings_strip_image_paths_message"]?></td>
-          </tr>
-          <tr>
-            <td colspan="2"><div class='split'></div></td>
-          </tr>
-          <tr>
             <td nowrap class="warning"><b><?php echo $_lang["rb_title"]?></b></td>
             <td> <input onchange="documentDirty=true;" type="radio" name="use_browser" value="1" <?php echo ($use_browser=='1' || !isset($use_browser)) ? 'checked="checked"' : "" ; ?> onclick="showHide(/rbRow/, 1);" />
               <?php echo $_lang["yes"]?><br />
@@ -1089,6 +1093,21 @@ function confirmLangChange(el, lkey, elupd){
             <td class='comment'><?php echo $_lang["rb_message"]?></td>
           </tr>
           <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          
+          <tr id='rbRow19' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+            <td nowrap class="warning"><b><?php echo $_lang["settings_strip_image_paths_title"]?></b></td>
+            <td><input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="1" <?php echo $strip_image_paths=='1' ? 'checked="checked"' : "" ; ?> />
+              <?php echo $_lang["yes"]?><br />
+              <input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="0" <?php echo ($strip_image_paths=='0' || !isset($strip_image_paths)) ? 'checked="checked"' : "" ; ?> />
+              <?php echo $_lang["no"]?> </td>
+          </tr>
+          <tr id='rbRow20' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["settings_strip_image_paths_message"]?></td>
+          </tr>
+          <tr id='rbRow21' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
           

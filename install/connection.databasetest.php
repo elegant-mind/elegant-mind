@@ -20,15 +20,21 @@ else {
             $_POST['database_connection_method'] = stripslashes($_POST['database_connection_method']);
         }
     }
-    $database_name = mysql_real_escape_string($_POST['database_name']);
+    $database_name = modx_escape($_POST['database_name']);
     $database_name = str_replace("`", "", $database_name);
-    $tableprefix = mysql_real_escape_string($_POST['tableprefix']);
-    $database_collation = mysql_real_escape_string($_POST['database_collation']);
-    $database_connection_method = mysql_real_escape_string($_POST['database_connection_method']);
+    $tableprefix = modx_escape($_POST['tableprefix']);
+    $database_collation = modx_escape($_POST['database_collation']);
+    $database_connection_method = modx_escape($_POST['database_connection_method']);
 
     if (!@ mysql_select_db($database_name, $conn)) {
         // create database
         $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
+
+    if (function_exists('mysql_set_charset'))
+    {
+        mysql_set_charset($database_charset);
+    }
+
         $query = "CREATE DATABASE `".$database_name."` CHARACTER SET ".$database_charset." COLLATE ".$database_collation.";";
 
         if (!@ mysql_query($query)){
@@ -50,4 +56,18 @@ else {
 }
 
 echo $output;
+
+function modx_escape($s) {
+global $database_charset;
+  if (function_exists('mysql_set_charset'))
+  {
+     $s = mysql_real_escape_string($s);
+  }
+  else
+  {
+     $s = mysql_escape_string($s);
+  }
+  return $s;
+}
+
 ?>

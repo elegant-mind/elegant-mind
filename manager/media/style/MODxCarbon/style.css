@@ -19,6 +19,12 @@ body {
 	color:#333333;
 	background: #f7f7f7;
 }
+body#mainpane,
+body.treeframebody {
+	background-image :url(images/misc/mainbg.png);
+	background-repeat:repeat-x;
+	border-top:1px solid #f5f5f5;
+}
 img, a img {
 	border: 0 !important;
 	text-decoration: none;
@@ -62,7 +68,6 @@ li, dd, blockquote {
 .warning {
 	color: #444444;
 	font-weight: bold;
-	font-size:12px;
 }
 .success {
 	color: #090;
@@ -80,7 +85,7 @@ li, dd, blockquote {
 }
 /* -------------------------[ Headers and Paragraphs ]--- */
 h1, h2, h3, h4, h5, h6, .subTitle {
-	font-weight: normal;
+	font-weight: bold;
 }
 h1 {
 	font-size: 218%;
@@ -263,8 +268,6 @@ input, select, textarea, td {
 		text-align: right;
 	}
 #ta, .tmplvars textarea {
-	font-size: 130%;
-	font-family: monospace;
 }
 form input[type=text],
 form textarea {
@@ -511,13 +514,16 @@ a img {
 	color: #333;
 }
 .row2 {
-	background-color: #C8DAA2;
+	background-color: #ece7dd;
 }
 .row3 {
 	background-color: #F4F4F4;
 }
+.row3 td.warning {
+	padding-left:25px;
+}
 .treeframebody {
-	background-color: #f4f4f4;
+	background-color: #f7f7f7;
 }
 
 #treeMenu * {
@@ -527,8 +533,8 @@ a img {
 	cursor: default;
 	height: 100%;
 	padding: 5px 10px 0 10px;
-	border-top: 2px solid #fff;
-	background: #f4f4f4;
+	border-top: 1px solid #fff;
+	background: #f7f7f7;
 }
 #treeRoot div img {
 	margin: 0 0 0 -6px;
@@ -604,23 +610,28 @@ a img {
 	text-decoration: line-through;
 }
 /* -------------------------[ grid style ]--- */
-.grid {
+table.grid {
 	width: 100%;
 	background-color: #fff;
-	border: 1px solid silver;
+	border-collapse:collapse;
+	margin-bottom:20px;
 }
-.gridHeader {
-	color: #fff;
+table.grid th, table.grid td {
+	border:1px solid #ccc;
+	padding:4px;
+}
+table.grid th, .gridHeader {
+	color: #333;
 	font-weight: bold;
-	background-color: #88939E;
+	background-color: #d2d2d2;
+	white-space:nowrap;
+	text-align:left;
 }
-.gridItem {
+table.grid td.odd, .gridItem {
 	background-color: #fff;
-	padding: 3px;
 }
-.gridAltItem {
+table.grid td.even, .gridAltItem {
 	background-color: #eeeeee;
-	padding: 3px;
 }
 .gridRowIcon:hover {
 	background-color: #f5f5dc;
@@ -800,7 +811,7 @@ a.hometblink:hover {
 	}
 #nav li {
 	list-style: none;
-	background: #d4d4d4 url(images/misc/tab.gif) 100% 100%;
+	background: #323c52 url(images/misc/tab.gif) 100% 100%;
 	float: left;
 	width: auto;
 	margin: 0 3px 0 0;
@@ -899,20 +910,26 @@ a.hometblink:hover {
 	height: auto;
 	visibility: hidden;
 	z-index: 10000;
-	width: 170px;
-	background: #fff;
+	width: 165px;
+	background-color: #fff;
+	background-image:url(images/misc/tabareabg.gif);
+	background-repeat:repeat-x;
+	background-position:0 20px;
 	margin: 0;
-	padding: 2px;
+	padding-bottom:10px;
 	border: 1px solid #ededed;
 	border-right-color: #dcdcdc;
 	border-bottom-color: #dcdcdc;
 	overflow: hidden;
 	line-height: 11px;
+	box-shadow: 2px 2px 15px #eaeaea;
+	-moz-box-shadow: 2px 2px 15px #eaeaea;
+	-webkit-box-shadow: 2px 2px 20px #eaeaea;
 }
 #mx_contextmenu .menuLink {
 	cursor: pointer;
 	color: #222;
-	padding: 3px 7px 3px 2px;
+	padding: 3px 5px 3px 4px;
 }
 #mx_contextmenu .menuLink:hover {
 	background: #DDE4EB;
@@ -923,7 +940,7 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink:hover,
 #mx_contextmenu .menuLinkDisabled {
 	cursor: pointer;
-	padding: 2px 6px 2px 1px;
+	padding: 2px 4px 2px 3px;
 }
 #mx_contextmenu .menuLinkDisabled {
 	cursor: default;
@@ -932,7 +949,7 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLink:hover img,
 #mx_contextmenu .menuLinkDisabled img {
-	margin-right: 8px;
+	margin-right: 5px;
 }
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLinkDisabled img {
@@ -949,12 +966,11 @@ a.hometblink:hover {
 	text-align: left;
 	cursor: default;
 	font-weight: bold;
-	padding: 2px;
-	margin-bottom: 2px;
-	border: 1px solid #fdfdfd;
-	border-right-color: #dcdcdc;
-	border-bottom-color: #dcdcdc;
-	background: #86939E;
+	padding: 6px 4px;
+	margin-bottom: 3px;
+	background-color: #86939E;
+	background-image:url(images/misc/contextmenubg.png);
+	background-repeat:repeat-x;
 }
 #mx_contextmenu .seperator {
 	font-size: 0;
@@ -1128,9 +1144,18 @@ a.hometblink, a.hometblink img {
 }
 /* -------------------------[ New sortable table class ]--- */
 .sortabletable {
-	border: 0 solid ThreeDShadow;
-	color: WindowText;
 }
+table.sortabletable {
+border-collapse:collapse;
+width:100%;
+}
+table.sortabletable td,table.sortabletable th {
+border:1px solid #ccc;
+padding:4px;
+}
+.sortabletable a {
+}
+
 .sortabletable thead tr {
 	background-color: #86919e;
 }
@@ -1147,14 +1172,14 @@ a.hometblink, a.hometblink img {
 .sortabletable th {
 	text-align: left;
 	cursor: pointer;
-	color: #333;
+	color: #f3f3f3;
 }
 	.rtl .sortabletable th {
 		text-align: right;
 	}
 .sortabletable th a {
 	text-decoration: none;
-	color: #333;
+	color: #f3f3f3;
 }
 .sortabletable th:active {
 	background: #ccc;
@@ -1247,8 +1272,8 @@ ul.actionButtons {
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 	-webkit-text-shadow: 1px 1px 0 #fff;
-	-moz-text-shadow: 0 1px 1px #fff;
-	text-shadow: 0 1px 1px #fff;
+	-moz-text-shadow: 1px 1px 0 #fff;
+	text-shadow: 1px 1px 0 #fff;
 	border:1px solid #8ea4be;
 	outline: none;
 }
@@ -1305,8 +1330,8 @@ form#mutate input.disabled {
 }
 
 form#mutate select.inputBox,
-form#mutate input,
-form#mutate textarea {
+form#mutate input
+ {
 	width: 300px;
 }
 form#mutate input.inputBox,
@@ -1567,5 +1592,34 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .cbBox p {margin:3px;}
 .cbBox .cbButtons {text-align:center;}
 .sysAlert {width: 500px;height: 330px;white-space: nowrap;overflow: auto;}
+
+
+/* modx-ja
+---------------------------------------------------------- */
+td.comment, span.comment,
+body #supplementalNav,
+body .dynamic-tab-pane-control .tab-row .tab,
+body .dynamic-tab-pane-control .tab-row .tab span,
+body .custom-title,body .custom-text,
+body .dp_cal select,
+body .dp_cal th, body .dp_cal td,
+small {font-size:12px;}
+body h1 {font-weight:bold;font-size: 144%;}
+div.sectionBody h1 {font-weight:normal;font-size: 164%;}
+i, em {font-style:normal;}
+
+a#button7 {margin:7px 3px;border:1px solid #ccc;background-color:#eee;text-decoration:none;cursor:pointer;padding: 2px 4px;color:#333;}
+
+td input.button {width:30px !important;cursor:pointer;border:1px solid #ccc; background-color:#f5f5f5;margin-left:5px; margin-bottom: 3px; padding:2px 5px;}
+
+form#mutate input.text,
+input.inputBox,
+form#mutate input.imageField {width:300px;}
+form#mutate textarea.inputBox {width:300px;height:80px;}
+form#mutate textarea {width:90%;height:240px;}
+form#mutate textarea.textareamini {height:120px;}
+form#mutate input.number,input.email {ime-mode:disabled;}
+form#mutate input.number {width:80px !important;text-align:right;}
+form#mutate div.tmplvars label {display:block;}
 
 .phptextarea {font-family: 'Courier New','Courier', monospace;}

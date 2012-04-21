@@ -267,7 +267,7 @@ if (is_array($evtOut))
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="userPane">
 	<script type="text/javascript">
-		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
     <div class="tab-page" id="tabGeneral">
     	<h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
@@ -281,7 +281,7 @@ if (is_array($evtOut))
 		  <?php if(!empty($userdata['id'])) { ?>
 		  <tr id="showname" style="display: <?php echo ($_GET['a']=='12' && (!isset($usernamedata['oldusername'])||$usernamedata['oldusername']==$usernamedata['username'])) ? $displayStyle : 'none';?> ">
 			<td colspan="3">
-				<img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/user.gif" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
+				<img src="<?php echo $_style['icons_user'] ?>" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
 				<input type="hidden" name="oldusername" value="<?php echo htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']); ?>" />
 				<hr />
 			</td>
@@ -348,7 +348,7 @@ while ($row = mysql_fetch_assoc($rs)) {
     if ($_REQUEST['a']=='11') {
         $selectedtext = $row['id'] == '1' ? ' selected="selected"' : '';
     } else {
-        $selectedtext = $row['id'] == $userdata['role'] ? "selected='selected'" : '';
+		$selectedtext = $row['id'] == $userdata['role'] ? ' selected="selected"' : '';
     }
 ?>
 			<option value="<?php echo $row['id']; ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
@@ -430,10 +430,17 @@ while ($row = mysql_fetch_assoc($rs)) {
 			<td>&nbsp;</td>
 			<td><?php echo $userdata['logincount'] ?></td>
 		  </tr>
+		  <?php
+		      if(!empty($userdata['lastlogin']))
+		      {
+		           $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
+		      }
+		      else $lastlogin = '-';
+		  ?>
 		  <tr>
 			<td><?php echo $_lang['user_prevlogin']; ?>:</td>
 			<td>&nbsp;</td>
-			<td><?php echo $modx->toDateFormat($userdata['lastlogin']+$server_offset_time) ?></td>
+			<td><?php echo $lastlogin ?></td>
 		  </tr>
 		  <tr>
 			<td><?php echo $_lang['user_failedlogincount']; ?>:</td>
