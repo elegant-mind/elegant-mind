@@ -173,7 +173,7 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
         
         $result = $this->object->query($sql);
         
-        $this->assertTrue(is_array($result));
+        $this->assertTrue(is_a($result, 'ezSQL_recordset'));
     }
 
     /**
@@ -314,8 +314,8 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
         $sql = 'SELECT COUNT(*) AS testCount, \'Test\' AS testText FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
         
         $result = $this->object->query($sql);
-                
-        $row = $this->object->getRow($result);
+        
+        $row = $this->object->getRow($result, DBAPI::ROW_MODE_OBJECT);
         
         $this->assertEquals('Test', $row->testText);
         
@@ -343,7 +343,7 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
                 $this->object->getCurrentDatabaseEngine() == DBAPI::DB_MYSQL_INNODB)) {
             $sql = 'SELECT COUNT(*) AS testCount FROM ' . $this->testConfig['MODX_base_configuration']['table_prefix'] . 'categories';
 
-            $result = $this->object->query($sql);
+            $this->object->query($sql);
 
             $this->assertEquals(0, $this->object->getAffectedRows($this->object->conn));
         }

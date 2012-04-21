@@ -43,6 +43,21 @@ class DBAPI
     const EZSQL_PATH = 'manager/includes/lib/ezSQL/';
 
     /**
+     * Get row as associative array
+     */
+    const ROW_MODE_ASSOC = 'assoc';
+
+    /**
+     * Get row as numbered array
+     */
+    const ROW_MODE_ROW = 'num';
+
+    /**
+     * Get row as stdClass object
+     */
+    const ROW_MODE_OBJECT = 'object';
+
+    /**
      * The instance of the DBAPI class
      * @var object Default: null
      */
@@ -61,12 +76,6 @@ class DBAPI
     private $_connected = false;
 
     /**
-     * The number of the current record, is set in queries
-     * @var int
-     */
-    private $_curRecord = 0;
-
-    /**
      * The database object.
      * @var ezSQL_mysql
      */
@@ -77,6 +86,17 @@ class DBAPI
      * @var array
      */
     public $config = array();
+
+    /**
+     * Possible row modes
+     * @var array
+     */
+    protected $_rowModes = array(
+        'assoc'
+        , 'num'
+        , 'object'
+    );
+
 
     /**
      * Empty and private constructor for the singleton
@@ -107,6 +127,7 @@ class DBAPI
             self::$instance->config = $config;
 
             include self::$instance->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_core.php';
+            include self::$instance->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_recordset.php';
 
             switch (self::$instance->config['db_type']) {
                 case self::DB_MYSQL_MYISAM:
@@ -271,7 +292,7 @@ class DBAPI
      * Executes an SQL statement.
      *
      * @param string $sql The SQL statement to execute.
-     * @return object The result of the executed SQL statement.
+     * @return ezSQL_recordset The result of the executed SQL statement.
      */
     public function query($sql) {
         global $modx;
@@ -282,7 +303,11 @@ class DBAPI
             $this->connect();
         }
         // Run the query and set the result
-        $result = $this->conn->get_results($sql);
+        if ( preg_match("/^(insert|delete|update|replace)\s+/i", $sql) ) {        
+            $result = $this->conn->get_results($sql);
+        } else {
+            $result = new ezSQL_recordset($this->conn->get_results($sql));
+        }
 
         $tend = $modx->getMicroTime();
         $totaltime = $tend - $tstart;
@@ -293,9 +318,6 @@ class DBAPI
         }
 
         $modx->setExecutedQueries();
-
-        // Reset record position
-        $this->_curRecord = 0;
 
         return $result;
     } // query
@@ -312,7 +334,7 @@ class DBAPI
     /**
      * Execute a DELETE statement.
      *
-     * @param string $from 
+     * @param string $from
      * @param string $where
      * @param type $fields
      * @return boolean
@@ -345,7 +367,16 @@ class DBAPI
         return $result;
     } // delete
 
-    function getInsertId($conn=NULL) {
+    /**
+     * Returns the last inserted id. This does only work with MySQL connections. 
+     * Other databases do not support this method. In this cases, the result is
+     * zero (0).
+     * 
+     * @param ezSQLcore $conn The connection object to get the inserted id. 
+     *                        Default: null The current connection is used.
+     * @return int 
+     */
+    function getInsertId($conn=null) {
         $result = 0;
 
         if (!is_resource($conn)) {
@@ -370,7 +401,7 @@ class DBAPI
         }
 
         return $result;
-    }
+    } // getInsertId
 
     /**
      * Get the last database error.
@@ -445,14 +476,35 @@ class DBAPI
     /**
      * Returns the current record and increases the current record position
      *
-     * @param array $ds
-     * @param string $mode only for compatibility, not used at all
-     * @return type
+     * @param ezSQL_recordset $ds
+     * @param string $mode Three modes are available, that are supported by
+     *                     ezSQL_recordset class: fetch_assoc, fetch_row,
+     *                     fetch_object
+     *                     Default: fetch_assoc
+     * @return stdClass/array
      */
-    public function getRow($ds, $mode='assoc') {
-        $result = $ds[$this->_curRecord];
+    public function getRow($ds, $mode=self::ROW_MODE_ASSOC) {
+        switch ($mode) {
+            case self::ROW_MODE_ASSOC:
+                $result = $ds->ezSQL_fetch_assoc();
 
-        $this->_curRecord++;
+                break;
+
+            case self::ROW_MODE_ROW:
+                $result = $ds->ezSQL_fetch_row();
+
+                break;
+
+            case self::ROW_MODE_OBJECT:
+                $result = $ds->ezSQL_fetch_object();
+
+                break;
+
+            default:
+                $result = false;
+
+                break;
+        }
 
         return $result;
     } // getRow
