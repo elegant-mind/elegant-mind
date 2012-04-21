@@ -126,25 +126,25 @@ class DBAPI
 
             self::$instance->config = $config;
 
-            include self::$instance->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_core.php';
-            include self::$instance->config['basePath'] . self::EZSQL_PATH . '/shared/ez_sql_recordset.php';
+            include self::$instance->config['base_path'] . self::EZSQL_PATH . '/shared/ez_sql_core.php';
+            include self::$instance->config['base_path'] . self::EZSQL_PATH . '/shared/ez_sql_recordset.php';
 
             switch (self::$instance->config['db_type']) {
                 case self::DB_MYSQL_MYISAM:
                     self::$instance->_currentDBEngine = self::DB_MYSQL_MYISAM;
-                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
+                    include self::$instance->config['base_path'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
 
                     break;
 
                 case self::DB_MYSQL_INNODB:
                     self::$instance->_currentDBEngine = self::DB_MYSQL_INNODB;
-                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
+                    include self::$instance->config['base_path'] . self::EZSQL_PATH . 'mysql/ez_sql_mysql.php';
 
                     break;
 
                 case self::DB_POSTGRESQL:
                     self::$instance->_currentDBEngine = self::DB_POSTGRESQL;
-                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'postgresql/ez_sql_postgresql.php';
+                    include self::$instance->config['base_path'] . self::EZSQL_PATH . 'postgresql/ez_sql_postgresql.php';
                     if (array_key_exists('port', self::$instance->config)) {
                         if (empty(self::$instance->config['port'])) {
                             self::$instance->config['port'] = self::POSTGRESQL_DEFAULT_PORT;
@@ -157,7 +157,7 @@ class DBAPI
 
                 case self::DB_SQLITE:
                     self::$instance->_currentDBEngine = self::DB_SQLITE;
-                    include self::$instance->config['basePath'] . self::EZSQL_PATH . 'pdo/ez_sql_pdo.php';
+                    include self::$instance->config['base_path'] . self::EZSQL_PATH . 'pdo/ez_sql_pdo.php';
 
                     break;
 
@@ -314,7 +314,7 @@ class DBAPI
         $modx->queryTime($totaltime);
 
         if ($modx->getDumpSQL()) {
-            $modx->queryCode .= "<fieldset style='text-align:left'><legend>Query " . ($this->executedQueries + 1) . " - " . sprintf("%2.4f s", $totaltime) . "</legend>" . $sql . "</fieldset><br />";
+            $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Query ' . ($this->executedQueries + 1) . " - " . sprintf("%2.4f s", $totaltime) . '</legend>' . $sql . '</fieldset><br />';
         }
 
         $modx->setExecutedQueries();

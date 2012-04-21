@@ -43,7 +43,7 @@ class DBAPITest extends PHPUnit_Framework_TestCase {
         $this->testConfig = parse_ini_file($iniFile, true);
         
         $this->config = array(
-              'basePath'    => __DIR__ . '/../../../../../'
+              'base_path'    => __DIR__ . '/../../../../../'
             , 'db_type'     => $this->testConfig['MODX_base_configuration']['database_type']
         );
 
