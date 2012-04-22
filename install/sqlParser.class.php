@@ -8,9 +8,9 @@ class SqlParser {
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
 	var $mode, $fileManagerPath, $imgPath, $imgUrl;
 	var $dbVersion;
-    var $connection_charset, $connection_method;
+    var $connection_charset, $connection_collation, $connection_method;
 
-	function SqlParser($host, $user, $password, $db, $prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'parent') {
+	function SqlParser($host, $user, $password, $db, $prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $connection_collation='utf8_general_ci', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'parent') {
 		$this->host = $host;
 		$this->dbname = $db;
 		$this->prefix = $prefix;
@@ -20,6 +20,7 @@ class SqlParser {
 		$this->adminname = $adminname;
 		$this->adminemail = $adminemail;
 		$this->connection_charset = $connection_charset;
+		$this->connection_collation = $connection_collation;
 		$this->connection_method = $connection_method;
 		$this->ignoreDuplicateErrors = false;
 		$this->managerlanguage = $managerlanguage;
@@ -29,11 +30,15 @@ class SqlParser {
 	function connect() {
 		$this->conn = mysql_connect($this->host, $this->user, $this->password);
 		mysql_select_db($this->dbname, $this->conn);
+		if (function_exists('mysql_set_charset'))
+		{
+			mysql_set_charset($this->connection_charset);
+		}
 
 		$this->dbVersion = 3.23; // assume version 3.23
 		if(function_exists("mysql_get_server_info")) {
 			$ver = mysql_get_server_info();
-			$this->dbMODx 	 = version_compare($ver,"4.0.2");
+			$this->dbMODx 	 = version_compare($ver,"4.0.20");
 			$this->dbVersion = (float) $ver; // Typecasting (float) instead of floatval() [PHP < 4.2]
 		}
 
@@ -50,14 +55,8 @@ class SqlParser {
 			return false;
 		}
 
-		$fh = fopen($filename, 'r');
-		$idata = '';
+		$idata = file_get_contents($filename);
 
-		while (!feof($fh)) {
-			$idata .= fread($fh, 1024);
-		}
-
-		fclose($fh);
 		$idata = str_replace("\r", '', $idata);
 
 		// check if in upgrade mode
@@ -68,6 +67,10 @@ class SqlParser {
 			if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed non upgradeable items",$idata);
 		}
 
+		$char_collate = '';
+		if(version_compare($this->dbVersion,'4.1.0', '>='))
+			$char_collate = ' DEFAULT CHARSET=' . $this->connection_charset . ' COLLATE ' . $this->connection_collation . ' ';
+		
 		// replace {} tags
 		$idata = str_replace('{PREFIX}', $this->prefix, $idata);
 		$idata = str_replace('{ADMIN}', $this->adminname, $idata);
@@ -78,15 +81,15 @@ class SqlParser {
 		$idata = str_replace('{FILEMANAGERPATH}', $this->fileManagerPath, $idata);
 		$idata = str_replace('{MANAGERLANGUAGE}', $this->managerlanguage, $idata);
 		$idata = str_replace('{AUTOTEMPLATELOGIC}', $this->autoTemplateLogic, $idata);
+		$idata = str_replace('{DATE_NOW}', time(), $idata);
+		$idata = str_replace('ENGINE=MyISAM', 'ENGINE=MyISAM' . $char_collate, $idata);
 		/*$idata = str_replace('{VERSION}', $modx_version, $idata);*/
 
-		$sql_array = explode("\n\n", $idata);
+		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 
 		$num = 0;
 		foreach($sql_array as $sql_entry) {
 			$sql_do = trim($sql_entry, "\r\n; ");
-
-			if (preg_match('/^\#/', $sql_do)) continue;
 
 			// strip out comments and \n for mysql 3.x
 			if ($this->dbVersion <4.0) {

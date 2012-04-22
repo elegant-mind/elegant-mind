@@ -165,7 +165,7 @@ function showParameters(ctrl) {
                         c += '</select>';
                         break;
                     case 'textarea':
-                        c = '<textarea name="prop_'+key+'" cols="25" style="width:220px;" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" >'+value+'</textarea>';
+                        c = '<textarea class="inputBox phptextarea" name="prop_'+key+'" cols="25" style="width:220px;" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" >'+value+'</textarea>';
                         break;
                     default:  // string
                         c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
@@ -243,7 +243,7 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=302">
+<form name="mutate" method="post" action="index.php?a=302" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
     $evtOut = $modx->invokeEvent("OnTVFormPrerender",array("id" => $id));
@@ -278,7 +278,15 @@ function decode(s){
     	  </ul>
     </div>
 
+<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="sectionBody">
+<div class="tab-pane" id="tmplvarsPane">
+	<script type="text/javascript">
+		tpTmplvars = new WebFXTabPane( document.getElementById( "tmplvarsPane" ), false );
+	</script>
+	<div class="tab-page" id="tabGeneral">
+	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
+	<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 <p><?php echo $_lang['tmplvars_msg']; ?></p>
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
   <tr>
@@ -314,18 +322,19 @@ function decode(s){
 	            <option value="url" <?php       echo ($content['type']=='url')? "selected='selected'":""; ?>>URL</option>
 	            <option value="email" <?php     echo ($content['type']=='email')? "selected='selected'":""; ?>>Email</option>
 	            <option value="number" <?php    echo ($content['type']=='number')? "selected='selected'":""; ?>>Number</option>
-	            <option value="date" <?php      echo ($content['type']=='date')? "selected='selected'":""; ?>>Date</option>
+	            <option value="date" <?php      echo ($content['type']=='date')? "selected='selected'":""; ?>>DateTime</option>
+	            <option value="dateonly" <?php  echo ($content['type']=='dateonly')? "selected='selected'":""; ?>>DateOnly</option>
 	            <option value="custom_tv" <?php      echo ($content['type']=='custom_tv')? "selected='selected'":""; ?>>Custom Input</option>
 	        </select>
     </td>
   </tr>
   <tr>
 	<td align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?>:  </td>
-	<td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="elements" maxlength="65535" class="inputBox textarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
+	<td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="elements" maxlength="65535" class="inputBox phptextarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
     <td align="left" valign="top"><?php echo $_lang['tmplvars_default']; ?>:&nbsp;&nbsp;</td>
-    <td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="default_text" type="text" class="inputBox" rows="5" style="width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
+    <td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
     <td align="left"><?php echo $_lang['tmplvars_widget']; ?>:&nbsp;&nbsp;</td>
@@ -369,6 +378,9 @@ function decode(s){
     	</div>
 
 <!-- Template Permission -->
+<div class="tab-page" id="tabInfo">
+<h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
+<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabInfo" ) );</script>
 	<div class="sectionHeader"><?php echo $_lang['tmplvar_tmpl_access']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['tmplvar_tmpl_access_msg']; ?></p>
@@ -488,7 +500,7 @@ function decode(s){
           </tr>
         </table>
             </div>
-
+</div>
 	<input type="submit" name="save" style="display:none">
 
 <?php
@@ -496,5 +508,7 @@ function decode(s){
     $evtOut = $modx->invokeEvent("OnTVFormRender",array("id" => $id));
     if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
+</div>
+</div>
 </form>
 <script type="text/javascript">setTimeout('showParameters()',10);</script>

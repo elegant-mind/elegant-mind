@@ -93,7 +93,7 @@ $_style['icons_set_parent']         = $style_path.'icons/layout_go.png';
 $_style['icons_table']              = $style_path.'icons/table.gif'; 
 $_style['icons_undelete_resource']  = $style_path.'icons/b092.gif';
 $_style['icons_unpublish_resource'] = $style_path.'icons/clock_stop.png';
-$_style['icons_user']               = $style_path.'icons/user.gif';
+$_style['icons_user']               = $style_path.'icons/user.png';
 $_style['icons_weblink']            = $style_path.'icons/world_link.png';
 $_style['icons_working']            = $style_path.'icons/exclamation.png'; // top bar
 
@@ -105,10 +105,10 @@ $_style['icons_tooltip']            = $style_path.'icons/b02.gif';
 $_style['icons_tooltip_over']       = $style_path.'icons/b02_trans.gif';
 
 // Large Icons
-$_style['icons_backup_large']       = $style_path.'icons/backup.gif';
+$_style['icons_backup_large']       = $style_path.'icons/backup.png';
 $_style['icons_mail_large']         = $style_path.'icons/mail_generic.gif';
 $_style['icons_modules_large']      = $style_path.'icons/modules.gif';
-$_style['icons_resources_large']    = $style_path.'icons/resources.gif';
+$_style['icons_resources_large']    = $style_path.'icons/resources.png';
 $_style['icons_security_large']     = $style_path.'icons/security.gif';
 $_style['icons_webusers_large']     = $style_path.'icons/web_users.gif';
 $_style['icons_help_large']         = $style_path.'icons/help.png';

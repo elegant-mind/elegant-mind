@@ -538,7 +538,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_users` (
   `cachepwd` varchar(100) NOT NULL default '' COMMENT 'Store new unconfirmed password',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM ;
 
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_settings` (
@@ -861,7 +861,7 @@ REPLACE INTO `{PREFIX}site_templates`
 # Default Site Documents
 
 
-REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','MODx CMS Install Success','Welcome to the MODx Content Management System','','minimal-base','',1,0,0,0,0,'','<h3>Install Successful!</h3>\r\n<p>You have successfully installed MODx.</p>\r\n\r\n<h3>Getting Help</h3>\r\n<p>The <a href=\"http://modxcms.com/forums/\" target=\"_blank\">MODx Community</a> provides a great starting point to learn all things MODx, or you can also <a href=\"http://modxcms.com/learn/it.html\">see some great learning resources</a> (books, tutorials, blogs and screencasts).</p>\r\n<p>Welcome to MODx!</p>\r\n',1,3,0,1,1,1,1130304721,1,1130304927,0,0,0,1130304721,1,'Base Install',0,0,0,0,0,0,0);
+REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','MODx CMS Install Success','Welcome to the MODx Content Management System','','minimal-base','',1,0,0,0,0,'','<h3>Install Successful!</h3>\r\n<p>You have successfully installed MODx.</p>\r\n\r\n<h3>Getting Help</h3>\r\n<p>The <a href=\"http://modxcms.com/forums/\" target=\"_blank\">MODx Community</a> provides a great starting point to learn all things MODx, or you can also <a href=\"http://modxcms.com/learn/it.html\">see some great learning resources</a> (books, tutorials, blogs and screencasts).</p>\r\n<p>Welcome to MODX!</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'Base Install',0,0,0,0,0,0,0);
 
 
 REPLACE INTO `{PREFIX}manager_users` 
@@ -913,7 +913,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('friendly_url_prefix',''),
 ('friendly_url_suffix','.html'),
 ('friendly_alias_urls','1'),
-('use_alias_path','0'),
+('use_alias_path','1'),
 ('use_udperms','1'),
 ('udperms_allowroot','0'),
 ('failed_login_attempts','3'),
@@ -962,7 +962,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('datepicker_offset','-10'),
 ('xhtml_urls','1'),
 ('allow_duplicate_alias','0'),
-('automatic_alias','1'),
+('automatic_alias','0'),
 ('datetime_format','dd-mm-YYYY'),
 ('warning_visibility', '1'),
 ('remember_last_tab', '0');
