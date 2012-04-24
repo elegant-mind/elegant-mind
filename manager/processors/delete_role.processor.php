@@ -4,9 +4,6 @@ if(!$modx->hasPermission('delete_role')) {
 	$e->setError(3);
 	$e->dumpError();	
 }
-?>
-<?php
-
 $id=$_GET['id'];
 
 if($id==1){
@@ -34,8 +31,5 @@ if(!$rs) {
 	echo "Something went wrong while trying to delete the role...";
 	exit;
 } else {		
-	$header="Location: index.php?a=86";
-	header($header);
+	header("Location: index.php?a=86");
 }
-
-?>

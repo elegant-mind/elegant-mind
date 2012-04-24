@@ -116,4 +116,3 @@ if (!array_search($newParentID, $children)) {
 } else {
 	echo "You cannot move a document to a child document!";
 }
-?>

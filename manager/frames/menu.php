@@ -26,9 +26,16 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	var buildText;
 
 	// Create the AJAX mail update object before requesting it
-	var updateMailerAjx = new Ajax('index.php', {method:'post', postBody:'updateMsgCount=true', onComplete:showResponse});
-	function updateMail(now) {
-		try {
+	var updateMailerAjx = new Ajax('index.php',
+	{
+		method:'post',
+		postBody:'updateMsgCount=true',
+		onComplete:showResponse
+	});
+	function updateMail(now)
+	{
+		try
+		{
 			// if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
 			if (now)
 				updateMailerAjx.request();
@@ -114,14 +121,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	}
 
 	function reloadmenu() {
-<?php if($manager_layout==0) { ?>
 		var elm = $('buildText');
 		if (elm) {
 			elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_working']?>' width='16' height='16' />&nbsp;<?php echo $_lang['loading_menu']?>";
 			elm.style.display = 'block';
 		}
 		parent.mainMenu.location.reload();
-<?php } ?>
 	}
 
 	function startrefresh(rFrame){
@@ -136,7 +141,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			y=window.setTimeout('reloadtree()',500);
 		}
 		if(rFrame==10) {
-			window.top.location.href = "../manager";
+			window.top.location.href = "../manager/";
 		}
 	}
 
@@ -218,7 +223,7 @@ if($modx->hasPermission('help')) { ?>
 </div>
 
 <form name="menuForm" action="l4mnu.php" class="clear">
-    <input name="sessToken" id="sessTokenInput" value="<?php echo md5(session_id());?>" />
+    <input name="sessToken" type="hidden" id="sessTokenInput" value="<?php echo md5(session_id());?>" />
 <div id="Navcontainer">
 <div id="divNav">
 	<ul id="nav">

@@ -12,6 +12,4 @@ if(!$rs) {
 	echo "Something went wrong while trying to remove the locks!";
 	exit;
 }
-$header="Location: index.php?a=7";
-	header($header);
-?>
+	header("Location: index.php?a=7");

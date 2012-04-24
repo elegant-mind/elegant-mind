@@ -11,7 +11,7 @@
 		$field_html ='';
 		$field_value = ($field_value!="" ? $field_value : $default_text);
 
-		switch ($field_type) {
+		switch (strtolower($field_type)) {
 
 			case "text": // handler for regular text boxes
 			case "rawtext"; // non-htmlentity converted text boxes
@@ -134,8 +134,8 @@
 				global $ResourceManagerLoaded;
 				global $content,$use_editor,$which_editor;
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
-					$field_html .="
-					<script type=\"text/javascript\">
+					$field_html .= <<< EOT
+					<script type="text/javascript">
 							var lastImageCtrl;
 							var lastFileCtrl;
 							function OpenServerBrowser(url, width, height ) {
@@ -154,14 +154,14 @@
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=images&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 							}
 							
 							function BrowseFileServer(ctrl) {
 								lastFileCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=files&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 							}
 							
 							function SetUrl(url, width, height, alt){
@@ -177,7 +177,8 @@
 									return;
 								}
 							}
-					</script>";
+					</script>
+EOT;
 					$ResourceManagerLoaded  = true;					
 				} 
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
@@ -189,8 +190,8 @@
 				global $content,$use_editor,$which_editor;
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
 				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
-					$field_html .="
-					<script type=\"text/javascript\">
+					$field_html .= <<< EOT
+					<script type="text/javascript">
 							var lastImageCtrl;
 							var lastFileCtrl;
 							function OpenServerBrowser(url, width, height ) {
@@ -210,14 +211,14 @@
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=images&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 							}
 										
 							function BrowseFileServer(ctrl) {
 								lastFileCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=files&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 							}
 							
 							function SetUrl(url, width, height, alt){
@@ -233,7 +234,8 @@
 									return;
 								}
 							}
-					</script>";
+					</script>
+EOT;
 					$ResourceManagerLoaded  = true;					
 				} 
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
@@ -291,7 +293,6 @@
             
 			default: // the default handler -- for errors, mostly
 				$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' onchange="documentDirty=true;" />';
-
 		} // end switch statement
 		return $field_html;
 	} // end renderFormElement function

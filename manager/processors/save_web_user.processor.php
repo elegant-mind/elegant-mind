@@ -5,10 +5,6 @@ if (!$modx->hasPermission('save_web_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-?>
-<?php
-
-
 // Web alert -  sends an alert to web browser
 function webAlert($msg) {
 	global $id, $modx;
@@ -468,4 +464,3 @@ function ConvertDate($date) {
 	if ($date == "") {return "0";}
 	else {}          {return $modx->toTimeStamp($date);}
 }
-?>

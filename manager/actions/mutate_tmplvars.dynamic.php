@@ -9,8 +9,6 @@ if(!$modx->hasPermission('new_template') && $_REQUEST['a']=='300') {
     $e->dumpError();
 }
 
-
-
 if(isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 } else {
@@ -19,7 +17,8 @@ if(isset($_REQUEST['id'])) {
 
 
 // check to see the variable editor isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE action=301 AND id=$id";
+$tbl_active_users = $modx->getFullTableName('active_users');
+$sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=301 AND id=$id";
 $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 if($limit>1) {
@@ -42,7 +41,8 @@ if(!is_numeric($id)) {
 }
 
 if(isset($_GET['id'])) {
-    $sql = "SELECT * FROM $dbase.`".$table_prefix."site_tmplvars` WHERE id = $id;";
+    $tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+    $sql = "SELECT * FROM {$tbl_site_tmplvars} WHERE id = $id;";
     $rs = mysql_query($sql);
     $limit = mysql_num_rows($rs);
     if($limit>1) {
@@ -98,7 +98,7 @@ var widgetParams = {};          // name = description;datatype;default or list v
     widgetParams['datagrid']    = '&cols=Column Names;string &flds=Field Names;string &cwidth=Column Widths;string &calign=Column Alignments;string &ccolor=Column Colors;string &ctype=Column Types;string &cpad=Cell Padding;int;1 &cspace=Cell Spacing;int;1 &rowid=Row ID Field;string &rgf=Row Group Field;string &rgstyle = Row Group Style;string &rgclass = Row Group Class;string &rowsel=Row Select;string &rhigh=Row Hightlight;string; &psize=Page Size;int;100 &ploc=Pager Location;list;top-right,top-left,bottom-left,bottom-right,both-right,both-left; &pclass=Pager Class;string &pstyle=Pager Style;string &head=Header Text;string &foot=Footer Text;string &tblc=Grid Class;string &tbls=Grid Style;string &itmc=Item Class;string &itms=Item Style;string &aitmc=Alt Item Class;string &aitms=Alt Item Style;string &chdrc=Column Header Class;string &chdrs=Column Header Style;string;&egmsg=Empty message;string;No records found;';
     widgetParams['richtext']    = '&w=Width;string;100% &h=Height;string;300px &edt=Editor;list;<?php echo $RTEditors; ?>';
     widgetParams['image']       = '&alttext=Alternate Text;string &hspace=H Space;int &vspace=V Space;int &borsize=Border Size;int &align=Align;list;none,baseline,top,middle,bottom,texttop,absmiddle,absbottom,left,right &name=Name;string &class=Class;string &id=ID;string &style=Style;string &attrib=Attributes;string';
-    widgetParams['custom_widget']       = '&output=Output;textarea';
+    widgetParams['custom_widget']       = '&output=Output;textarea;[+value+]';
 
 // Current Params
 var currentParams = {};
@@ -243,13 +243,14 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=302" enctype="multipart/form-data">
+<form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
     $evtOut = $modx->invokeEvent("OnTVFormPrerender",array("id" => $id));
     if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 <input type="hidden" name="id" value="<?php echo $content['id'];?>">
+<input type="hidden" name="a" value="302">
 <input type="hidden" name="mode" value="<?php echo $_GET['a'];?>">
 <input type="hidden" name="params" value="<?php echo htmlspecialchars($content['display_params']);?>">
 
@@ -268,7 +269,8 @@ function decode(s){
     			</select>		
     		  </li>
     		  <?php
-    			if ($_GET['a'] == '301') { ?>
+    			if ($_GET['a'] == '301') {
+    			?>
     		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>
     		  <li id="Button3" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } else { ?>
@@ -291,7 +293,7 @@ function decode(s){
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
   <tr>
     <td align="left"><?php echo $_lang['tmplvars_name']; ?>:</td>
-    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:150px;" onChange='documentDirty=true;'><span style="font-family:'Courier New', Courier, mono">*]</span> <span class="warning" id='savingMessage'>&nbsp;</span></td>
+    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span style="font-family:'Courier New', Courier, mono">*]</span> <span class="warning" id='savingMessage'>&nbsp;</span></td>
   </tr>
   <tr>
     <td align="left"><?php echo $_lang['tmplvars_caption']; ?>:&nbsp;&nbsp;</td>

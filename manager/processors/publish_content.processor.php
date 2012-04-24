@@ -35,12 +35,7 @@ if(!$rs){
 // invoke OnDocPublished  event
 $modx->invokeEvent("OnDocPublished",array("docid"=>$id));	
 
-include_once "cache_sync.class.processor.php";
-$sync = new synccache();
-$sync->setCachepath("../assets/cache/");
-$sync->setReport(false);
-$sync->emptyCache(); // first empty the cache		
+$modx->clearCache();
 
 $header="Location: index.php?r=1&id=$id&a=7";
 header($header);
-?>

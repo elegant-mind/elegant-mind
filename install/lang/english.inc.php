@@ -87,7 +87,7 @@ $_lang["failed"] = 'FAILED!';
 $_lang["help"] = 'Help!';
 $_lang["help_link"] = 'http://modxcms.com/forums/';
 $_lang["help_title"] = 'Installation assistance in the MODx forums';
-$_lang["iagree_box"] = 'I agree to the terms of <a href="../assets/docs/license.txt" target="_blank">the MODx license</a>. For translations of the GPL version 2 license, please visit the <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU Operating System website</a>.';
+$_lang["iagree_box"] = 'I agree to the terms of <a href="license.txt" target="_blank">the MODx license</a>. For translations of the GPL version 2 license, please visit the <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU Operating System website</a>.';
 $_lang["install"] = 'Install';
 $_lang["install_overwrite"] = 'Install/Overwrite';
 $_lang["install_results"] = 'Install results';
@@ -185,7 +185,7 @@ $_lang["unable_install_template"] = 'Unable to install template.  File';
 $_lang["upgrade_note"] = '<strong>Note:</strong> Before browsing your site you should log into the manager with an administrative account, then review and save your System Configuration settings.';
 $_lang["upgraded"] = 'Upgraded';
 $_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';
-$_lang["visit_forum"] = ', visit the <a href="http://www.modxcms.com/forums/" target="_blank">MODx Forums</a>.';
+$_lang["visit_forum"] = ', visit the <a href="http://forums.modx.com/" target="_blank">MODx Forums</a>.';
 $_lang["warning"] = 'WARNING!';
 $_lang["welcome_message_start"] = 'First, choose the type of installation to perform:';
 $_lang["welcome_message_text"] = 'This program will guide you through the rest of the installation.';
@@ -193,4 +193,6 @@ $_lang["welcome_message_welcome"] = 'Welcome to the MODx installation program.';
 $_lang["writing_config_file"] = 'Writing configuration file: ';
 $_lang["yes"] = 'Yes';
 $_lang["you_running_php"] = ' - You are running on PHP ';
-?>
+
+$_lang['checking_if_backup_exists'] = 'Checking if <span class="mono">/assets/backup</span> directory exists: ';
+$_lang['checking_if_backup_writable'] = Checking if <span class="mono">/assets/backup</span> directory is writable: ';

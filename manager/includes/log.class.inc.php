@@ -49,6 +49,8 @@ class logHandler {
     function writeToLog() {
         global $modx;
 
+		$tbl_manager_log = $modx->getFullTableName('manager_log');
+		
         if($this->entry['internalKey'] == "") {
             $this->logError("internalKey not set.");
             return;
@@ -66,19 +68,47 @@ class logHandler {
             }
         }
 
-        $sql = 'INSERT INTO '.$modx->getFullTableName('manager_log').'
-            (timestamp, internalKey, username, action, itemid, itemname, message) VALUES
-            (\''.time().'\',
-             \''.$modx->db->escape($this->entry['internalKey']).'\',
-             \''.$modx->db->escape($this->entry['username']).'\',
-             \''.$this->entry['action'].'\',
-             \''.$this->entry['itemId'].'\',
-             \''.$modx->db->escape($this->entry['itemName']).'\',
-             \''.$modx->db->escape($this->entry['msg']).'\')';
+		$fields['timestamp']   = time();
+		$fields['internalKey'] = $modx->db->escape($this->entry['internalKey']);
+		$fields['username']    = $modx->db->escape($this->entry['username']);
+		$fields['action']      = $this->entry['action'];
+		$fields['itemid']      = $this->entry['itemId'];
+		$fields['itemname']    = $modx->db->escape($this->entry['itemName']);
+		$fields['message']     = $modx->db->escape($this->entry['msg']);
 
-        if(!$rs=$modx->db->query($sql)) {
+		if(!$insert_id = $modx->db->insert($fields,$tbl_manager_log)) {
             $this->logError("Couldn't save log to table! ".mysql_error());
             return true;
         }
+		else
+		{
+			$limit = ($modx->config['manager_log_limit']) ? intval($modx->config['manager_log_limit']) : 2000;
+			$trim  = ($modx->config['manager_log_trim'])  ? intval($modx->config['manager_log_trim']) : 100;
+			if(($insert_id % $trim) == 0)
+			{
+				$this->purge_manager_log($limit,$trim);
+			}
+		}
+	}
+	
+	function purge_manager_log($limit=2000, $trim=100)
+	{
+		global $modx;
+		
+		if($limit < $trim) $trim = $limit;
+		
+		$tbl_manager_log = $modx->getFullTableName("manager_log");
+		$sql = "SELECT COUNT(id) as count FROM {$tbl_manager_log}";
+		$rs = $modx->db->query($sql);
+		if($rs) $row = $modx->db->getRow($rs);
+		$over = $row['count'] - $limit;
+		if(0 < $over)
+		{
+			$trim = ($over + $trim);
+			$sql = "DELETE FROM {$tbl_manager_log} LIMIT {$trim}";
+			$modx->db->query($sql);
+			$sql = "OPTIMIZE TABLE {$tbl_manager_log}";
+			$modx->db->query($sql);
+		}
     }
 }

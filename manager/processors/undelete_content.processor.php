@@ -89,4 +89,3 @@ if(!$rs) {
 	$header="Location: index.php?r=1&a=7";
 	header($header);
 }
-?>

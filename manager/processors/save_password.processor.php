@@ -4,9 +4,6 @@ if(!$modx->hasPermission('save_password')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-?>
-<?php
-
 $id = $_POST['id'];
 $pass1 = $_POST['pass1'];
 $pass2 = $_POST['pass2'];
@@ -28,6 +25,4 @@ if(!$rs){
 	exit;
 }
 
-$header="Location: index.php?a=7";
-header($header);
-?>
+header("Location: index.php?a=7");

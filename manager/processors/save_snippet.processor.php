@@ -4,9 +4,6 @@ if(!$modx->hasPermission('save_snippet')) {
 	$e->setError(3);
 	$e->dumpError();	
 }
-?>
-<?php
-
 $id = intval($_POST['id']);
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
@@ -96,18 +93,13 @@ switch ($_POST['mode']) {
 										"id"	=> $newid
 									));
 			// empty cache
-			include_once "cache_sync.class.processor.php";
-			$sync = new synccache();
-			$sync->setCachepath("../assets/cache/");
-			$sync->setReport(false);
-			$sync->emptyCache(); // first empty the cache		
+			$modx->clearCache(); // first empty the cache
 			// finished emptying cache - redirect
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "22&id=$newid":"23";
-				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-				header($header);
+				$header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
 			} else {
-				$header="Location: index.php?a=76&r=2";
+				$header="Location: index.php?a=76";
 				header($header);
 			}
 		}		
@@ -135,19 +127,15 @@ switch ($_POST['mode']) {
 										"id"	=> $id
 									));	
 			// empty cache
-			include_once "cache_sync.class.processor.php";
-			$sync = new synccache();
-			$sync->setCachepath("../assets/cache/");
-			$sync->setReport(false);
-			$sync->emptyCache(); // first empty the cache
+			$modx->clearCache(); // first empty the cache
 			if($_POST['runsnippet']) run_snippet($snippet);
 			// finished emptying cache - redirect	
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "22&id=$id":"23";
-				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
+				$header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
 				header($header);
 			} else {
-				$header="Location: index.php?a=76&r=2";
+				$header="Location: index.php?a=76";
 				header($header);
 			}
 		}		
@@ -157,4 +145,3 @@ switch ($_POST['mode']) {
 		Erm... You supposed to be here now? 	
 	<?php
 }
-?>

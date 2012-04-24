@@ -22,13 +22,14 @@ switch((int) $_REQUEST['a']) {
 $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`" . $table_prefix . "active_users` WHERE $dbase.`" . $table_prefix . "active_users`.action=12 AND $dbase.`" . $table_prefix . "active_users`.id=$user";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 1) {
-	for ($i = 0; $i < $limit; $i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if ($lock['internalKey'] != $modx->getLoginUserID()) {
+$tbl_active_users = $modx->getFullTableName('active_users');
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='12' AND id='{$user}'");
+if ($modx->db->getRecordCount($rs) > 1)
+{
+	while($lock = $modx->db->getRow($rs))
+	{
+		if ($lock['internalKey'] != $modx->getLoginUserID())
+		{
 			$msg = sprintf($_lang["lock_msg"], $lock['username'], "user");
 			$e->setError(5, $msg);
 			$e->dumpError();
@@ -37,49 +38,49 @@ if ($limit > 1) {
 }
 // end check for lock
 
-if ($_REQUEST['a'] == '12') {
+if ($_REQUEST['a'] == '12')
+{
 	// get user attribute
-	$sql = "SELECT * FROM $dbase.`" . $table_prefix . "user_attributes` WHERE $dbase.`" . $table_prefix . "user_attributes`.internalKey = " . $user . ";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	if ($limit > 1) {
-		echo "More than one user returned!<p>";
-		exit;
-	}
-	if ($limit < 1) {
-		echo "No user returned!<p>";
-		exit;
-	}
-	$userdata = mysql_fetch_assoc($rs);
+	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+	$rs = $modx->db->select('*',$tbl_user_attributes,"internalKey={$user}");
+	$limit = $modx->db->getRecordCount($rs);
+	if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
+	elseif($limit < 1) {echo 'No user returned!<p>';exit;}
+	$userdata = $modx->db->getRow($rs);
 
 	// get user settings
-	$sql = "SELECT us.* FROM $dbase.`" . $table_prefix . "user_settings` us WHERE us.user = " . $user . ";";
-	$rs = mysql_query($sql);
+	$tbl_user_settings = $modx->getFullTableName('user_settings');
+	$rs = $modx->db->select('*',$tbl_user_settings,"user={$user}");
 	$usersettings = array ();
-	while ($row = mysql_fetch_assoc($rs))
+	while ($row = $modx->db->getRow($rs))
+	{
 		$usersettings[$row['setting_name']] = $row['setting_value'];
+	}
+	
 	// manually extract so that user display settings are not overwritten
-	foreach ($usersettings as $k => $v) {
-		if ($k != 'manager_language' && $k!='manager_theme') {
+	foreach ($usersettings as $k => $v)
+	{
+		switch($k)
+		{
+			case 'manager_language':
+			case 'manager_theme':
+				break;
+			default:
 			${$k} = $v;
 		}	
 	}
 	
+	$tbl_manager_users = $modx->getFullTableName('manager_users');
 	// get user name
-	$sql = "SELECT * FROM $dbase.`" . $table_prefix . "manager_users` WHERE $dbase.`" . $table_prefix . "manager_users`.id = " . $user . ";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	if ($limit > 1) {
-		echo "More than one user returned while getting username!<p>";
-		exit;
-	}
-	if ($limit < 1) {
-		echo "No user returned while getting username!<p>";
-		exit;
-	}
-	$usernamedata = mysql_fetch_assoc($rs);
+	$rs = $modx->db->select('*',$tbl_manager_users,"id={$user}");
+	$limit = $modx->db->getRecordCount($rs);
+	if($limit > 1)     {echo "More than one user returned while getting username!<p>"; exit;}
+	elseif($limit < 1) {echo "No user returned while getting username!<p>"; exit;}
+	$usernamedata = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $usernamedata['username'];
-} else {
+}
+else
+{
 	$userdata = array ();
 	$usersettings = array ();
 	$usernamedata = array ();
@@ -224,7 +225,8 @@ function showHide(what, onoff){
 </script>
 
 
-<form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
+<form action="index.php" method="post" name="userform" enctype="multipart/form-data">
+<input type="hidden" name="a" value="32" />
 <?php
 
 // invoke OnUserFormPrerender event
@@ -247,9 +249,9 @@ if (is_array($evtOut))
     			</a>
     			  <span class="and"> + </span>				
     			<select id="stay" name="stay">
-    			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
-    			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-    			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+    			  <option id="stay1" value="1" <?php echo selected($_REQUEST['stay']=='1');?> ><?php echo $_lang['stay_new']?></option>
+    			  <option id="stay2" value="2" <?php echo selected($_REQUEST['stay']=='2');?> ><?php echo $_lang['stay']?></option>
+    			  <option id="stay3" value=""  <?php echo selected($_REQUEST['stay']=='');?>  ><?php echo $_lang['close']?></option>
     			</select>		
     		  </li>
     		  <?php
@@ -337,23 +339,26 @@ if (is_array($evtOut))
 			<td>
 		<?php
 
-$notAdmin = ($_SESSION['mgrRole'] == 1) ? "" : "WHERE id != 1";
-$sql = "select name, id from $dbase.`" . $table_prefix . "user_roles` $notAdmin";
-$rs = mysql_query($sql);
+$tbl_user_roles = $modx->getFullTableName('user_roles');
+$where = ($_SESSION['mgrRole'] == 1) ? '' : 'id != 1';
+$rs = $modx->db->select('name, id',$tbl_user_roles,$where);
 ?>
 		<select name="role" class="inputBox" onchange='documentDirty=true;' style="width:300px">
 		<?php
 
-while ($row = mysql_fetch_assoc($rs)) {
-    if ($_REQUEST['a']=='11') {
-        $selectedtext = $row['id'] == '1' ? ' selected="selected"' : '';
-    } else {
-		$selectedtext = $row['id'] == $userdata['role'] ? ' selected="selected"' : '';
+while ($row = $modx->db->getRow($rs))
+{
+	if ($_REQUEST['a']=='11')
+	{
+		$selectedtext = selected($row['id'] == '1');
+	}
+	else
+	{
+		$selectedtext = selected($row['id'] == $userdata['role']);
     }
 ?>
 			<option value="<?php echo $row['id']; ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
 		<?php
-
 }
 ?>
 		</select>
@@ -390,10 +395,11 @@ while ($row = mysql_fetch_assoc($rs)) {
 			<td>
 			<select size="1" name="country" onchange="documentDirty=true;">
             <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
-			<option value="" <?php (!isset($chosenCountry) ? ' selected' : '') ?> >&nbsp;</option>
+			<option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
 				<?php
-				foreach ($_country_lang as $key => $country) {
-				 echo "<option value=\"$key\"".(isset($chosenCountry) && $chosenCountry == $key ? ' selected' : '') .">$country</option>";
+				foreach ($_country_lang as $key => $country)
+				{
+					echo '<option value="' . $key . '"'.selected(isset($chosenCountry) && $chosenCountry == $key) .">{$country}</option>\n";
 				}
 				?>
             </select>
@@ -412,8 +418,8 @@ while ($row = mysql_fetch_assoc($rs)) {
 			<td>&nbsp;</td>
 			<td><select name="gender" onchange="documentDirty=true;">
 				<option value=""></option>
-				<option value="1" <?php echo ($userdata['gender']=='1')? "selected='selected'":""; ?>><?php echo $_lang['user_male']; ?></option>
-				<option value="2" <?php echo ($userdata['gender']=='2')? "selected='selected'":""; ?>><?php echo $_lang['user_female']; ?></option>
+				<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
+				<option value="2" <?php echo selected($userdata['gender']=='2'); ?>><?php echo $_lang['user_female']; ?></option>
 				</select>
 			</td>
 		  </tr>
@@ -491,7 +497,7 @@ while ($file = $dir->read()) {
 	if (strpos($file, ".inc.php") > 0) {
 		$endpos = strpos($file, ".");
 		$languagename = trim(substr($file, 0, $endpos));
-		$selectedtext = $languagename == $activelang ? "selected='selected'" : "";
+		$selectedtext = $languagename == selected($activelang);
 ?> 
                 <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
                 <?php
@@ -577,8 +583,7 @@ $dir->close();
 			if ($file != "." && $file != ".." && is_dir("media/style/$file") && substr($file,0,1) != '.') {
 				$themename = $file;
 				$attr = 'value="'.$themename.'" ';
-				if (isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme'])
-					$attr .= 'selected="selected" ';
+					$attr .= selected(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']);
 				echo "\t\t<option ".rtrim($attr).'>'.ucwords(str_replace("_", " ", $themename))."</option>\n";
 			}
 		}
@@ -685,11 +690,11 @@ $dir->close();
 $edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
 // invoke OnRichTextEditorRegister event
 $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
-echo "<option value='none'" . ($edt == 'none' ? " selected='selected'" : "") . ">" . $_lang["none"] . "</option>\n";
+echo "<option value='none'" . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
 if (is_array($evtOut))
 	for ($i = 0; $i < count($evtOut); $i++) {
 		$editor = $evtOut[$i];
-		echo "<option value='$editor'" . ($edt == $editor ? " selected='selected'" : "") . ">$editor</option>\n";
+		echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
 	}
 ?>
 				</select>
@@ -795,48 +800,62 @@ if (is_array($evtOut))
           </tr>
 		</table>
 	</div>
-</div>
-</div>
-
 <?php
-
-if ($use_udperms == 1) {
+if ($use_udperms == 1)
+{
 	$groupsarray = array ();
 
-	if ($_GET['a'] == '12') { // only do this bit if the user is being edited
-		$sql = "SELECT * FROM $dbase.`" . $table_prefix . "member_groups` where member=" . $_GET['id'] . "";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
-		for ($i = 0; $i < $limit; $i++) {
-			$currentgroup = mysql_fetch_assoc($rs);
+	if ($_GET['a'] == '12')
+	{ // only do this bit if the user is being edited
+		$tbl_member_groups = $modx->getFullTableName('member_groups');
+		$memberid = $_GET['id'];
+		$rs = $modx->db->select('*',$tbl_member_groups,"member={$memberid}" );
+		$limit = $modx->db->getRecordCount($rs);
+		for ($i = 0; $i < $limit; $i++)
+		{
+			$currentgroup = $modx->db->getRow($rs);
 			$groupsarray[$i] = $currentgroup['user_group'];
 		}
 	}
 
 	// retain selected doc groups between post
-	if (is_array($_POST['user_groups'])) {
+	if (is_array($_POST['user_groups']))
+	{
 		foreach ($_POST['user_groups'] as $n => $v)
+		{
 			$groupsarray[] = $v;
 	}
-?>
-
-<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div><div class="sectionBody">
-<?php
-
-	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-	$sql = "SELECT name, id FROM $dbase.`" . $table_prefix . "membergroup_names` ORDER BY name";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	for ($i = 0; $i < $limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
-		echo "<input type='checkbox' name='user_groups[]' value='" . $row['id'] . "'" . (in_array($row['id'], $groupsarray) ? " checked='checked'" : "") . " />" . $row['name'] . "<br />";
 	}
 ?>
-</div>
+	<!-- Access -->
+	<div class="tab-page" id="tabAccess">
+		<h2 class="tab"><?php echo $_lang["access_permissions"] ?></h2>
+		<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabAccess" ) );</script>
+		<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
+		<div class="sectionBody">
+		<?php
+	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
+			$tbl_membergroup_names = $modx->getFullTableName('membergroup_names');
+			$rs = $modx->db->select('name, id',$tbl_membergroup_names,'','name');
+			$tpl = '<input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]<br />';
+			while($row = $modx->db->getRow($rs))
+			{
+				$src = $tpl;
+				$ph = array();
+				$ph['id'] = $row['id'];
+				$ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
+				$ph['name'] = $row['name'];
+				$src = $modx->parsePlaceholder($src,$ph);
+				echo $src;
+	}
+		?>
+		</div>
+	</div>
 <?php
-
 }
 ?>
+</div>
+</div>
 <input type="submit" name="save" style="display:none">
 <?php
 
@@ -848,3 +867,8 @@ if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>
 </form>
+<?php
+function selected($cond=false)
+{
+	if($cond) return ' selected="selected"';
+}

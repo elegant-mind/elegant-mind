@@ -32,13 +32,13 @@ $tbl_site_modules       = $modx->getFullTableName('site_modules');
 $tbl_site_snippets      = $modx->getFullTableName('site_snippets');
 
 // check to see the snippet editor isn't locked
-$sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=22 AND id='.$id;
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=22 AND id='{$id}'");
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
     for ($i=0;$i<$limit;$i++) {
-        $lock = mysql_fetch_assoc($rs);
-        if($lock['internalKey']!=$modx->getLoginUserID()) {
+		$lock = $modx->db->getRow($rs);
+		if($lock['internalKey']!=$modx->getLoginUserID())
+		{
             $msg = sprintf($_lang['lock_msg'],$lock['username'],"snippet");
             $e->setError(5, $msg);
             $e->dumpError();
@@ -49,9 +49,8 @@ if($limit>1) {
 
 
 if(isset($_GET['id'])) {
-    $sql = 'SELECT * FROM '.$tbl_site_snippets.' WHERE id='.$id;
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
+	$rs = $modx->db->select('*',$tbl_site_snippets,"id='{$id}'");
+	$limit = $modx->db->getRecordCount($rs);
     if($limit>1) {
         echo "Oops, Multiple snippets sharing same unique id. Not good.<p>";
         exit;
@@ -237,7 +236,7 @@ function implodeParameters(){
         if(currentParams[p]) {
             v = currentParams[p].join(";");
             if(s && v) s+=' ';
-            if(v) s += '&'+p+'='+ v;
+			if(v) s += '&'+p+'='+ encode(v);
         }
     }
     document.forms['mutate'].properties.value = s;
@@ -310,7 +309,7 @@ function decode(s){
         <table border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td align="left"><?php echo $_lang['snippet_name']?>:</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">[[</span><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:150px;" onChange="documentDirty=true;"><span style="font-family:'Courier New', Courier, mono">]]</span><span class="warning" id="savingMessage">&nbsp;</span></td>
+			<td align="left"><span style="font-family:'Courier New', Courier, mono">[[</span><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"><span style="font-family:'Courier New', Courier, mono">]]</span><span class="warning" id="savingMessage">&nbsp;</span></td>
           </tr>
           <tr>
             <td align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc']?>:&nbsp;&nbsp;</td>

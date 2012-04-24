@@ -95,18 +95,13 @@ switch ($_POST['mode']) {
                                     ));
             
             // empty cache
-            include_once "cache_sync.class.processor.php";
-            $sync = new synccache();
-            $sync->setCachepath("../assets/cache/");
-            $sync->setReport(false);
-            $sync->emptyCache(); // first empty the cache       
+            $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
             if($_POST['stay']!='') {
                 $a = ($_POST['stay']=='2') ? "102&id=$newid":"101";
-                $header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-                header($header);
+                $header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
             } else {
-                $header="Location: index.php?a=76&r=2";
+                $header="Location: index.php?a=76";
                 header($header);
             }
         }       
@@ -138,18 +133,14 @@ switch ($_POST['mode']) {
                                     ));
             
             // empty cache
-            include_once "cache_sync.class.processor.php";
-            $sync = new synccache();
-            $sync->setCachepath("../assets/cache/");
-            $sync->setReport(false);
-            $sync->emptyCache(); // first empty the cache
+            $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect   
             if($_POST['stay']!='') {
                 $a = ($_POST['stay']=='2') ? "102&id=$id":"101";
                 $header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
                 header($header);
             } else {
-                $header="Location: index.php?a=76&r=2";
+                $header="Location: index.php?a=76";
                 header($header);
             }
         }       
@@ -186,5 +177,3 @@ function saveEventListeners($id,$sysevents,$mode) {
     $modx->db->query("DELETE FROM {$tblSitePluginEvents} WHERE pluginid={$id}");
     if (count($sysevents)>0) $modx->db->query($sql);
 }
-
-?>

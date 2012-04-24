@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Installer remover processor
  * --------------------------------
@@ -24,17 +23,19 @@ if($msg) echo "<script>alert('".addslashes($msg)."');</script>";
 echo "<script>window.location='../index.php?a=2';</script>";
 
 // rmdirRecursive - detects symbollic links on unix
-function rmdirRecursive($path,$followLinks=false) {   
+function rmdirRecursive($path,$followLinks=false)
+{
    $dir = opendir($path) ;
-   while ($entry = readdir($dir)) {       
-	   if (is_file("$path/$entry") || ((!$followLinks) && is_link("$path/$entry"))) {
-		   @unlink( "$path/$entry" );
+	while ($entry = readdir($dir))
+	{
+	   if (is_file("{$path}/{$entry}") || ((!$followLinks) && is_link("{$path}/{$entry}")))
+		{
+		   @unlink( "{$path}/{$entry}" );
 	   }
-	   elseif (is_dir("$path/$entry") && $entry!='.' && $entry!='..') {
-		   rmdirRecursive("$path/$entry"); // recursive
+	   elseif (is_dir("{$path}/{$entry}") && $entry!='.' && $entry!='..') {
+		   rmdirRecursive("{$path}/{$entry}"); // recursive
 	   }
    }
    closedir($dir);
    return @rmdir($path);
 }
-?>

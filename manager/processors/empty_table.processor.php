@@ -8,6 +8,4 @@ if(!$modx->hasPermission('settings')) {
 $sql = "TRUNCATE TABLE $dbase.`".$table_prefix."manager_log`";
 $rs = @mysql_query($sql);
 
-$header="Location: index.php?a=13";
-header($header);
-?>
+header("Location: index.php?a=13");

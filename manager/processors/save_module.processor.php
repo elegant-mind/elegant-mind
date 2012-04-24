@@ -4,9 +4,6 @@ if(!$modx->hasPermission('save_module')) {
 	$e->setError(3);
 	$e->dumpError();	
 }
-?>
-<?php
-
 $id = intval($_POST['id']);
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
@@ -106,22 +103,14 @@ switch ($_POST['mode']) {
 									"mode"	=> "new",
 									"id"	=> $newid
 								));
-			// empty cache
-			include_once "cache_sync.class.processor.php";
-			$sync = new synccache();
-			$sync->setCachepath("../assets/cache/");
-			$sync->setReport(false);
-			$sync->emptyCache(); // first empty the cache		
-			// finished emptying cache - redirect
 			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "108&id=$newid":"107";
+				$a = ($_POST['stay']=='2') ? "108&id={$newid}":"107";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-				header($header);
 			} else {
 				$header="Location: index.php?a=106&r=2";
+			}
 				header($header);
 			}
-		}		
         break;
     case '108':
 		// invoke OnBeforeModFormSave event
@@ -148,27 +137,18 @@ switch ($_POST['mode']) {
 									"mode"	=> "upd",
 									"id"	=> $id
 								));	
-			// empty cache
-			include_once "cache_sync.class.processor.php";
-			$sync = new synccache();
-			$sync->setCachepath("../assets/cache/");
-			$sync->setReport(false);
-			$sync->emptyCache(); // first empty the cache
-			// finished emptying cache - redirect	
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "108&id=$id":"107";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-				header($header);
 			} else {
 				$header="Location: index.php?a=106&r=2";
+			}
 				header($header);
 			}
-		}		
         break;        
     default:
     	// redirect to view modules
-		$header="Location: index.php?a=106&r=2";
-		header($header);
+		header("Location: index.php?a=106&r=2");
 }
 
 // saves module user group access
@@ -201,4 +181,3 @@ function saveUserGroupAccessPermissons(){
 		}
 	}
 }
-?>

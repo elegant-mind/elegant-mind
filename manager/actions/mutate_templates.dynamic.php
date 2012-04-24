@@ -146,7 +146,7 @@ function deletedocument() {
       </tr>
       <tr>
         <td align="left"><?php echo $_lang['template_name']; ?>:&nbsp;&nbsp;</td>
-        <td align="left"><input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:150px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'></span></td>
+	    <td align="left"><input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'></span></td>
       </tr>
         <tr>
         <td align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</td>
@@ -159,7 +159,8 @@ function deletedocument() {
                 <?php
                     include_once "categories.inc.php";
                     $ds = getCategories();
-                    if($ds) foreach($ds as $n=>$v){
+					if($ds) foreach($ds as $n=>$v)
+					{
                         echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
                     }
                 ?>
@@ -200,13 +201,14 @@ $limit = $modx->db->getRecordCount($rs);
         <h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
         <script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabAssignedTVs" ) );</script>
     	<ul style="margin-bottom:15px;"><li><a href="index.php?&amp;a=300"><?php echo $_lang['new_tmplvars'];?></a></li></ul>
-        <p><?php if ($limit > 0) echo $_lang['template_tv_msg']; ?></p>
-    	<?php if($modx->hasPermission('save_template') && $limit > 1) { ?><p><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a></p><?php } ?>
+    	<p><?php if ($total > 0) echo $_lang['template_tv_msg']; ?></p>
+    	<?php if($modx->hasPermission('save_template') && $total > 1) { ?><p><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a></p><?php } ?>
 <?php
 $tvList = '';
 
-if($limit>0) {
-    for ($i=0;$i<$limit;$i++) {
+if($total>0) {
+    for ($i=0;$i<$total;$i++)
+    {
         $row = $modx->db->getRow($rs);
         if ($i == 0 ) $tvList .= '<ul>';
         $tvList .= '<li><strong><a href="index.php?id=' . $row['id'] . '&amp;a=301">'.$row['name'].'</a></strong> ('.$row['category'].')</li>';

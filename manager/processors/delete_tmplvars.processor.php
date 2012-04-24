@@ -4,9 +4,6 @@ if(!$modx->hasPermission('delete_template')) {
 	$e->setError(3);
 	$e->dumpError();	
 }
-?>
-<?php
-
 	$id = isset($_GET['id'])? intval($_GET['id']):0;
 	$forced = isset($_GET['force'])? $_GET['force']:0;
 
@@ -61,8 +58,7 @@ if(!$modx->hasPermission('delete_template')) {
 		echo "Something went wrong while trying to delete the field...";
 		exit;
 	} else {		
-		$header="Location: index.php?a=76&r=2";
-		header($header);
+		header("Location: index.php?a=76");
 	}
 
 	// delete variable's content values
@@ -79,4 +75,3 @@ if(!$modx->hasPermission('delete_template')) {
 							array(
 								"id"	=> $id
 							));								
-?>

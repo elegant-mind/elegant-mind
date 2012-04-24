@@ -1,9 +1,18 @@
 <?php
-include_once("config.inc.php");
-
-$vword = new VeriWord(148,60);
-$vword->output_image();
-$vword->destroy_image();
+if(!isset($modx))
+{
+	define('MODX_API_MODE',true);
+	$base_path = str_replace('\\','/',realpath('../../')) . '/';
+	require_once("{$base_path}index.php");
+	$modx->db->connect();
+	$modx->getSettings();
+}
+if(!isset($vword))
+{
+	$vword = new VeriWord(135,43);
+	$vword->output_image();
+	$vword->destroy_image();
+}
 
 #captchaClass.php file below
 
@@ -26,87 +35,69 @@ $vword->destroy_image();
 ## Copyright (c) 2004 Huda M Elmatsani All rights reserved.
 ## This program is free for any purpose use.
 ########
-##
-## USAGE
-## create some image with noise texture, put in image directory, 
-## rename to noise_#, see examples
-## put some true type font into font directory, 
-## rename to font_#, see exmplae
-## you can search and put free font you like 
-##
-## see sample.php for test and usage
-## sample URL: http://www.program-ruti.org/veriword/
-####
 class VeriWord {
-
     /* path to font directory*/
-    var $dir_font   = "ttf/";
+	var $dir_font;
     /* path to background image directory*/
-    var $dir_noise  = "noises/";
-    var $word       = ""; 
-    var $im_width   = 0;
-    var $im_height  = 0;
+	var $dir_noise;
+	var $word;
+	var $im_width;
+	var $im_height;
+	var $words;
 
-    function VeriWord($w=200, $h=80) {
+	function VeriWord($w=200, $h=80)
+	{
+		global $modx;
+		$vw_path = str_replace('\\','/',dirname(__FILE__)) . '/';
+		$this->dir_font  = 'ttf/';
+		$this->dir_noise = $vw_path . 'noises/';
+		$this->word = '';
+		$this->words = $modx->config['captcha_words'];
+		$this->im_width         = $w;
+		$this->im_height        = $h;
         /* create session to set word for verification */
-        startCMSSession();
         $this->set_veriword();
-        $this->dir_font = dirname(__FILE__) . '/' . $this->dir_font;
-        $this->im_width         = $w;
-        $this->im_height        = $h;
+		$this->dir_font = $vw_path . $this->dir_font;
     }
 
-    function set_veriword() {   
+	function set_veriword()
+	{
         /* create session variable for verification, 
            you may change the session variable name */
         $this->word             = $this->pick_word();   
         $_SESSION['veriword']   = $this->word;
     }
 
-    function output_image() {
+	function output_image()
+	{
         /* output the image as jpeg */  
         $this->draw_image();
-        header("Content-type: image/jpeg");
+		header('Content-type: image/jpeg');
         imagejpeg($this->im);
     }
 
-    function pick_word() {
-        global $database_server, $database_user, $database_password, $dbase, $table_prefix, $database_connection_charset, $database_connection_method;
-        // set default words
-        $words="MODx,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote";
-
-        // connect to the database
-        if(@$dbConn = mysql_connect($database_server, $database_user, $database_password)) {
-            mysql_select_db($dbase);
-            @mysql_query("{$database_connection_method} {$database_connection_charset}");
-            $sql = "SELECT * FROM $dbase.`".$table_prefix."system_settings` WHERE setting_name='captcha_words'";
-            $rs = mysql_query($sql);
-            $limit = mysql_num_rows($rs);
-            if($limit==1) {
-                $row = mysql_fetch_assoc($rs);
-                $words = $row['setting_value'];
-            }
-        }
-
-        $arr_words = explode(",", $words);
-
+	function pick_word()
+	{
+		$arr_words = explode(',', $this->words);
         /* pick one randomly for text verification */
-        return (string) $arr_words[array_rand($arr_words)].rand(10,999);
+		return (string) $arr_words[array_rand($arr_words)].mt_rand(10,999);
     }   
 
-    function draw_text() {        
-        $dir = dir($this->dir_font);
+	function draw_text()
+	{
+		$files = scandir($this->dir_font);
         $fontstmp = array();
-        while (false !== ($file = $dir->read())) {
-            if(substr($file, -4) == '.ttf') {
+		foreach ($files as $file)
+		{
+			if(substr($file, -4) == '.ttf')
+			{
                 $fontstmp[] = $this->dir_font.$file;
             }
         }
-        $dir->close();
         $text_font = (string) $fontstmp[array_rand($fontstmp)];
 
         /* angle for text inclination */
-        $text_angle = rand(-9,9);
+		$text_angle = mt_rand(-9,9);
         /* initial text size */
         $text_size  = 30;
         /* calculate text width and height */
@@ -131,10 +122,11 @@ class VeriWord {
         $bg_color       = imagecolorallocate ($im_text, 255, 255, 255); 
 
         /* pick color for text */
-        $text_color     = imagecolorallocate ($im_text, 0, 51, 153);
+		$text_color     = imagecolorallocate ($im_text, 10, 10, 10);
 
         /* draw text into canvas */
-        imagettftext    (   $im_text,
+		imagettftext(
+			$im_text,
                             $text_size,
                             $text_angle,
                             $text_x,
@@ -149,11 +141,10 @@ class VeriWord {
         imagedestroy($im_text); 
     }
 
-
-    function draw_image() {
-        
+	function draw_image()
+	{
         /* pick one background image randomly from image directory */
-        $img_file       = $this->dir_noise."noise".rand(1,4).".jpg";
+		$img_file       = $this->dir_noise."noise".mt_rand(1,4).".jpg";
 
         /* create "noise" background image from your image stock*/
         $noise_img      = @imagecreatefromjpeg ($img_file);
@@ -162,7 +153,8 @@ class VeriWord {
         
         /* resize the background image to fit the size of image output */
         $this->im       = imagecreatetruecolor($this->im_width,$this->im_height); 
-        imagecopyresampled ($this->im, 
+		imagecopyresampled(
+			$this->im,
                             $noise_img, 
                             0, 0, 0, 0, 
                             $this->im_width, 
@@ -171,21 +163,19 @@ class VeriWord {
                             $noise_height);
 
         /* put text image into background image */
-        imagecopymerge (    $this->im, 
+		imagecopymerge(
+			$this->im,
                             $this->draw_text(), 
                             0, 0, 0, 0, 
                             $this->im_width, 
                             $this->im_height, 
-                            70 );
+			70);
 
         return $this->im;
     }
 
-    function destroy_image() {
-
+	function destroy_image()
+	{
         imagedestroy($this->im);
-
     }
-
 }
-?>
