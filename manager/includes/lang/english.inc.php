@@ -689,7 +689,7 @@ $_lang["rename"] = 'Rename';
 $_lang["reports"] = 'Reports';
 $_lang["require_tagname"] = 'A tag name is required';
 $_lang["require_tagvalue"] = 'A tag value is required';
-$_lang["reserved_name_warning"] = 'You have used a reserved name.';
+$_lang["reserved_name_warning"] = '%s - You have used a reserved name.';
 $_lang["reset"] = 'Reset';
 $_lang["reset_failedlogins"] = 'reset';
 $_lang["resource"] = 'Resource';
@@ -1081,4 +1081,17 @@ $_lang["yourinfo_role"] = 'Your role is:';
 $_lang["yourinfo_title"] = 'Your info';
 $_lang["yourinfo_total_logins"] = 'Total number of logins:';
 $_lang["yourinfo_username"] = 'You are logged in as:';
-?>
+
+// modx_ja
+$_lang["day_names"] = 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
+$_lang["month_names"] = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec';
+$_lang["tree_page_click_option_auto"] = 'Auto';
+$_lang["too_many_resources"] = 'Undisplayed, there are many resources';
+$_lang['setting_resource_tree_node_name'] = 'The node name of a resource tree';
+$_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
+$_lang['setting_cache_enabled'] = 'A global cache is enabled.';
+$_lang['setting_cache_enabled_desc'] = 'Selection of "no" will repeal all the cache functions. Caching invalid does not recommend.';
+$_lang['duplicate_title_string'] = '[+title+] duplicated';
+$_lang["confirm_delete_category"] = 'May delete this category name?';
+$_lang["site_url_title"] = 'Site URL';
+$_lang["site_url_message"] = 'Example¡§<b>' . MODX_SITE_URL . '</b><br />If it is made blank, it will process automatically (it changes dynamically by the difference between the existence and http/https of www, etc.)';

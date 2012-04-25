@@ -7,12 +7,14 @@ if(!$modx->hasPermission('new_chunk')) {
 $id=$_GET['id'];
 
 // duplicate htmlsnippet
-	$sql = "INSERT INTO $dbase.`".$table_prefix."site_htmlsnippets` (name, description, snippet, category)
-			SELECT CONCAT('Duplicate of ',name) AS 'name', description, snippet, category
-			FROM $dbase.`".$table_prefix."site_htmlsnippets` WHERE id=$id;";
-	$rs = mysql_query($sql);
+$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+$tpl = $_lang['duplicate_title_string'];
+$sql = "INSERT INTO $tbl_site_htmlsnippets (name, description, snippet, category)
+		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, category
+		FROM {$tbl_site_htmlsnippets} WHERE id={$id}";
+$rs = $modx->db->query($sql);
 
-if($rs) $newid = mysql_insert_id(); // get new id
+if($rs) $newid = $modx->db->getInsertId(); // get new id
 else {
 	echo "A database error occured while trying to duplicate variable: <br /><br />".mysql_error();
 	exit;

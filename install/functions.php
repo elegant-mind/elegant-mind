@@ -68,13 +68,6 @@ function compare_check($params)
 		$old_desc    = $row['description'];
 		$old_version = substr($old_desc,0,strpos($old_desc,'</strong>'));
 		$old_version = strip_tags($old_version);
-/* debug
-echo '<br /><b>' . $name . '</b><br />';
-echo 'new-' . $new_desc . '<br />';
-echo 'old-' . $old_desc . '<br />';
-echo 'new-' . $new_version . '<br />';
-echo 'old-' . $old_version . '<br />';
-*/
 		if($mode == 'version_compare' && $old_version === $new_version)
 		{
 			                            $result = 'same';

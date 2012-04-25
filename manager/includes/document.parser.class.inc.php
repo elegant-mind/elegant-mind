@@ -854,15 +854,20 @@ class DocumentParser {
 
 	function checkCache($id)
 	{
-		if($this->config['cache_enabled'] == 0) return ''; // jp-edition only
+		if(isset($this->config['cache_enabled']) && $this->config['cache_enabled'] == 0) return ''; // jp-edition only
 		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
-		if(!file_exists($cacheFile))
+		if(file_exists($cacheFile))
+		{
+			$flContent = file_get_contents($cacheFile, false);
+		}
+		if(!file_exists($cacheFile) || empty($flContent))
 		{
 			$this->documentGenerated = 1;
 			return '';
 		}
+		
 		$this->documentGenerated = 0;
-            $flContent = file_get_contents($cacheFile, false);
+		
 		$flContent = substr($flContent, 37); // remove php header
 		$a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
 		if(count($a) == 1)
@@ -896,8 +901,8 @@ class DocumentParser {
 				if($this->config['unauthorized_page'])
 				{
                             // check if file is not public
-					$tbldg = $this->getFullTableName('document_groups');
-					$secrs = $this->db->query("SELECT id FROM {$tbldg} WHERE document = '{$id}' LIMIT 1;");
+					$tbl_document_groups = $this->getFullTableName('document_groups');
+					$secrs = $this->db->select('id', $tbl_document_groups, "document='{$id}'",'',1);
 					if($secrs)
 					{
 						$seclimit = $this->db->getRecordCount($secrs);
@@ -922,17 +927,17 @@ class DocumentParser {
 
 				// Remove intermediate variables
                 unset($docObj['__MODxDocGroups__'], $docObj['__MODxSJScripts__'], $docObj['__MODxJScripts__']);
-
+		}
 			$this->documentObject = $docObj;
                 return $a[1]; // return document content
             }
-    }
 
 	function checkPublishStatus()
 	{
 		$tbl_site_content = $this->getFullTableName('site_content');
 		$cacheRefreshTime = 0;
-		include_once("{$this->config['base_path']}assets/cache/sitePublishing.idx.php");
+		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
+		include_once($cache_path);
         $timeNow= time() + $this->config['server_offset_time'];
 		
 		if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) return;
@@ -971,97 +976,83 @@ class DocumentParser {
 		if (count($timesArr) > 0) $nextevent = min($timesArr);
 		else                      $nextevent = 0;
 
-		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
 		$content = '<?php $cacheRefreshTime=' . $nextevent . ';';
             file_put_contents($cache_path, $content);
         }
 
-    function mergeDocumentMETATags($template) {
-        if ($this->documentObject['haskeywords'] == 1) {
-            // insert keywords
-            $keywords = $this->getKeywords();
-            if (is_array($keywords) && count($keywords) > 0) {
-	            $keywords = implode(", ", $keywords);
-	            $metas= "\t<meta name=\"keywords\" content=\"$keywords\" />\n";
-            }
-
-	    // Don't process when cached
-	    $this->documentObject['haskeywords'] = '0';
-        }
-        if ($this->documentObject['hasmetatags'] == 1) {
-            // insert meta tags
-            $tags= $this->getMETATags();
-            foreach ($tags as $n => $col) {
-                $tag= strtolower($col['tag']);
-                $tagvalue= $col['tagvalue'];
-                $tagstyle= $col['http_equiv'] ? 'http-equiv' : 'name';
-                $metas .= "\t<meta $tagstyle=\"$tag\" content=\"$tagvalue\" />\n";
-            }
-
-	    // Don't process when cached
-	    $this->documentObject['hasmetatags'] = '0';
-        }
-	if (isset($metas) && $metas) $template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
-        return $template;
-    }
-
     // mod by Raymond
-    function mergeDocumentContent($template) {
+	function mergeDocumentContent($template)
+	{
         $replace= array ();
         preg_match_all('~\[\*(.*?)\*\]~', $template, $matches);
         $variableCount= count($matches[1]);
-        $basepath= $this->config["base_path"] . "manager/includes";
-        for ($i= 0; $i < $variableCount; $i++) {
+		$basepath= $this->config['base_path'] . 'manager/includes/';
+		include_once("{$basepath}tmplvars.format.inc.php");
+		include_once("{$basepath}tmplvars.commands.inc.php");
+		for ($i= 0; $i < $variableCount; $i++)
+		{
             $key= $matches[1][$i];
             $key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
             $value= $this->documentObject[$key];
-            if (is_array($value)) {
-                include_once $basepath . "/tmplvars.format.inc.php";
-                include_once $basepath . "/tmplvars.commands.inc.php";
-                $w= "100%";
-                $h= "300";
+			if (is_array($value))
+			{
                 $value= getTVDisplayFormat($value[0], $value[1], $value[2], $value[3], $value[4]);
             }
             $replace[$i]= $value;
         }
         $template= str_replace($matches[0], $replace, $template);
-
         return $template;
     }
 
-    function mergeSettingsContent($template) {
+	function mergeSettingsContent($template)
+	{
         $replace= array ();
         $matches= array ();
-        if (preg_match_all('~\[\(([a-z\_]*?)\)\]~', $template, $matches)) {
-            $settingsCount= count($matches[1]);
-            for ($i= 0; $i < $settingsCount; $i++) {
-                if (isset($this->config[$matches[1][$i]]))
+		if(preg_match_all('~\[\(([a-z\_]*?)\)\]~', $template, $matches))
+		{
+			$total= count($matches[1]);
+			for($i= 0; $i < $total; $i++)
+			{
+				if(isset($this->config[$matches[1][$i]]))
+				{
                     $replace[$i]= $this->config[$matches[1][$i]];
             }
+			}
 
             $template= str_replace($matches[0], $replace, $template);
         }
         return $template;
     }
 
-    function mergeChunkContent($content) {
+	function mergeChunkContent($content)
+	{
         $replace= array ();
         $matches= array ();
-        if (preg_match_all('~{{(.*?)}}~', $content, $matches)) {
-            $settingsCount= count($matches[1]);
-            for ($i= 0; $i < $settingsCount; $i++) {
-                if (isset ($this->chunkCache[$matches[1][$i]])) {
-                    $replace[$i]= $this->chunkCache[$matches[1][$i]];
-                } else {
-                    $sql= "SELECT `snippet` FROM " . $this->getFullTableName("site_htmlsnippets") . " WHERE " . $this->getFullTableName("site_htmlsnippets") . ".`name`='" . $this->db->escape($matches[1][$i]) . "';";
-                    $result= $this->db->query($sql);
+		if (preg_match_all('~{{(.*?)}}~', $content, $matches))
+		{
+			$total= count($matches[1]);
+			for ($i= 0; $i < $total; $i++)
+			{
+				$name = $matches[1][$i];
+				if (isset ($this->chunkCache[$name]))
+				{
+					$replace[$i]= $this->chunkCache[$name];
+				}
+				else
+				{
+					$escaped_name = $this->db->escape($name);
+					$where = "`name`='{$escaped_name}'";
+					$result= $this->db->select('snippet',$this->getFullTableName('site_htmlsnippets'),$where);
                     $limit= $this->db->getRecordCount($result);
-                    if ($limit < 1) {
-                        $this->chunkCache[$matches[1][$i]]= "";
-                        $replace[$i]= "";
-                    } else {
+					if ($limit < 1)
+					{
+						$this->chunkCache[$name]= '';
+						$replace[$i]= '';
+					}
+					else
+					{
                         $row= $this->db->getRow($result);
-                        $this->chunkCache[$matches[1][$i]]= $row['snippet'];
+						$this->chunkCache[$name]= $row['snippet'];
                         $replace[$i]= $row['snippet'];
                     }
                 }
@@ -1072,73 +1063,134 @@ class DocumentParser {
     }
 
     // Added by Raymond
-    function mergePlaceholderContent($content) {
+	function mergePlaceholderContent($content)
+	{
         $replace= array ();
         $matches= array ();
-        if (preg_match_all('~\[\+(.*?)\+\]~', $content, $matches)) {
+		if(preg_match_all('~\[\+(.*?)\+\]~', $content, $matches))
+		{
             $cnt= count($matches[1]);
-            for ($i= 0; $i < $cnt; $i++) {
+			for ($i= 0; $i < $cnt; $i++)
+			{
                 $v= '';
                 $key= $matches[1][$i];
                 if (is_array($this->placeholders) && isset($this->placeholders[$key]))
+				{
                     $v= $this->placeholders[$key];
+				}
                 if ($v === '')
+				{
                     unset ($matches[0][$i]); // here we'll leave empty placeholders for last.
+				}
                 else
+				{
                     $replace[$i]= $v;
             }
+			}
             $content= str_replace($matches[0], $replace, $content);
         }
         return $content;
     }
 
     // evalPlugin
-    function evalPlugin($pluginCode, $params) {
+	function evalPlugin($pluginCode, $params)
+	{
         $etomite= $modx= & $this;
         $modx->event->params = $params; // store params inside event object
-        if (is_array($params)) {
+		if (is_array($params))
+		{
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        eval ($pluginCode);
+		$result = eval($pluginCode);
         $msg= ob_get_contents();
         ob_end_clean();
-        if ($msg && isset ($php_errormsg)) {
-            if (!strpos($php_errormsg, 'Deprecated')) { // ignore php5 strict errors
+		if ($msg && isset ($php_errormsg))
+		{
+			if (!strpos($php_errormsg, 'Deprecated'))
+			{   // ignore php5 strict errors
                 // log error
-                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg", $this->event->activePlugin . " - Plugin");
+				$request_uri = getenv('REQUEST_URI');
+				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
+				if(isset($this->documentIdentifier))
+				{
+					$docid = "ID = {$this->documentIdentifier}<br />";
+				}
+//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
+				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
+				$plugin = $this->event->activePlugin . ' - Plugin';
+				$this->logEvent(1, 3, $log, $plugin);
                 if ($this->isBackend())
-                    $this->event->alert("An error occurred while loading. Please see the event log for more information.<p />$msg");
+				{
+					$this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$msg}</p>");
+				}
+			}
             }
-        } else {
-            echo $msg;
+		else
+		{
+			echo $msg . $result;
         }
         unset ($modx->event->params);
     }
 
-    function evalSnippet($snippet, $params) {
+	function evalSnippet($snippet, $params)
+	{
         $etomite= $modx= & $this;
-
+		if(isset($params) && is_array($params))
+		{
+			foreach($params as $k=>$v)
+			{
+				if($v==='false')    $params[$k] = false;
+				elseif($v==='true') $params[$k] = true;
+			}
+		}
         $modx->event->params = $params; // store params inside event object
-        if (is_array($params)) {
+		if (is_array($params))
+		{
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        $snip= eval ($snippet);
+		$result= eval($snippet);
         $msg= ob_get_contents();
-        $request_uri = getenv('REQUEST_URI');
-        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         ob_end_clean();
-        if ($msg && isset ($php_errormsg)) {
-            if (strpos(strtolower($php_errormsg), 'deprecated')===false) { // ignore php5 strict errors
+		if ($msg && isset ($php_errormsg))
+		{
+			if (strpos(strtolower($php_errormsg), 'deprecated')===false)
+			{
+				// ignore php5 strict errors
                 // log error
-                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg<br />REQUEST_URI = $request_uri<br />ID = $this->documentIdentifier", $this->currentSnippet . " - Snippet");
+				$request_uri = getenv('REQUEST_URI');
+				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
+				$docid = "ID = {$this->documentIdentifier}<br />";
+//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
+				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
+				$snip = $this->currentSnippet . ' - Snippet<br />';
+				$this->logEvent(1, 3, $log,$snip);
                 if ($this->isBackend())
-                    $this->event->alert("An error occurred while loading. Please see the event log for more information<p />$msg");
+				{
+					$this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
+				}
             }
         }
         unset ($modx->event->params);
-        return $msg . $snip;
+		return $msg . $result;
+    }
+
+	function get_backtrace($backtrace)
+	{
+		$str  = '<table>';
+		$str .= '<tr align="center"><td>#</td><td>call</td><td>path</td></tr>';
+		foreach ($backtrace as $key => $val)
+		{
+			$key++;
+			$path = str_replace('\\','/',$val['file']);
+			if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
+			$str .= "<tr><td>{$key}</td>";
+			$str .= "<td>{$val['function']}()</td>";
+			$str .= "<td>{$path} on line {$val['line']}</td></tr>";
+		}
+		$str .= '</table>';
+		return $str;
     }
 
 	function evalSnippets($documentSource)
@@ -1148,13 +1200,11 @@ class DocumentParser {
 		$stack = $documentSource;
 		unset($documentSource);
 
-		if(empty($this->minParserPasses)) $this->minParserPasses = 2;
-		if(empty($this->maxParserPasses)) $this->maxParserPasses = 10;
 		$passes = $this->minParserPasses;
 		
 		for($i= 0; $i < $passes; $i++)
 		{
-			if($i == ($passes -1)) $st = md5($stack);
+			if($i == ($passes -1)) $bt = md5($stack);
 			$pieces = array();
 			$pieces = explode('[[', $stack);
 			$stack = '';
@@ -1170,8 +1220,7 @@ class DocumentParser {
 			}
 			if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
 			{
-				$et = md5($stack);
-				if($st != $et) $passes++;
+				if($bt != md5($stack)) $passes++;
 			}
 		}
 		return $stack;
@@ -1243,7 +1292,7 @@ class DocumentParser {
 		$executedSnippets = $this->evalSnippet($snippetObject['content'], $params);
 		if($this->dumpSnippets == 1)
 		{
-			echo '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config["modx_charset"]) . '</textarea></fieldset>';
+			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
 		}
 		return $executedSnippets . $except_snip_call;
 	}
@@ -1299,8 +1348,7 @@ class DocumentParser {
 					$tbl_snippets  = $this->getFullTableName('site_snippets');
 			$esc_snip_name = $this->db->escape($snip_name);
                     // get from db and store a copy inside cache
-					$sql= "SELECT `name`,`snippet`,`properties` FROM {$tbl_snippets} WHERE {$tbl_snippets}.`name`='{$esc_snip_name}';";
-                    $result= $this->db->query($sql);
+			$result= $this->db->select('name,snippet,properties',$tbl_snippets,"name='{$esc_snip_name}'");
                     $added = false;
 					if($this->db->getRecordCount($result) == 1)
 					{
@@ -1328,7 +1376,11 @@ class DocumentParser {
         $alias    = array_pop($elements);
         $dir      = implode('/', $elements);
         unset($elements);
-        if((strpos($alias, '.') !== false) && (isset($this->config['smart_suffix']) && $this->config['smart_suffix']==1)) $suff = ''; // jp-edition only
+		if((strpos($alias, '.') !== false))
+		{
+			if(isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1) $suff = ''; // jp-edition only
+		}
+		//container_suffix
         return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
     }
 
@@ -1433,9 +1485,10 @@ class DocumentParser {
      * name: getDocumentObject  - used by parser
      * desc: returns a document object - $method: alias, id
      */
-    function getDocumentObject($method, $identifier) {
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
+	function getDocumentObject($method, $identifier)
+	{
+		$tbl_site_content= $this->getFullTableName("site_content");
+		$tbl_document_groups= $this->getFullTableName("document_groups");
         // allow alias to be full path
         if($method == 'alias')
         {
@@ -1449,35 +1502,46 @@ class DocumentParser {
         }
         // get document groups for current user
         if ($docgrp= $this->getUserDocGroups())
+		{
             $docgrp= implode(',', $docgrp);
+		}
         // get document (add so)
         if($this->isFrontend()) $access= "sc.privateweb=0";
         else                    $access= "sc.privatemgr=0";
-        if($docgrp) $access .= " OR dg.document_group IN ($docgrp)";
+		if($docgrp) $access .= " OR dg.document_group IN ({$docgrp})";
         $access .= " OR 1='{$_SESSION['mgrRole']}'";
         
-        $sql= "SELECT sc.*
-              FROM $tblsc sc
-              LEFT JOIN $tbldg dg ON dg.document = sc.id
-              WHERE sc." . $method . " = '" . $identifier . "'
-              AND ($access) LIMIT 1;";
-        $result= $this->db->query($sql);
-        if ($this->db->getRecordCount($result) < 1) {
-            if ($this->config['unauthorized_page']) {
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg ON dg.document = sc.id";
+		$where ="sc.{$method}='{$identifier}' AND ($access)";
+		$result= $this->db->select('sc.*',$from,$where,'',1);
+		if ($this->db->getRecordCount($result) < 1)
+		{
+			if ($this->config['unauthorized_page'])
+			{
                 // method may still be alias, while identifier is not full path alias, e.g. id not found above
-                if ($method === 'alias') {
-                    $q = "SELECT dg.id FROM $tbldg dg, $tblsc sc WHERE dg.document = sc.id AND sc.alias = '{$identifier}' LIMIT 1;";
-                } else {
-                    $q = "SELECT id FROM $tbldg WHERE document = '{$identifier}' LIMIT 1;";
+				if ($method === 'alias')
+				{
+					$field = 'dg.id';
+					$from = "{$tbl_document_groups} dg, {$tbl_site_content} sc";
+					$where =  "dg.document = sc.id AND sc.alias = '{$identifier}'";
+				}
+				else
+				{
+					$field = 'id';
+					$from = $tbl_document_groups;
+					$where =  "document = '{$identifier}'";
                 }
                 // check if file is not public
-                $seclimit= $this->db->getRecordCount($this->db->query($q));
+				$seclimit= $this->db->getRecordCount($this->db->select($field,$from,$where,'',1));
             }
-            if ($seclimit > 0) {
+			if ($seclimit > 0)
+			{
                 // match found but not publicly accessible, send the visitor to the unauthorized_page
                 $this->sendUnauthorizedPage();
                 exit; // stop here
-            } else {
+			}
+			else
+			{
                 $this->sendErrorPage();
                 exit;
             }
@@ -1491,18 +1555,19 @@ class DocumentParser {
         $tbl_site_tmplvar_templates = $this->getFullTableName('site_tmplvar_templates');
         $tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
         
-        $sql= "SELECT tv.name, IF(tvc.value!='',tvc.value,tv.default_text) as value,tv.display,tv.display_params,tv.type ";
-        $sql .= "FROM {$tbl_site_tmplvars} tv ";
-        $sql .= "INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id ";
-        $sql .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$documentObject['id']}' ";
-        $sql .= "WHERE tvtpl.templateid = '{$documentObject['template']}'";
-        $rs= $this->db->query($sql);
+		$field = "tv.name, IF(tvc.value!='',tvc.value,tv.default_text) as value,tv.display,tv.display_params,tv.type";
+		$from  = "{$tbl_site_tmplvars} tv ";
+		$from .= "INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id ";
+		$from .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$documentObject['id']}'";
+		$where = "tvtpl.templateid = '{$documentObject['template']}'";
+		$rs = $this->db->select($field,$from,$where);
         $rowCount= $this->db->getRecordCount($rs);
         if ($rowCount > 0)
         {
             while ($row= $this->db->getRow($rs))
             {
-                $tmplvars[$row['name']]= array (
+				$tmplvars[$row['name']]= array
+				(
                     $row['name'],
                     $row['value'],
                     $row['display'],
@@ -1519,22 +1584,21 @@ class DocumentParser {
      * name: parseDocumentSource - used by parser
      * desc: return document source aftering parsing tvs, snippets, chunks, etc.
      */
-    function parseDocumentSource($source) {
-        // set the number of times we are to parse the document source
-        $this->minParserPasses= empty ($this->minParserPasses) ? 2 : $this->minParserPasses;
-        $this->maxParserPasses= empty ($this->maxParserPasses) ? 10 : $this->maxParserPasses;
+	function parseDocumentSource($source)
+	{
         $passes= $this->minParserPasses;
-        for ($i= 0; $i < $passes; $i++) {
+		for ($i= 0; $i < $passes; $i++)
+		{
             // get source length if this is the final pass
-            if ($i == ($passes -1))
-                $st= strlen($source);
-            if ($this->dumpSnippets == 1) {
-                echo "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
+			if ($i == ($passes -1)) $bt= md5($source);
+			if ($this->dumpSnippets == 1)
+			{
+				$this->snipCode .= "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
             }
 
             // invoke OnParseDocument event
             $this->documentOutput= $source; // store source code so plugins can
-            $this->invokeEvent("OnParseDocument"); // work on it via $modx->documentOutput
+			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
             $source= $this->documentOutput;
 
             // combine template and document variables
@@ -1549,14 +1613,17 @@ class DocumentParser {
             if(strpos($source,'[[')!==false) $source= $this->evalSnippets($source);
             // find and replace Placeholders (must be parsed last) - Added by Raymond
             if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
-            if ($this->dumpSnippets == 1) {
-                echo "</div></fieldset>";
+			if ($this->dumpSnippets == 1)
+			{
+				$this->snipCode .= '</div></fieldset>';
             }
-            if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1)) {
+			if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
+			{
                 // check if source length was changed
-                $et= strlen($source);
-                if ($st != $et)
+				if ($bt != md5($source))
+				{
                     $passes++; // if content change then increase passes because
+				}
             } // we have not yet reached maxParserPasses
             if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
         }
@@ -1654,18 +1721,25 @@ class DocumentParser {
     }
 
     # Displays a javascript alert message in the web browser
-    function webAlert($msg, $url= "") {
+	function webAlert($msg, $url= '')
+	{
         $msg= addslashes($this->db->escape($msg));
-        if (substr(strtolower($url), 0, 11) == "javascript:") {
-            $act= "__WebAlert();";
-            $fnc= "function __WebAlert(){" . substr($url, 11) . "};";
-        } else {
-            $act= ($url ? "window.location.href='" . addslashes($url) . "';" : "");
+		if (substr(strtolower($url), 0, 11) == 'javascript:')
+		{
+			$act= '__WebAlert();';
+			$fnc= 'function __WebAlert(){' . substr($url, 11) . '};';
+		}
+		else
+		{
+			$act= $url ? "window.location.href='" . addslashes($url) . "';" : '';
         }
-        $html= "<script>$fnc window.setTimeout(\"alert('$msg');$act\",100);</script>";
+		$html= "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
         if ($this->isFrontend())
+		{
             $this->regClientScript($html);
-        else {
+		}
+		else
+		{
             echo $html;
         }
     }
@@ -1680,35 +1754,46 @@ class DocumentParser {
     }
 
     # Add an a alert message to the system event log
-    function logEvent($evtid, $type, $msg, $source= 'Parser') {
+	function logEvent($evtid, $type, $msg, $source= 'Parser')
+	{
+		$evtid= intval($evtid);
+		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
+		if (3 < $type) $type= 3;
         $msg= $this->db->escape($msg);
         $source= $this->db->escape($source);
-	if ($GLOBALS['database_connection_charset'] == 'utf8' && extension_loaded('mbstring')) {
-		$source = mb_substr($source, 0, 50 , "UTF-8");
-	} else {
+		if (function_exists('mb_substr'))
+		{
+			$source = mb_substr($source, 0, 50 , $this->config['modx_charset']);
+		}
+		else
+		{
 		$source = substr($source, 0, 50);
 	}
 	$LoginUserID = $this->getLoginUserID();
-	if ($LoginUserID == '') $LoginUserID = 0;
-        $evtid= intval($evtid);
-        if ($type < 1) {
-            $type= 1;
-        }
-        elseif ($type > 3) {
-            $type= 3; // Types: 1 = information, 2 = warning, 3 = error
-        }
+		if ($LoginUserID == '' || $LoginUserID===false) $LoginUserID = '-';
+		
         $fields['eventid']     = $evtid;
         $fields['type']        = $type;
         $fields['createdon']   = time();
         $fields['source']      = $source;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
-        $insert_id = @$this->db->insert($fields,$this->getFullTableName("event_log"));
-        if (!$insert_id) {
-            echo "Error while inserting event log into database.";
+		$insert_id = $this->db->insert($fields,$this->getFullTableName('event_log'));
+		if(isset($this->config['send_errormail']) && $this->config['send_errormail'] !== '0')
+		{
+			if($this->config['send_errormail'] <= $type)
+			{
+				$subject = 'Notice of error from ' . $this->config['site_name'];
+				$this->sendmail($subject,$source);
+			}
+		}
+		if (!$insert_id)
+		{
+			echo 'Error while inserting event log into database.';
             exit();
         }
-        else {
+		else
+		{
             $trim  = (isset($this->config['event_log_trim']))  ? intval($this->config['event_log_trim']) : 100;
             if(($insert_id % $trim) == 0)
             {
@@ -1718,19 +1803,56 @@ class DocumentParser {
         }
     }
 
+	function sendmail($params=array(), $msg='')
+	{
+		if(isset($params) && is_string($params))
+		{
+			if(strpos($params,'=')===false)
+			{
+				if(strpos($params,'@')!==false) $p['sendto']  = $params;
+				else                            $p['subject'] = $params;
+			}
+			else
+			{
+				$params_array = explode(',',$params);
+				foreach($params_array as $k=>$v)
+				{
+					$k = trim($k);
+					$v = trim($v);
+					$p[$k] = $v;
+				}
+			}
+		}
+		else
+		{
+			$p = $params;
+			unset($params);
+		}
+		include_once $this->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
+		$mail = new MODxMailer();
+		$mail->IsMail();
+		$mail->IsHTML(0);
+		$mail->From     = (!isset($p['from']))     ? $this->config['emailsender']  : $p['from'];
+		$mail->FromName = (!isset($p['fromname'])) ? $this->config['site_name']    : $p['fromname'];
+		$mail->Subject  = (!isset($p['subject']))  ? $this->config['emailsubject'] : $p['subject'];
+		$sendto         = (!isset($p['sendto']))   ? $this->config['emailsender']  : $p['sendto'];
+		$mail->Body     = $msg;
+		$mail->AddAddress($sendto);
+		$rs = $mail->Send();
+		return $rs;
+	}
+	
 	function purge_event_log($limit=2000, $trim=100)
 	{
 		if($limit < $trim) $trim = $limit;
 		
-		$tbl_event_log = $this->getFullTableName("event_log");
+		$tbl_event_log = $this->getFullTableName('event_log');
 		$count = $this->db->getValue($this->db->select('COUNT(id)',$tbl_event_log));
 		$over = $count - $limit;
 		if(0 < $over)
 		{
 			$trim = ($over + $trim);
-			$sql = "DELETE FROM {$tbl_event_log} LIMIT {$trim}";
-			$this->db->query($sql);
-			$sql = "OPTIMIZE TABLE {$tbl_event_log}";
+			$this->db->delete($tbl_event_log,'',$trim);
 			$this->db->query($sql);
 		}
 	}
@@ -1740,203 +1862,228 @@ class DocumentParser {
 		$limit_time = time() - $limit_time;
 		$action     = intval($action);
 		$tbl_active_users = $this->getFullTableName('active_users');
-		$sql = "DELETE FROM {$tbl_active_users} WHERE action={$action} and lasthit < {$limit_time}";
-		$this->db->query($sql);
+		$this->db->delete($tbl_active_users,"action={$action} and lasthit < {$limit_time}");
     }
 
     # Returns true if parser is executed in backend (manager) mode
     function isBackend() {
-        return $this->insideManager() ? true : false;
+		if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true')
+		{
+			return true;
+		}
+		else return false;
     }
 
     # Returns true if parser is executed in frontend mode
-    function isFrontend() {
-        return !$this->insideManager() ? true : false;
+	function isFrontend()
+	{
+		if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true')
+		{
+			return false;
+		}
+		else return true;
     }
 
-    function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
+	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
+	{
+		$tbl_site_content= $this->getFullTableName('site_content');
+		$tbl_document_groups= $this->getFullTableName('document_groups');
         // modify field names to use sc. table reference
-        $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $fields)));
-        $sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $sort)));
+		$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+		$sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
         // get document groups for current user
         if ($docgrp= $this->getUserDocGroups())
-            $docgrp= implode(",", $docgrp);
+		{
+			$docgrp= implode(',', $docgrp);
+		}
         // build query
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
-         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
-        $sql= "SELECT DISTINCT $fields FROM $tblsc sc
-              LEFT JOIN $tbldg dg on dg.document = sc.id
-              WHERE sc.parent = '$id'
-              AND ($access)
-              GROUP BY sc.id
-              ORDER BY $sort $dir;";
-        $result= $this->db->query($sql);
+		$context = ($this->isFrontend() ? 'web' : 'mgr');
+		$cond    = ($docgrp) ? "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'" : '';
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+		$where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
+		$orderby = "{$sort} {$dir}";
+		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby);
         $resourceArray= array ();
-        for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            $resourceArray[] = @ $this->db->getRow($result);
+		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		{
+			$resourceArray[] = $this->db->getRow($result);
         }
         return $resourceArray;
     }
 
-    function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
+	function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
+	{
+		$tbl_site_content    = $this->getFullTableName('site_content');
+		$tbl_document_groups = $this->getFullTableName('document_groups');
 
         // modify field names to use sc. table reference
-        $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $fields)));
-        $sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $sort)));
+		$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+		$sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
         // get document groups for current user
         if ($docgrp= $this->getUserDocGroups())
+		{
             $docgrp= implode(",", $docgrp);
+		}
         // build query
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
-        $sql= "SELECT DISTINCT $fields FROM $tblsc sc
-              LEFT JOIN $tbldg dg on dg.document = sc.id
-              WHERE sc.parent = '$id' AND sc.published=1 AND sc.deleted=0
-              AND ($access)
-              GROUP BY sc.id
-              ORDER BY $sort $dir;";
-        $result= $this->db->query($sql);
+		if($this->isFrontend()) $context = 'sc.privateweb=0';
+		else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+		$cond = ($docgrp) ? " OR dg.document_group IN ({$docgrp})" : '';
+		
+		$fields = "DISTINCT {$fields}";
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+		$where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
+		$orderby = "{$sort} {$dir}";
+		$result= $this->db->select($fields,$from,$where,$orderby);
         $resourceArray= array ();
-        for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            $resourceArray[] = @ $this->db->getRow($result);
+		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		{
+			$resourceArray[] = $this->db->getRow($result);
         }
         return $resourceArray;
     }
 
-    function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= "*", $where= '', $sort= "menuindex", $dir= "ASC", $limit= "") {
-        $limit= ($limit != "") ? "LIMIT $limit" : "";
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
+	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
+	{
+		$tbl_site_content= $this->getFullTableName('site_content');
+		$tbl_document_groups= $this->getFullTableName('document_groups');
         // modify field names to use sc. table reference
-        $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $fields)));
-        $sort= ($sort == "") ? "" : 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $sort)));
-        if ($where != '')
-            $where= 'AND ' . $where;
+		$fields = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+		if($where != '') $where= "AND {$where}";
         // get document groups for current user
-        if ($docgrp= $this->getUserDocGroups())
-            $docgrp= implode(",", $docgrp);
+		if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
         // build query
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
-        $sql= "SELECT DISTINCT $fields
-              FROM $tblsc sc
-              LEFT JOIN $tbldg dg on dg.document = sc.id
-              WHERE sc.parent = '$parentid' AND sc.published=$published AND sc.deleted=$deleted $where
-              AND ($access)
-              GROUP BY sc.id " .
-         ($sort ? " ORDER BY $sort $dir " : "") . " $limit ";
-        $result= $this->db->query($sql);
+		$access  = $this->isFrontend() ? 'sc.privateweb=0' : "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+		$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+		$where = "sc.parent = '{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$access}) GROUP BY sc.id";
+		$sort = ($sort != '') ? 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort))) : '';
+		$orderby = $sort ? "{$sort} {$dir}" : '';
+		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
         $resourceArray= array ();
-        for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            $resourceArray[] = @ $this->db->getRow($result);
+		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		{
+			$resourceArray[] = $this->db->getRow($result);
         }
         return $resourceArray;
     }
 
-    function getDocuments($ids= array (), $published= 1, $deleted= 0, $fields= "*", $where= '', $sort= "menuindex", $dir= "ASC", $limit= "") {
-        if (count($ids) == 0) {
+	function getDocuments($ids= array (), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
+	{
+		if (count($ids) == 0)
+		{
             return false;
-        } else {
-            $limit= ($limit != "") ? "LIMIT $limit" : ""; // LIMIT capabilities - rad14701
-            $tblsc= $this->getFullTableName("site_content");
-            $tbldg= $this->getFullTableName("document_groups");
+		}
+		else
+		{
+			$tbl_site_content= $this->getFullTableName('site_content');
+			$tbl_document_groups= $this->getFullTableName('document_groups');
+			
             // modify field names to use sc. table reference
-            $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $fields)));
-            $sort= ($sort == "") ? "" : 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $sort)));
-            if ($where != '')
-                $where= 'AND ' . $where;
+			$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+			if($sort !== '')  $sort = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+			if ($where != '') $where= "AND {$where}";
             // get document groups for current user
-            if ($docgrp= $this->getUserDocGroups())
-                $docgrp= implode(",", $docgrp);
-            $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
-             (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
-            $sql= "SELECT DISTINCT $fields FROM $tblsc sc
-                    LEFT JOIN $tbldg dg on dg.document = sc.id
-                    WHERE (sc.id IN (" . implode(",",$ids) . ") AND sc.published=$published AND sc.deleted=$deleted $where)
-                    AND ($access)
-                    GROUP BY sc.id " .
-             ($sort ? " ORDER BY $sort $dir" : "") . " $limit ";
-            $result= $this->db->query($sql);
+			if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
+			$context = ($this->isFrontend()) ? 'web' : 'mgr';
+			$cond = $docgrp ? "OR dg.document_group IN ({$docgrp})" : '';
+			
+			$fields = "DISTINCT {$fields}";
+			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+			$ids_str = implode(',',$ids);
+			$where = "(sc.id IN ({$ids_str}) AND sc.published={$published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
+			$orderby = ($sort) ? "{$sort} {$dir}" : '';
+			$result= $this->db->select($fields,$from,$where,$orderby,$limit);
             $resourceArray= array ();
-            for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                $resourceArray[] = @ $this->db->getRow($result);
+			for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+			{
+				$resourceArray[] = $this->db->getRow($result);
             }
             return $resourceArray;
         }
     }
 
-    function getDocument($id= 0, $fields= "*", $published= 1, $deleted= 0) {
-        if ($id == 0) {
-            return false;
-        } else {
+	function getDocument($id= 0, $fields= '*', $published= 1, $deleted= 0)
+	{
+		if ($id == 0) return false;
+		else
+		{
             $tmpArr[]= $id;
-            $docs= $this->getDocuments($tmpArr, $published, $deleted, $fields, "", "", "", 1);
-            if ($docs != false) {
-                return $docs[0];
-            } else {
-                return false;
-            }
+			$docs= $this->getDocuments($tmpArr, $published, $deleted, $fields, '', '', '', 1);
+			
+			if ($docs != false) return $docs[0];
+			else                return false;
         }
     }
 
-    function getPageInfo($pageid= -1, $active= 1, $fields= 'id, pagetitle, description, alias') {
-        if ($pageid == 0) {
-            return false;
-        } else {
-            $tblsc= $this->getFullTableName("site_content");
-            $tbldg= $this->getFullTableName("document_groups");
-            $activeSql= $active == 1 ? "AND sc.published=1 AND sc.deleted=0" : "";
+	function getPageInfo($docid= 0, $active= 1, $fields= 'id, pagetitle, description, alias')
+	{
+		if($docid == 0) return false;
+		else
+		{
+			$tbl_site_content    = $this->getFullTableName('site_content');
+			$tbl_document_groups = $this->getFullTableName('document_groups');
+			
             // modify field names to use sc. table reference
-            $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $fields)));
+			$fields = preg_replace("/\s/i", '',$fields);
+			$fields = 'sc.' . implode(',sc.', explode(',', $fields));
+			
+			$published = ($active == 1) ? 'AND sc.published=1 AND sc.deleted=0' : '';
+			
             // get document groups for current user
-            if ($docgrp= $this->getUserDocGroups())
-                $docgrp= implode(",", $docgrp);
-            $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-             (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
-            $sql= "SELECT $fields
-                    FROM $tblsc sc
-                    LEFT JOIN $tbldg dg on dg.document = sc.id
-                    WHERE (sc.id=$pageid $activeSql)
-                    AND ($access)
-                    LIMIT 1 ";
-            $result= $this->db->query($sql);
-            $pageInfo= @ $this->db->getRow($result);
+			if($docgrp= $this->getUserDocGroups())
+			{
+				$docgrp= implode(',', $docgrp);
+			}
+			if($this->isFrontend()) $context = 'sc.privateweb=0';
+			else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+			$cond   =  ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
+			
+			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+			$where = "(sc.id={$docid} {$published}) AND ({$context} {$cond})";
+			$result = $this->db->select($fields,$from,$where,'',1);
+			$pageInfo = $this->db->getRow($result);
             return $pageInfo;
         }
     }
 
-    function getParent($pid= -1, $active= 1, $fields= 'id, pagetitle, description, alias, parent') {
-        if ($pid == -1) {
+	function getParent($pid= -1, $active= 1, $fields= 'id, pagetitle, description, alias, parent')
+	{
+		if ($pid == -1)
+		{
             $pid= $this->documentObject['parent'];
             return ($pid == 0) ? false : $this->getPageInfo($pid, $active, $fields);
-        } else
-            if ($pid == 0) {
+		}
+		elseif ($pid == 0)
+		{
                 return false;
-            } else {
+		}
+		else
+		{
                 // first get the child document
                 $child= $this->getPageInfo($pid, $active, "parent");
+			
                 // now return the child's parent
                 $pid= ($child['parent']) ? $child['parent'] : 0;
+			
                 return ($pid == 0) ? false : $this->getPageInfo($pid, $active, $fields);
             }
     }
 
-    function getSnippetId() {
-        if ($this->currentSnippet) {
-            $tbl= $this->getFullTableName("site_snippets");
-            $rs= $this->db->query("SELECT id FROM $tbl WHERE name='" . $this->db->escape($this->currentSnippet) . "' LIMIT 1");
+	function getSnippetId()
+	{
+		if ($this->currentSnippet)
+		{
+			$tbl_site_snippets = $this->getFullTableName("site_snippets");
+			$snip = $this->db->escape($this->currentSnippet);
+			$rs= $this->db->select('id', $tbl_site_snippets, "name='{$snip}'",'',1);
             $row= @ $this->db->getRow($rs);
-            if ($row['id'])
-                return $row['id'];
+			if ($row['id']) return $row['id'];
         }
         return 0;
     }
 
-    function getSnippetName() {
+	function getSnippetName()
+	{
         return $this->currentSnippet;
     }
 
@@ -1946,7 +2093,7 @@ class DocumentParser {
     		$showReport = ($params['showReport']) ? $params['showReport'] : false;
     		$target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
     		
-			include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
+			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
 			$sync = new synccache();
 			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 			$sync->setReport($showReport);
@@ -1965,7 +2112,7 @@ class DocumentParser {
         $f_url_suffix = $this->config['friendly_url_suffix'];
 		if (!is_numeric($id))
 		{
-            $this->messageQuit('`' . $id . '` is not numeric and may not be passed to makeUrl()');
+			$this->messageQuit("'{$id}' is not numeric and may not be passed to makeUrl()");
         }
 		if ($args != '' && $this->config['friendly_urls'] == 1)
 		{
@@ -1973,68 +2120,48 @@ class DocumentParser {
             $c= substr($args, 0, 1);
 			if (strpos($f_url_prefix, '?') === false)
 			{
-                if ($c == '&')
-				{
-					$args= '?' . ltrim($args, '&');
+				if ($c == '&')     $args= '?' . ltrim($args, '&');
+				elseif ($c != '?') $args= '?' . $args;
 				}
-				elseif ($c != '?')
-				{
-					$args= '?' . $args;
-				}
-			}
 			else
 			{
-                if ($c == '?')
-				{
-					$args= '&' . ltrim($args, '?');
-				}
-				elseif ($c != '&')
-				{
-					$args= '&' . $args;
+				if ($c == '?')     $args= '&' . ltrim($args, '?');
+				elseif ($c != '&') $args= '&' . $args;
             }
         }
-		}
 		elseif ($args != '')
 		{
             // add & to $args if missing
             $c= substr($args, 0, 1);
-            if ($c == '?')
-			{
-				$args= '&' . ltrim($args, '?');
+			if ($c == '?')     $args= '&' . ltrim($args, '?');
+			elseif ($c != '&') $args= '&' . $args;
 			}
-			elseif ($c != '&')
-			{
-				$args= '&' . $args;
-			}
-		}
-		if ($this->config['friendly_urls'] == 1 && $alias != '')
+		if ($this->config['friendly_urls'] == 1)
 		{
-			if((strpos($alias, '.') !== false)
-			    && (isset($this->config['suffix_mode'])
-			    && $this->config['suffix_mode']==1))
+			$alPath = '';
+			if(empty($alias))
 			{
-				    $f_url_suffix = ''; // jp-edition only
-        }
-            $url= $f_url_prefix . $alias . $f_url_suffix . $args;
-        }
-		elseif ($this->config['friendly_urls'] == 1 && $alias == '')
-		{
 			$alias = $id;
 			if ($this->config['friendly_alias_urls'] == 1)
 			{
                 $al= $this->aliasListing[$id];
-                $alPath= !empty ($al['path']) ? $al['path'] . '/' : '';
-                if ($al && $al['alias'])
+					if(!empty ($al['path'])) $alPath = $al['path'] . '/';
+					if ($al && $al['alias']) $alias  = $al['alias'];
+				}
+			}
+			
+			if((strpos($alias, '.') !== false) && (isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1))
 				{
-                    $alias= $al['alias'];
+				$f_url_suffix = ''; // jp-edition only
             }
 			}
-			$alias = $alPath . $f_url_prefix . $alias . $f_url_suffix;
-			$url = $alias . $args;
+		if ($this->config['friendly_urls'] == 1)
+		{
+			$url = $alPath . $f_url_prefix . $alias . $f_url_suffix . $args;
 		}
 		else
 		{
-            $url= 'index.php?id=' . $id . $args;
+			$url= "index.php?id={$id}{$args}";
         }
 
         $host= $this->config['base_url'];
@@ -2053,24 +2180,37 @@ class DocumentParser {
 
 		if ($this->config['xhtml_urls'])
 		{
-        	return preg_replace("/&(?!amp;)/","&amp;", $host . $virtualDir . $url);
+			$url = preg_replace("/&(?!amp;)/",'&amp;', $host . $virtualDir . $url);
 		}
 		else
 		{
-        	return $host . $virtualDir . $url;
+			$url = $host . $virtualDir . $url;
         }
+		$rs = $this->invokeEvent('OnMakeUrl',
+				array(
+					"id"    => $id,
+					"alias" => $alias,
+					"args"  => $args,
+					"scheme"=> $scheme,
+					"url"   => $url
+				)
+			);
+		if (!empty($rs))
+		{
+			$url = end($rs);
+		}
+		return $url;
     }
 
-    function getConfig($name= '') {
-        if (!empty ($this->config[$name])) {
-            return $this->config[$name];
-        } else {
-            return false;
-        }
+	function getConfig($name= '')
+	{
+		if(empty($this->config[$name])) return false;
+		else                            return $this->config[$name];
     }
 
-    function getVersionData() {
-        include_once($this->config["base_path"] . "manager/includes/version.inc.php");
+	function getVersionData()
+	{
+		include_once($this->config["base_path"] . 'manager/includes/version.inc.php');
         $v= array ();
         $v['version']= $modx_version;
         $v['branch']= $modx_branch;
@@ -2079,109 +2219,58 @@ class DocumentParser {
         return $v;
     }
 
-    function makeList($array, $ulroot= 'root', $ulprefix= 'sub_', $type= '', $ordered= false, $tablevel= 0) {
+	function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
+	{
         // first find out whether the value passed is an array
-        if (!is_array($array)) {
-            return "<ul><li>Bad list</li></ul>";
-        }
-        if (!empty ($type)) {
-            $typestr= " style='list-style-type: $type'";
-        } else {
-            $typestr= "";
-        }
-        $tabs= "";
-        for ($i= 0; $i < $tablevel; $i++) {
+		if (!is_array($array)) return "<ul><li>Bad list</li></ul>";
+		
+		$tabs= '';
+		for ($i= 0; $i < $tablevel; $i++)
+		{
             $tabs .= "\t";
         }
-        $listhtml= $ordered == true ? $tabs . "<ol class='$ulroot'$typestr>\n" : $tabs . "<ul class='$ulroot'$typestr>\n";
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $listhtml .= $tabs . "\t<li>" . $key . "\n" . $this->makeList($value, $ulprefix . $ulroot, $ulprefix, $type, $ordered, $tablevel +2) . $tabs . "\t</li>\n";
-            } else {
-                $listhtml .= $tabs . "\t<li>" . $value . "</li>\n";
+
+		$tag = ($ordered == true) ? 'ol' : 'ul';
+		
+		if(!empty($type)) $typestr= " style='list-style-type: {$type}'";
+		else              $typestr= '';
+		
+		$listhtml= "{$tabs}<{$tag} class='{$ulroot}'{$typestr}>\n";
+		foreach ($array as $key => $value)
+		{
+			if (is_array($value))
+			{
+				$line = $this->makeList($value, "{$ulprefix}{$ulroot}", $ulprefix, $type, $ordered, $tablevel +2);
+				$listhtml .= "{$tabs}\t<li>{$key}\n{$line}{$tabs}\t</li>\n";
+        }
+			else
+			{
+				$listhtml .= "{$tabs}\t<li>{$value}</li>\n";
             }
         }
-        $listhtml .= $ordered == true ? $tabs . "</ol>\n" : $tabs . "</ul>\n";
+		$listhtml = "{$tabs}</{$tag}>\n";
         return $listhtml;
     }
 
-    function userLoggedIn() {
-        $userdetails= array ();
-        if ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
-            // web user
-            $userdetails['loggedIn']= true;
-            $userdetails['id']= $_SESSION['webInternalKey'];
-            $userdetails['username']= $_SESSION['webShortname'];
-            $userdetails['usertype']= 'web'; // added by Raymond
-            return $userdetails;
-        } else
-            if ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
-                // manager user
-                $userdetails['loggedIn']= true;
-                $userdetails['id']= $_SESSION['mgrInternalKey'];
-                $userdetails['username']= $_SESSION['mgrShortname'];
-                $userdetails['usertype']= 'manager'; // added by Raymond
-                return $userdetails;
-            } else {
-                return false;
-            }
-    }
-
-    function getKeywords($id= 0) {
-        if ($id == 0) {
-            $id= $this->documentObject['id'];
-        }
-        $tblKeywords= $this->getFullTableName('site_keywords');
-        $tblKeywordXref= $this->getFullTableName('keyword_xref');
-        $sql= "SELECT keywords.keyword FROM " . $tblKeywords . " AS keywords INNER JOIN " . $tblKeywordXref . " AS xref ON keywords.id=xref.keyword_id WHERE xref.content_id = '$id'";
-        $result= $this->db->query($sql);
-        $limit= $this->db->getRecordCount($result);
-        $keywords= array ();
-        if ($limit > 0) {
-            for ($i= 0; $i < $limit; $i++) {
-                $row= $this->db->getRow($result);
-                $keywords[]= $row['keyword'];
-            }
-        }
-        return $keywords;
-    }
-
-    function getMETATags($id= 0) {
-        if ($id == 0) {
-            $id= $this->documentObject['id'];
-        }
-        $sql= "SELECT smt.* " .
-        "FROM " . $this->getFullTableName("site_metatags") . " smt " .
-        "INNER JOIN " . $this->getFullTableName("site_content_metatags") . " cmt ON cmt.metatag_id=smt.id " .
-        "WHERE cmt.content_id = '$id'";
-        $ds= $this->db->query($sql);
-        $limit= $this->db->getRecordCount($ds);
-        $metatags= array ();
-        if ($limit > 0) {
-            for ($i= 0; $i < $limit; $i++) {
-                $row= $this->db->getRow($ds);
-                $metatags[$row['name']]= array (
-                    "tag" => $row['tag'],
-                    "tagvalue" => $row['tagvalue'],
-                    "http_equiv" => $row['http_equiv']
-                );
-            }
-        }
-        return $metatags;
-    }
-
-    function runSnippet($snippetName, $params= array ()) {
-        if (isset ($this->snippetCache[$snippetName])) {
+	function runSnippet($snippetName, $params= array ())
+	{
+		if (isset ($this->snippetCache[$snippetName]))
+		{
             $snippet= $this->snippetCache[$snippetName];
-            $properties= $this->snippetCache[$snippetName . "Props"];
-        } else { // not in cache so let's check the db
-            $sql= "SELECT `name`, `snippet`, `properties` FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".`name`='" . $this->db->escape($snippetName) . "';";
-            $result= $this->db->query($sql);
-            if ($this->db->getRecordCount($result) == 1) {
-                $row= $this->db->getRow($result);
-                $snippet= $this->snippetCache[$row['name']]= $row['snippet'];
-                $properties= $this->snippetCache[$row['name'] . "Props"]= $row['properties'];
-            } else {
+			$properties= $this->snippetCache["{$snippetName}Props"];
+		}
+		else
+		{ // not in cache so let's check the db
+			$tbl_site_snippets = $this->getFullTableName('site_snippets');
+			$esc_name = $this->db->escape($snippetName);
+			$result= $this->db->select('name,snippet,properties',$tbl_site_snippets,"name='{$esc_name}'");
+			if ($this->db->getRecordCount($result) == 1)
+			{
+				$snippet= $this->snippetCache[$snippetName]= $row['snippet'];
+				$properties= $this->snippetCache["{$snippetName}Props"]= $row['properties'];
+			}
+			else
+			{
                 $snippet= $this->snippetCache[$snippetName]= "return false;";
                 $properties= '';
             }
@@ -2193,7 +2282,8 @@ class DocumentParser {
         return $this->evalSnippet($snippet, $parameters);
     }
 
-    function getChunk($chunkName) {
+	function getChunk($chunkName)
+	{
         if(isset($this->chunkCache[$chunkName]))
         {
         $t= $this->chunkCache[$chunkName];
@@ -2201,42 +2291,39 @@ class DocumentParser {
     }
     }
 
-    // deprecated
-    function putChunk($chunkName) { // alias name >.<
-        return $this->getChunk($chunkName);
-    }
-
-    function parseChunk($chunkName, $chunkArr, $prefix= "{", $suffix= "}",$mode='chunk') {
-        if (!is_array($chunkArr)) {
-            return false;
-        }
-        if($mode==='chunk')
+	function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
         {
-            $src= $this->getChunk($chunkName);
-        }
+		if (!is_array($chunkArr)) return false;
+		
+		if($mode==='chunk') $src= $this->getChunk($chunkName);
         else $src = $chunkName;
         
-        foreach ($chunkArr as $key => $value) {
+		foreach ($chunkArr as $key => $value)
+		{
             $src= str_replace("{$prefix}{$key}{$suffix}", $value, $src);
         }
         return $src;
     }
 
-	function parsePlaceholder($src, $ph, $left= "[+", $right= "+]",$mode='ph')
+	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 	{ // jp-edition only
+		if(!$ph) return $src;
 		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
 	
-    function getUserData() {
+	function getUserData()
+	{
         include_once($this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php");
         return $tmpArray;
     }
 
-    function toDateFormat($timestamp = 0, $mode = '') {
+	function toDateFormat($timestamp = 0, $mode = '')
+	{
         $timestamp = trim($timestamp);
         $timestamp = intval($timestamp);
         
-        switch($this->config['datetime_format']) {
+		switch($this->config['datetime_format'])
+		{
             case 'YYYY/mm/dd':
                 $dateFormat = '%Y/%m/%d';
                 break;
@@ -2246,48 +2333,58 @@ class DocumentParser {
             case 'mm/dd/YYYY':
                 $dateFormat = '%m/%d/%Y';
                 break;
-            /*
-            case 'dd-mmm-YYYY':
-                $dateFormat = '%e-%b-%Y';
-                break;
-            */
         }
         
-        if (empty($mode)) {
+		if (empty($mode))
+		{
             $strTime = $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
-        } elseif ($mode == 'dateOnly') {
+		}
+		elseif ($mode == 'dateOnly')
+		{
             $strTime = $this->mb_strftime($dateFormat, $timestamp);
-        } elseif ($mode == 'formatOnly') {
+		}
+		elseif ($mode == 'formatOnly')
+		{
         	$strTime = $dateFormat;
         }
         return $strTime;
     }
 
-    function toTimeStamp($str) {
+	function toTimeStamp($str)
+	{
         $str = trim($str);
-        if (empty($str)) {return '';}
+		if (empty($str)) return '';
 
-        switch($this->config['datetime_format']) {
+		switch($this->config['datetime_format'])
+		{
             case 'YYYY/mm/dd':
-            	if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {return '';}
+				if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str))
+				{
+					return '';
+				}
                 list ($Y, $m, $d, $H, $M, $S) = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
                 break;
             case 'dd-mm-YYYY':
-            	if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {return '';}
+				if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str))
+				{
+					return '';
+				}
                 list ($d, $m, $Y, $H, $M, $S) = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
                 break;
             case 'mm/dd/YYYY':
-            	if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {return '';}
+				if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str))
+				{
+					return '';
+				}
                 list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
                 break;
-            /*
-            case 'dd-mmm-YYYY':
-            	if (!preg_match('/^[0-9]{2}-[0-9a-z]+-[0-9]{4}[0-9 :]*$/i', $str)) {return '';}
-            	list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d-%3s-%4d %2d:%2d:%2d');
-                break;
-            */
         }
-        if (!$H && !$M && !$S) {$H = 0; $M = 0; $S = 0;}
+		if (!$H && !$M && !$S)
+		{
+			$H = 0;
+			$M = 0;
+			$S = 0;
+		}
         $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
         $timeStamp = intval($timeStamp);
         return $timeStamp;
@@ -2322,69 +2419,75 @@ class DocumentParser {
     # Added By: Raymond Irving - MODx
     #
 
-    function getDocumentChildrenTVars($parentid= 0, $tvidnames= array (), $published= 1, $docsort= "menuindex", $docsortdir= "ASC", $tvfields= "*", $tvsort= "rank", $tvsortdir= "ASC") {
+	function getDocumentChildrenTVars($parentid= 0, $tvidnames= array (), $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
+	{
         $docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-        if (!$docs)
-            return false;
-        else {
+		if (!$docs) return false;
+		else
+		{
             $result= array ();
             // get user defined template variables
-            $fields= ($tvfields == "") ? "tv.*" : 'tv.' . implode(',tv.', preg_replace("/^\s/i", "", explode(',', $tvfields)));
-            $tvsort= ($tvsort == "") ? "" : 'tv.' . implode(',tv.', preg_replace("/^\s/i", "", explode(',', $tvsort)));
-            if ($tvidnames == "*")
-                $query= "tv.id<>0";
+			$fields= ($tvfields == '') ? 'tv.*' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvfields)));
+			$tvsort= ($tvsort == '') ? '' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvsort)));
+			if ($tvidnames == '*') $query= 'tv.id<>0';
             else
-                $query= (is_numeric($tvidnames[0]) ? "tv.id" : "tv.name") . " IN ('" . implode("','", $tvidnames) . "')";
+			{
+				$join_tvidnames = implode("','", $tvidnames);
+				$query  = is_numeric($tvidnames[0]) ? 'tv.id' : 'tv.name';
+				$query .= " IN ('{$join_tvidnames}')";
+			}
             if ($docgrp= $this->getUserDocGroups())
-                $docgrp= implode(",", $docgrp);
-
+			{
+				$docgrp= implode(',', $docgrp);
+			}
+			$tbl_site_tmplvars              = $this->getFullTableName('site_tmplvars');
+			$tbl_site_tmplvar_templates     = $this->getFullTableName('site_tmplvar_templates');
+			$tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
             $docCount= count($docs);
-            for ($i= 0; $i < $docCount; $i++) {
-
+			for ($i= 0; $i < $docCount; $i++)
+			{
                 $tvs= array ();
                 $docRow= $docs[$i];
                 $docid= $docRow['id'];
 
-                $sql= "SELECT $fields, IF(tvc.value!='',tvc.value,tv.default_text) as value ";
-                $sql .= "FROM " . $this->getFullTableName('site_tmplvars') . " tv ";
-                $sql .= "INNER JOIN " . $this->getFullTableName('site_tmplvar_templates')." tvtpl ON tvtpl.tmplvarid = tv.id ";
-                $sql .= "LEFT JOIN " . $this->getFullTableName('site_tmplvar_contentvalues')." tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '" . $docid . "' ";
-                $sql .= "WHERE " . $query . " AND tvtpl.templateid = " . $docRow['template'];
-                if ($tvsort)
-                    $sql .= " ORDER BY $tvsort $tvsortdir ";
-                $rs= $this->db->query($sql);
-                $limit= @ $this->db->getRecordCount($rs);
-                for ($x= 0; $x < $limit; $x++) {
+				$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+				$from    = "{$tbl_site_tmplvars} tv INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id";
+				$from   .= " LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$docid}'";
+				$where   = "{$query} AND tvtpl.templateid = {$docRow['template']}";
+				$orderby = ($tvsort) ? "{$tvsort} {$tvsortdir}" : '';
+				$rs= $this->db->select($fields,$from,$where,$orderby);
+				$total= $this->db->getRecordCount($rs);
+				for ($x= 0; $x < $total; $x++)
+				{
                     $tvs[] = @ $this->db->getRow($rs);
                 }
 
                 // get default/built-in template variables
                 ksort($docRow);
-                foreach ($docRow as $key => $value) {
-                    if ($tvidnames == "*" || in_array($key, $tvidnames))
-                        $tvs[] = array (
-                            "name" => $key,
-                            "value" => $value
-                        );
+				foreach ($docRow as $key => $value)
+				{
+					if ($tvidnames == '*' || in_array($key, $tvidnames))
+					{
+						$tvs[] = array ('name'=>$key, 'value'=>$value);
+					}
                 }
-
-                if (count($tvs))
-                    $result[] = $tvs;
+				if (count($tvs)) $result[] = $tvs;
             }
             return $result;
         }
     }
 
-    function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= array (), $published= 1, $docsort= "menuindex", $docsortdir= "ASC") {
+	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= array (), $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
+	{
         $docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-        if (!$docs)
-            return false;
-        else {
+		if (!$docs) return false;
+		else
+		{
             $result= array ();
-            for ($i= 0; $i < count($docs); $i++) {
+			for ($i= 0; $i < count($docs); $i++)
+			{
                 $tvs= $this->getTemplateVarOutput($tvidnames, $docs[$i]["id"], $published);
-                if ($tvs)
-                    $result[$docs[$i]['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
+				if ($tvs) $result[$docs[$i]['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
             }
             return $result;
         }
@@ -2392,11 +2495,12 @@ class DocumentParser {
 
     // Modified by Raymond for TV - Orig Modified by Apodigm - DocVars
     # returns a single TV record. $idnames - can be an id or name that belongs the template that the current document is using
-    function getTemplateVar($idname= "", $fields= "*", $docid= "", $published= 1) {
-        if ($idname == "") {
-            return false;
-        } else {
-            $result= $this->getTemplateVars(array ($idname), $fields, $docid, $published, "", ""); //remove sorting for speed
+	function getTemplateVar($idname= '', $fields= '*', $docid= '', $published= 1)
+	{
+		if ($idname == '') return false;
+		else
+		{
+			$result= $this->getTemplateVars(array($idname), $fields, $docid, $published, '', ''); //remove sorting for speed
             return ($result != false) ? $result[0] : false;
         }
     }
@@ -2432,7 +2536,8 @@ class DocumentParser {
 			}
             else
 			{
-				$where= (is_numeric($idnames[0]) ? 'tv.id' : 'tv.name') . " IN ('" . implode("','", $idnames) . "')";
+				$tvnames = $this->db->escape(implode("','", $idnames));
+				$where = (is_numeric($idnames[0])) ? 'tv.id' : "tv.name IN ('{$tvnames}')";
 			}
             if ($docgrp= $this->getUserDocGroups())
 			{
@@ -2471,14 +2576,14 @@ class DocumentParser {
     }
 
     # returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
-    function getTemplateVarOutput($idnames= array (), $docid= "", $published= 1, $sep='') {
+    function getTemplateVarOutput($idnames= array (), $docid= '', $published= 1, $sep='') {
         if (count($idnames) == 0) {
             return false;
         } else {
             $output= array ();
             $vars= ($idnames == '*' || is_array($idnames)) ? $idnames : array ($idnames);
             $docid= intval($docid) ? intval($docid) : $this->documentIdentifier;
-            $result= $this->getTemplateVars($vars, "*", $docid, $published, "", "", $sep); // remove sort for speed
+            $result= $this->getTemplateVars($vars, '*', $docid, $published, '', '', $sep); // remove sort for speed
             if ($result == false)
                 return false;
             else {
@@ -2496,9 +2601,11 @@ class DocumentParser {
         }
     }
 
-    # returns the full table name based on db settings
-    function getFullTableName($tbl) {
-        return $this->db->config['dbase'] . ".`" . $this->db->config['table_prefix'] . $tbl . "`";
+# returns the full table name based on db settings
+	function getFullTableName($tbl)
+	{
+		$dbase = trim($this->db->config['dbase'],'`');
+		return "`{$dbase}`.`{$this->db->config['table_prefix']}{$tbl}`";
     }
 
     # return placeholder value
@@ -2533,70 +2640,68 @@ class DocumentParser {
 
     # returns the virtual relative path to the manager folder
     function getManagerPath() {
-        global $base_url;
-        $pth= $base_url . 'manager/';
-        return $pth;
+        return $this->config['base_url'] . 'manager/';
     }
 
     # returns the virtual relative path to the cache folder
     function getCachePath() {
-        global $base_url;
-        $pth= $base_url . 'assets/cache/';
-        return $pth;
+        return $this->config['base_url'] . 'assets/cache/';
     }
 
     # sends a message to a user's message box
-    function sendAlert($type, $to, $from, $subject, $msg, $private= 0) {
+	function sendAlert($type, $to, $from, $subject, $msg, $private= 0)
+	{
+		$tbl_manager_users = $this->getFullTableName('manager_users');
         $private= ($private) ? 1 : 0;
-        if (!is_numeric($to)) {
+		if (!is_numeric($to))
+		{
             // Query for the To ID
-            $sql= "SELECT id FROM " . $this->getFullTableName("manager_users") . " WHERE username='$to';";
-            $rs= $this->db->query($sql);
-            if ($this->db->getRecordCount($rs)) {
+			$rs= $this->db->select('id',$tbl_manager_users,"username='{$to}'");
+			if ($this->db->getRecordCount($rs))
+			{
                 $rs= $this->db->getRow($rs);
                 $to= $rs['id'];
             }
         }
-        if (!is_numeric($from)) {
+		if (!is_numeric($from))
+		{
             // Query for the From ID
-            $sql= "SELECT id FROM " . $this->getFullTableName("manager_users") . " WHERE username='$from';";
-            $rs= $this->db->query($sql);
-            if ($this->db->getRecordCount($rs)) {
+			$rs= $this->db->select('id',$tbl_manager_users,"username='{$from}'");
+			if ($this->db->getRecordCount($rs))
+			{
                 $rs= $this->db->getRow($rs);
                 $from= $rs['id'];
             }
         }
         // insert a new message into user_messages
-        $sql= "INSERT INTO " . $this->getFullTableName("user_messages") . " ( id , type , subject , message , sender , recipient , private , postdate , messageread ) VALUES ( '', '$type', '$subject', '$msg', '$from', '$to', '$private', '" . time() . "', '0' );";
-        $rs= $this->db->query($sql);
-    }
-
-    # Returns true, install or interact when inside manager
-    // deprecated
-    function insideManager() {
-        $m= false;
-        if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true') {
-            $m= true;
-            if (defined('SNIPPET_INTERACTIVE_MODE') && SNIPPET_INTERACTIVE_MODE == 'true')
-                $m= "interact";
-            else
-                if (defined('SNIPPET_INSTALL_MODE') && SNIPPET_INSTALL_MODE == 'true')
-                    $m= "install";
-        }
-        return $m;
+		$f['id']          = '';
+		$f['type']        = $type;
+		$f['subject']     = $subject;
+		$f['message']     = $msg;
+		$f['sender']      = $from;
+		$f['recipient']   = $to;
+		$f['private']     = $private;
+		$f['postdate']    = time();
+		$f['messageread'] = 0;
+		$rs= $this->db->insert($f,$this->getFullTableName('user_messages'));
     }
 
     # Returns current user id
-    function getLoginUserID($context= '') {
-        if ($context && isset ($_SESSION[$context . 'Validated'])) {
-            return $_SESSION[$context . 'InternalKey'];
+	function getLoginUserID($context= '')
+	{
+		if ($context && isset ($_SESSION["{$context}Validated"]))
+		{
+			return $_SESSION["{$context}InternalKey"];
         }
-        elseif ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
+		elseif ($this->isFrontend() && isset ($_SESSION['webValidated']))
+		{
             return $_SESSION['webInternalKey'];
         }
-        elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
+		elseif ($this->isBackend() && isset ($_SESSION['mgrValidated']))
+		{
             return $_SESSION['mgrInternalKey'];
         }
+		else return false;
     }
 
     # Returns current user name
@@ -2610,6 +2715,7 @@ class DocumentParser {
         elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
             return $_SESSION['mgrShortname'];
         }
+        else return false;
     }
 
     # Returns current login user type - web or manager
@@ -2625,7 +2731,8 @@ class DocumentParser {
     }
 
     # Returns a record for the manager user
-    function getUserInfo($uid) {
+	function getUserInfo($uid)
+	{
     	$tbl_manager_users = $this->getFullTableName('manager_users');
     	$tbl_user_attributes = $this->getFullTableName('user_attributes');
         $field = 'mu.username, mu.password, mua.*';
@@ -2642,7 +2749,8 @@ class DocumentParser {
     }
 
     # Returns a record for the web user
-    function getWebUserInfo($uid) {
+	function getWebUserInfo($uid)
+	{
     	$tbl_web_users = $this->getFullTableName('web_users');
     	$tbl_web_user_attributes = $this->getFullTableName('web_user_attributes');
     	$field = 'wu.username, wu.password, wua.*';
@@ -2695,7 +2803,7 @@ class DocumentParser {
 			$dgn = array ();
 			$tbl_dgn = $this->getFullTableName('documentgroup_names');
 			$imploded_dg = implode(',', $dg);
-			$ds = $this->db->query("SELECT `name` FROM {$tbl_dgn} WHERE id IN ({$imploded_dg})");
+			$ds = $this->db->select('name', $tbl_dgn, "id IN ({$imploded_dg})");
 			while ($row = $this->db->getRow($ds))
 			{
 				$dgn[count($dgn)] = $row['name'];
@@ -2707,64 +2815,76 @@ class DocumentParser {
                 }
     }
 	
-    function getDocGroups() {
-        return $this->getUserDocGroups();
-    } // deprecated
-
     # Change current web user's password - returns true if successful, oterhwise return error message
-    function changeWebUserPassword($oldPwd, $newPwd) {
+	function changeWebUserPassword($oldPwd, $newPwd)
+	{
         $rt= false;
-        if ($_SESSION["webValidated"] == 1) {
-            $tbl= $this->getFullTableName("web_users");
-            $ds= $this->db->query("SELECT `id`, `username`, `password` FROM $tbl WHERE `id`='" . $this->getLoginUserID() . "'");
-            $limit= mysql_num_rows($ds);
-            if ($limit == 1) {
+		if ($_SESSION["webValidated"] == 1)
+		{
+			$tbl_web_users= $this->getFullTableName("web_users");
+			$uid = $this->getLoginUserID();
+			$ds= $this->db->select('id,username,password', $tbl_web_users, "`id`='{$uid}'");
+			$limit= $this->db->getRecordCount($ds);
+			if ($limit == 1)
+			{
                 $row= $this->db->getRow($ds);
-                if ($row["password"] == md5($oldPwd)) {
-                    if (strlen($newPwd) < 6) {
-                        return "Password is too short!";
+				if ($row["password"] == md5($oldPwd))
+				{
+					if (strlen($newPwd) < 6)
+					{
+						return 'Password is too short!';
                     }
-                    elseif ($newPwd == "") {
+					elseif ($newPwd == '')
+					{
                         return "You didn't specify a password for this user!";
-                    } else {
-                        $this->db->query("UPDATE $tbl SET password = md5('" . $this->db->escape($newPwd) . "') WHERE id='" . $this->getLoginUserID() . "'");
+					}
+					else
+					{
+						$newPwd = $this->db->escape($newPwd);
+						$this->db->update("password = md5('{$newPwd}')", $tbl_web_users, "id='{$uid}'");
                         // invoke OnWebChangePassword event
-                        $this->invokeEvent("OnWebChangePassword", array (
+						$this->invokeEvent("OnWebChangePassword",
+						array
+						(
                             "userid" => $row["id"],
                             "username" => $row["username"],
                             "userpassword" => $newPwd
                         ));
                         return true;
                     }
-                } else {
-                    return "Incorrect password.";
+				}
+				else
+				{
+					return 'Incorrect password.';
                 }
             }
         }
     }
-    function changePassword($o, $n) {
-        return changeWebUserPassword($o, $n);
-    } // deprecated
-
+	
     # returns true if the current web user is a member the specified groups
-    function isMemberOfWebGroup($groupNames= array ()) {
-        if (!is_array($groupNames))
-            return false;
+	function isMemberOfWebGroup($groupNames= array ())
+	{
+		if (!is_array($groupNames)) return false;
+		
         // check cache
         $grpNames= isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
-        if (!is_array($grpNames)) {
-            $tbl= $this->getFullTableName("webgroup_names");
-            $tbl2= $this->getFullTableName("web_groups");
+		if (!is_array($grpNames))
+		{
+			$tbl_webgroup_names= $this->getFullTableName("webgroup_names");
+			$tbl_web_groups= $this->getFullTableName("web_groups");
+			$uid = $this->getLoginUserID();
             $sql= "SELECT wgn.name
-                    FROM $tbl wgn
-                    INNER JOIN $tbl2 wg ON wg.webgroup=wgn.id AND wg.webuser='" . $this->getLoginUserID() . "'";
+			FROM {$tbl_webgroup_names} wgn
+			INNER JOIN {$tbl_web_groups} wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
             $grpNames= $this->db->getColumn("name", $sql);
+			
             // save to cache
             $_SESSION['webUserGroupNames']= $grpNames;
         }
         foreach ($groupNames as $k => $v)
-            if (in_array(trim($v), $grpNames))
-                return true;
+		{
+			if (in_array(trim($v), $grpNames)) return true;
+		}
         return false;
     }
 
@@ -2781,12 +2901,6 @@ class DocumentParser {
         } else {
             $this->sjscripts[$nextpos]= "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.($media ? 'media="'.$media.'" ' : '').'/>';
         }
-    }
-
-    # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
-	{
-        $this->regClientScript($src, $options, true);
     }
 
     # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
@@ -2870,25 +2984,25 @@ class DocumentParser {
         $this->loadedjscripts[$key]['pos']= $pos;
     }
 
-    # Registers Client-side Startup HTML block
-    function regClientStartupHTMLBlock($html) {
-        $this->regClientScript($html, true, true);
-    }
+    function regClientStartupHTMLBlock($html) {$this->regClientScript($html, true, true);} // Registers Client-side Startup HTML block
+    function regClientHTMLBlock($html)        {$this->regClientScript($html, true);} // Registers Client-side HTML block
 
-    # Registers Client-side HTML block
-    function regClientHTMLBlock($html) {
-        $this->regClientScript($html, true);
+    # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
+	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
+	{
+        $this->regClientScript($src, $options, true);
     }
 
     # Remove unwanted html tags and snippet, settings and tags
-    function stripTags($html, $allowed= "") {
+    function stripTags($html, $allowed= '')
+    {
         $t= strip_tags($html, $allowed);
-        $t= preg_replace('~\[\*(.*?)\*\]~', "", $t); //tv
-        $t= preg_replace('~\[\[(.*?)\]\]~', "", $t); //snippet
-        $t= preg_replace('~\[\!(.*?)\!\]~', "", $t); //snippet
-        $t= preg_replace('~\[\((.*?)\)\]~', "", $t); //settings
-        $t= preg_replace('~\[\+(.*?)\+\]~', "", $t); //placeholders
-        $t= preg_replace('~{{(.*?)}}~', "", $t); //chunks
+        $t= preg_replace('~\[\*(.*?)\*\]~', '', $t); //tv
+        $t= preg_replace('~\[\[(.*?)\]\]~', '', $t); //snippet
+        $t= preg_replace('~\[\!(.*?)\!\]~', '', $t); //snippet
+        $t= preg_replace('~\[\((.*?)\)\]~', '', $t); //settings
+        $t= preg_replace('~\[\+(.*?)\+\]~', '', $t); //placeholders
+        $t= preg_replace('~{{(.*?)}}~', '', $t); //chunks
         return $t;
     }
 
@@ -2928,6 +3042,7 @@ class DocumentParser {
     # invoke an event. $extParams - hash array: name=>value
 	function invokeEvent($evtName, $extParams= array ())
 	{
+		if ($this->safeMode == true)               return false;
 		if (!$evtName)                             return false;
 		if (!isset ($this->pluginEvent[$evtName])) return false;
 		
@@ -2981,6 +3096,7 @@ class DocumentParser {
 
                 // eval plugin
                 $this->evalPlugin($pluginCode, $parameter);
+				$e->setAllGlobalVariables();
 				if ($e->_output != '')
                     $results[]= $e->_output;
                 if ($e->_propagate != true)
@@ -3032,79 +3148,127 @@ class DocumentParser {
 	function insertId($rs)               {return $this->db->getInsertId($rs);}
 	function dbClose()                   {$this->db->disconnect();}
 
-    /*############################################
-      Etomite_dbFunctions.php
-	Database functions for Etomite CMS (deprecated)
-    Author: Ralph A. Dahlgren - rad14701@yahoo.com
-    Etomite ID: rad14701
-    See documentation for usage details
-    ############################################*/
-    function getIntTableRows($fields= "*", $from= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
-		$orderby= ($sort != '') ? "{$sort} {$dir}" : '';
-		return $this->db->select($fields, $from, $where, $orderby, $limit);
-    }
-    function putIntTableRow($fields= "", $into= "") {
-		return $this->db->insert($fields,$into);
-    }
-    function updIntTableRow($fields= "", $into= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
-		return $this->db->update($fields, $into, $where);
-        }
-	function getExtTableRows($host='',$user='',$pass='',$dbase='',$fields='*',$from='',$where='',$sort='',$dir='ASC',$limit='') {
-		$this->db->connect($host, $dbase, $user, $pass);
-		$tbl= "{$dbase}.{$from}";
-		$sort= ($sort != "") ? "{$sort} {$dir}" : '';
-		$result= $this->db->select($fields,$tbl,$where,$sort,$limit);
-            $resourceArray= array ();
-		while($row = $this->db->getRow($result))
+    // deprecated
+	function insideManager()
+	{
+		$m= false;
+		if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true')
 		{
-			$resourceArray[] = $row;
-            }
-            return $resourceArray;
-        }
-    function putExtTableRow($host= "", $user= "", $pass= "", $dbase= "", $fields= "", $into= "") {
-		$this->db->connect($host, $dbase, $user, $pass);
-		$tbl= "{$dbase}.{$into}";
-		$result= $this->db->insert($fields,$tbl);
-            return $result;
-        }
-	function updExtTableRow($host='',$user='',$pass='',$dbase='',$fields='',$into='',$where='',$sort='',$dir= 'ASC', $limit='') {
-		$this->db->connect($host, $dbase, $user, $pass);
-		$tbl= "{$dbase}.{$into}";
-		$sort= ($sort != "") ? "{$sort} {$dir}" : '';
-		return $this->db->update($fields, $tbl, $where);
-    }
-    function dbExtConnect($host, $user, $pass, $dbase) {
-		$this->db->connect($host, $dbase, $user, $pass);
-        }
-    function getFormVars($method= "", $prefix= "", $trim= "", $REQUEST_METHOD) {
-        //  function to retrieve form results into an associative array
-        $results= array ();
-        $method= strtoupper($method);
-		if ($method == '')        $method= $REQUEST_METHOD;
-		if ($method == 'POST')    $method= & $_POST;
-		elseif ($method == 'GET') $method= & $_GET;
-		else                      return false;
-        reset($method);
-		foreach ($method as $key => $value)
-		{
-			if (($prefix != '') && (substr($key, 0, strlen($prefix)) == $prefix))
+			$m= true;
+			if(defined('SNIPPET_INTERACTIVE_MODE') && SNIPPET_INTERACTIVE_MODE == 'true')
 			{
-				if ($trim)
-				{
-                    $pieces= explode($prefix, $key, 2);
-                    $key= $pieces[1];
-                    $results[$key]= $value;
-            }
-				else $results[$key]= $value;
+				$m= "interact";
 			}
-			elseif ($prefix == '') $results[$key]= $value;
+			elseif(defined('SNIPPET_INSTALL_MODE') && SNIPPET_INSTALL_MODE == 'true')
+			{
+				$m= "install";
+			}
+		}
+		return $m;
+	}
+
+    function putChunk($chunkName) {return $this->getChunk($chunkName);}// deprecated alias name >.<
+    function getDocGroups() {return $this->getUserDocGroups();} // deprecated
+	function changePassword($o, $n) {return changeWebUserPassword($o, $n);} // deprecated
+
+    function mergeDocumentMETATags($template) {
+        if ($this->documentObject['haskeywords'] == 1) {
+            // insert keywords
+            $keywords = $this->getKeywords();
+            if (is_array($keywords) && count($keywords) > 0) {
+	            $keywords = implode(", ", $keywords);
+	            $metas= "\t<meta name=\"keywords\" content=\"$keywords\" />\n";
+            }
+
+	    // Don't process when cached
+	    $this->documentObject['haskeywords'] = '0';
         }
-        return $results;
+        if ($this->documentObject['hasmetatags'] == 1) {
+            // insert meta tags
+            $tags= $this->getMETATags();
+            foreach ($tags as $n => $col) {
+                $tag= strtolower($col['tag']);
+                $tagvalue= $col['tagvalue'];
+                $tagstyle= $col['http_equiv'] ? 'http-equiv' : 'name';
+                $metas .= "\t<meta $tagstyle=\"$tag\" content=\"$tagvalue\" />\n";
+            }
+
+	    // Don't process when cached
+	    $this->documentObject['hasmetatags'] = '0';
+        }
+	if (isset($metas) && $metas) $template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
+        return $template;
     }
 
-    ########################################
-    // END Database functions for Etomite CMS - rad14701
-    ########################################
+    function getMETATags($id= 0) {
+        if ($id == 0) {
+            $id= $this->documentObject['id'];
+        }
+        $sql= "SELECT smt.* " .
+        "FROM " . $this->getFullTableName("site_metatags") . " smt " .
+        "INNER JOIN " . $this->getFullTableName("site_content_metatags") . " cmt ON cmt.metatag_id=smt.id " .
+        "WHERE cmt.content_id = '$id'";
+        $ds= $this->db->query($sql);
+        $limit= $this->db->getRecordCount($ds);
+        $metatags= array ();
+        if ($limit > 0) {
+            for ($i= 0; $i < $limit; $i++) {
+                $row= $this->db->getRow($ds);
+                $metatags[$row['name']]= array (
+                    "tag" => $row['tag'],
+                    "tagvalue" => $row['tagvalue'],
+                    "http_equiv" => $row['http_equiv']
+                );
+            }
+        }
+        return $metatags;
+    }
+
+	function userLoggedIn()
+	{
+        $userdetails= array ();
+		if ($this->isFrontend() && isset ($_SESSION['webValidated']))
+		{
+            // web user
+            $userdetails['loggedIn']= true;
+            $userdetails['id']= $_SESSION['webInternalKey'];
+            $userdetails['username']= $_SESSION['webShortname'];
+            $userdetails['usertype']= 'web'; // added by Raymond
+            return $userdetails;
+		}
+		elseif($this->isBackend() && isset ($_SESSION['mgrValidated']))
+		{
+                // manager user
+                $userdetails['loggedIn']= true;
+                $userdetails['id']= $_SESSION['mgrInternalKey'];
+                $userdetails['username']= $_SESSION['mgrShortname'];
+                $userdetails['usertype']= 'manager'; // added by Raymond
+                return $userdetails;
+		}
+		else
+		{
+                return false;
+            }
+    }
+
+    function getKeywords($id= 0) {
+        if ($id == 0) {
+            $id= $this->documentObject['id'];
+        }
+        $tblKeywords= $this->getFullTableName('site_keywords');
+        $tblKeywordXref= $this->getFullTableName('keyword_xref');
+        $sql= "SELECT keywords.keyword FROM " . $tblKeywords . " AS keywords INNER JOIN " . $tblKeywordXref . " AS xref ON keywords.id=xref.keyword_id WHERE xref.content_id = '$id'";
+        $result= $this->db->query($sql);
+        $limit= $this->db->getRecordCount($result);
+        $keywords= array ();
+        if ($limit > 0) {
+            for ($i= 0; $i < $limit; $i++) {
+                $row= $this->db->getRow($result);
+                $keywords[]= $row['keyword'];
+            }
+        }
+        return $keywords;
+    }
 
     /***************************************************************************************/
     /* End of API functions								       */
@@ -3118,7 +3282,7 @@ class DocumentParser {
             $source= file($file);
             $source= htmlspecialchars($source[$line -1]);
         } else {
-            $source= "";
+            $source= '';
         } //Error $nr in $file at $line: <div><code>$source</code></div>
         $this->messageQuit("PHP Parse Error", '', true, $nr, $file, $source, $text, $line);
     }
@@ -3127,30 +3291,30 @@ class DocumentParser {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
-        $request_uri = getenv('REQUEST_URI');
+        $request_uri = $_SERVER['REQUEST_URI'];
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
-        $parsedMessageString= "
-              <html><head><title>MODx Content Manager $version &raquo; $release_date</title>
+        $str = "
+              <html><head><title>MODX Content Manager $version &raquo; $release_date</title>
               <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-              <style>TD, BODY { font-size: 12px; font-family:Verdana; }</style>
+              <style>td, body { font-size: 12px; font-family:Verdana; }</style>
               </head><body>
               ";
         if ($is_error) {
-            $parsedMessageString .= "<h3 style='color:red'>&laquo; MODx Parse Error &raquo;</h3>
+            $str .= "<h3 style='color:red'>&laquo; MODX Parse Error &raquo;</h3>
                     <table border='0' cellpadding='1' cellspacing='0'>
-                    <tr><td colspan='3'>MODx encountered the following error while attempting to parse the requested resource:</td></tr>
+                    <tr><td colspan='3'>MODX encountered the following error while attempting to parse the requested resource:</td></tr>
                     <tr><td colspan='3'><b style='color:red;'>&laquo; $msg &raquo;</b></td></tr>";
         } else {
-            $parsedMessageString .= "<h3 style='color:#003399'>&laquo; MODx Debug/ stop message &raquo;</h3>
+            $str .= "<h3 style='color:#003399'>&laquo; MODX Debug/ stop message &raquo;</h3>
                     <table border='0' cellpadding='1' cellspacing='0'>
-                    <tr><td colspan='3'>The MODx parser recieved the following debug/ stop message:</td></tr>
+                    <tr><td colspan='3'>The MODX parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan='3'><b style='color:#003399;'>&laquo; $msg &raquo;</b></td></tr>";
         }
 
         if (!empty ($query)) {
-            $parsedMessageString .= "<tr><td colspan='3'><b style='color:#999;font-size: 12px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b>
+            $str .= "<tr><td colspan='3'><b style='color:#999;font-size: 12px;'>SQL:<span id='sqlHolder'>$query</span></b>
                     </td></tr>";
         }
 
@@ -3174,80 +3338,90 @@ class DocumentParser {
                 E_USER_DEPRECATED => "E_USER_DEPRECATED"
             );
 
-            $parsedMessageString .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
+            $str .= "<tr><td colspan='3'></td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
 
-            $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error: </td>";
-            $parsedMessageString .= "<td colspan='2'>$text</td><td>&nbsp;</td>";
-            $parsedMessageString .= "</tr>";
+            $str .= "<tr><td valign='top'>Error: </td>";
+            $str .= "<td colspan='2'>$text</td><td></td>";
+            $str .= "</tr>";
 
-            $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error type/ Nr.: </td>";
-            $parsedMessageString .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</td><td>&nbsp;</td>";
-            $parsedMessageString .= "</tr>";
+            $str .= "<tr><td valign='top'>Error type/ Nr.: </td>";
+            $str .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</td><td></td>";
+            $str .= "</tr>";
 
-            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;File: </td>";
-            $parsedMessageString .= "<td colspan='2'>$file</td><td>&nbsp;</td>";
-            $parsedMessageString .= "</tr>";
+            $str .= "<tr><td>File: </td>";
+            $str .= "<td colspan='2'>$file</td><td></td>";
+            $str .= "</tr>";
 
-            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Line: </td>";
-            $parsedMessageString .= "<td colspan='2'>$line</td><td>&nbsp;</td>";
-            $parsedMessageString .= "</tr>";
+            $str .= "<tr><td>Line: </td>";
+            $str .= "<td colspan='2'>$line</td><td></td>";
+            $str .= "</tr>";
             if ($source != '') {
-                $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Line $line source: </td>";
-                $parsedMessageString .= "<td colspan='2'>$source</td><td>&nbsp;</td>";
-                $parsedMessageString .= "</tr>";
+                $str .= "<tr><td valign='top'>Line $line source: </td>";
+                $str .= "<td colspan='2'>$source</td><td></td>";
+                $str .= "</tr>";
             }
         }
 
-        $parsedMessageString .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
+        $str .= "<tr><td colspan='3'></td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
 
-        $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;REQUEST_URI: </td>";
-        $parsedMessageString .= "<td colspan='3'>$request_uri</td>";
-        $parsedMessageString .= "</tr>";
+        $str .= "<tr><td valign='top'>REQUEST_URI: </td>";
+        $str .= "<td colspan='2'>$request_uri</td>";
+        $str .= "</tr>";
 
-        $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;ID: </td>";
-        $parsedMessageString .= "<td colspan='3'>" . $this->documentIdentifier . "</td>";
-        $parsedMessageString .= "</tr>";
+        $str .= "<tr><td valign='top'>ID: </td>";
+        $str .= "<td colspan='2'>" . $this->documentIdentifier . "</td>";
+        $str .= "</tr>";
 
         if(!empty($this->currentSnippet))
         {
-            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Current Snippet: </td>";
-            $parsedMessageString .= '<td colspan="3">' . $this->currentSnippet . '</td>';
-            $parsedMessageString .= "</tr>";
+            $str .= "<tr><td>Current Snippet: </td>";
+            $str .= '<td colspan="2">' . $this->currentSnippet . '</td>';
+            $str .= "</tr>";
         }
 
         if(!empty($this->event->activePlugin))
         {
-            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Current Plugin: </td>";
-            $parsedMessageString .= '<td colspan="3">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
-            $parsedMessageString .= "</tr>";
+            $str .= "<tr><td>Current Plugin: </td>";
+            $str .= '<td colspan="2">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
+            $str .= "</tr>";
         }
 
-        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Referer: </td>";
-        $parsedMessageString .= '<td colspan="3">' . $referer . '</td>';
-        $parsedMessageString .= "</tr>";
+        $str .= "<tr><td>Referer: </td>";
+        $str .= '<td colspan="2">' . $referer . '</td>';
+        $str .= "</tr>";
 
-        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;User Agent: </td>";
-        $parsedMessageString .= '<td colspan="3">' . $ua . '</td>';
-        $parsedMessageString .= "</tr>";
+        $str .= "<tr><td>User Agent: </td>";
+        $str .= '<td colspan="2">' . $ua . '</td>';
+        $str .= "</tr>";
 
-        $parsedMessageString .= '<tr><td colspan="3">&nbsp;</td></tr><tr><td colspan="3"><b>Parser timing</b></td></tr>';
+        $str .= '<tr><td colspan="2"></td></tr>';
+        $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
-        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;MySQL: </td>";
-        $parsedMessageString .= "<td><i>[^qt^]</i></td><td>(<i>[^q^] Requests</i>)</td>";
-        $parsedMessageString .= "</tr>";
+        $str .= "<tr><td>MySQL: </td>";
+        $str .= '<td colspan="2"><i>[^qt^] ([^q^] Requests</i>)</td>';
+        $str .= "</tr>";
 
-        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;PHP: </td>";
-        $parsedMessageString .= "<td><i>[^p^]</i></td><td>&nbsp;</td>";
-        $parsedMessageString .= "</tr>";
+        $str .= "<tr><td>PHP: </td>";
+        $str .= '<td colspan="2"><i>[^p^]</i></td>';
+        $str .= "</tr>";
 
-        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Total: </td>";
-        $parsedMessageString .= "<td><i>[^t^]</i></td><td>&nbsp;</td>";
-        $parsedMessageString .= "</tr>";
+        $str .= "<tr><td>Total: </td>";
+        $str .= '<td colspan="2"><i>[^t^]</i></td>';
+        $str .= "</tr>";
 
-        $parsedMessageString .= "</table>";
-        $parsedMessageString .= "</body></html>";
+        $str .= "</table>";
+        $str .= "</body></html>";
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
+
+		if(function_exists('memory_get_peak_usage'))
+		{
+			$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		}
+		else
+		{
+			$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
+		}
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;
         $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
@@ -3255,20 +3429,26 @@ class DocumentParser {
         $totalTime= sprintf("%2.4f s", $totalTime);
         $phpTime= sprintf("%2.4f s", $phpTime);
 
-        $parsedMessageString= str_replace("[^q^]", $queries, $parsedMessageString);
-        $parsedMessageString= str_replace("[^qt^]", $queryTime, $parsedMessageString);
-        $parsedMessageString= str_replace("[^p^]", $phpTime, $parsedMessageString);
-        $parsedMessageString= str_replace("[^t^]", $totalTime, $parsedMessageString);
+        $str= str_replace("[^q^]", $queries, $str);
+        $str= str_replace("[^qt^]", $queryTime, $str);
+        $str= str_replace("[^p^]", $phpTime, $str);
+        $str= str_replace("[^t^]", $totalTime, $str);
+        $str= str_replace("[^m^]", $total_mem, $str);
+
+        if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
+		$str .= '<br />' . $this->get_backtrace(debug_backtrace());
 
         // Log error
-        $this->logEvent(0, 3, $parsedMessageString);
+        if($source!=='') $source = 'Parser - ' . $source;
+        else             $source = 'Parser';
+        $this->logEvent(0, 3, $str,$source);
         if($nr == E_DEPRECATED) return true;
 
         // Set 500 response header
         header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
-        if (isset($_SESSION['mgrValidated'])) echo $parsedMessageString;
+        if (isset($_SESSION['mgrValidated'])) echo $str;
         else  echo 'Error';
         ob_end_flush();
 
@@ -3307,6 +3487,16 @@ class DocumentParser {
             return $alias;
         }
     }
+    
+	function nicesize($size) {
+		$a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
+		$pos = 0;
+		while ($size >= 1024) {
+			   $size /= 1024;
+			   $pos++;
+		}
+		return round($size,2)." ".$a[$pos];
+	}
     // End of class.
 }
 
@@ -3315,6 +3505,7 @@ class SystemEvent {
     var $name;
     var $_propagate;
     var $_output;
+    var $_globalVariables;
     var $activated;
     var $activePlugin;
 
@@ -3340,6 +3531,39 @@ class SystemEvent {
         $this->_output .= $msg;
     }
 
+    // get global variables
+    function getGlobalVariable($key) {
+        if( isset( $GLOBALS[$key] ) )
+        {
+            return $GLOBALS[$key];
+        }
+        return false;
+    }
+
+    // set global variables
+    function setGlobalVariable($key,$val,$now=0) {
+        if (! isset( $GLOBALS[$key] ) ) { return false; }
+        if ( $now === 1 || $now === 'now' )
+        {
+            $GLOBALS[$key] = $val;
+        }
+        else
+        {
+            $this->_globalVariables[$key]=$val;
+        }
+        return true;
+    }
+
+    // set all global variables
+    function setAllGlobalVariables() {
+        if ( empty( $this->_globalVariables ) ) { return false; }
+        foreach ( $this->_globalVariables as $key => $val )
+        {
+            $GLOBALS[$key] = $val;
+        }
+        return true;
+    }
+
     function stopPropagation() {
         $this->_propagate= false;
     }
@@ -3348,6 +3572,7 @@ class SystemEvent {
         unset ($this->returnedValues);
         $this->name= '';
         $this->_output= '';
+        $this->_globalVariables=array();
         $this->_propagate= true;
         $this->activated= false;
     }

@@ -201,7 +201,7 @@ echo '<strong>There is no option for update.</strong>';
     </p>
 
 </form>
-<script type="text/javascript" src="../assets/js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="../assets/js/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 

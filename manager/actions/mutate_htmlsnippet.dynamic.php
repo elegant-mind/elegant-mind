@@ -1,15 +1,18 @@
 <?php
 if (IN_MANAGER_MODE != 'true') die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-switch ((int) $_REQUEST['a']) {
+switch ((int) $_REQUEST['a'])
+{
     case 78:
-        if (!$modx->hasPermission('edit_chunk')) {
+		if (!$modx->hasPermission('edit_chunk'))
+		{
             $e->setError(3);
             $e->dumpError();
         }
         break;
     case 77:
-        if (!$modx->hasPermission('new_chunk')) {
+		if (!$modx->hasPermission('new_chunk'))
+		{
             $e->setError(3);
             $e->dumpError();
         }
@@ -23,23 +26,19 @@ if (isset($_REQUEST['id']))
         $id = (int)$_REQUEST['id'];
 else    $id = 0;
 
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
-
 // Get table names (alphabetical)
 $tbl_active_users      = $modx->getFullTableName('active_users');
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 // Check to see the snippet editor isn't locked
-$sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=78 AND id=\''.$id.'\'';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 1) {
-    for ($i = 0; $i < $limit; $i++) {
-        $lock = mysql_fetch_assoc($rs);
-        if ($lock['internalKey'] != $modx->getLoginUserID()) {
-            $msg = sprintf($_lang['lock_msg'], $lock['username'], 'chunk');
+$rs = $modx->db->select('internalKey, username', $tbl_active_users, "action=78 AND id='{$id}'");
+if ($modx->db->getRecordCount($rs) > 1)
+{
+	while ($row = $modx->db->getRow($rs))
+	{
+		if ($row['internalKey'] != $modx->getLoginUserID())
+		{
+			$msg = sprintf($_lang['lock_msg'], $row['username'], 'chunk');
             $e->setError(5, $msg);
             $e->dumpError();
         }
@@ -47,25 +46,30 @@ if ($limit > 1) {
 }
 
 $content = array();
-if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
-    $sql = 'SELECT * FROM '.$tbl_site_htmlsnippets.' WHERE id=\''.$id.'\'';
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
-    if ($limit > 1) {
+if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id']))
+{
+	$rs = $modx->db->select('*',$tbl_site_htmlsnippets,"id='{$id}'");
+	$total = $modx->db->getRecordCount($rs);
+	if ($total > 1)
+	{
         echo '<p>Error: Multiple Chunk sharing same unique ID.</p>';
         exit;
     }
-    if ($limit < 1) {
+	if ($total < 1)
+	{
         echo '<p>Chunk doesn\'t exist.</p>';
         exit;
     }
-    $content = mysql_fetch_assoc($rs);
+	$content = $modx->db->getRow($rs);
     $_SESSION['itemname'] = $content['name'];
-    if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
+	if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1)
+	{
         $e->setError(3);
         $e->dumpError();
     }
-} else {
+}
+else
+{
     $_SESSION['itemname'] = 'New Chunk';
 }
 
@@ -73,7 +77,9 @@ if (isset($_POST['which_editor']))
         $which_editor = $_POST['which_editor'];
 else    $which_editor = 'none';
 
-$content = array_merge($content, $_POST);
+$formRestored = $modx->manager->loadFormValues();
+if($formRestored) $content = array_merge($content, $_POST);
+
 
 // Print RTE Javascript function
 ?>
@@ -152,38 +158,27 @@ if (is_array($evtOut))
           </ul>
     </div>
 
-<div class="sectionBody">
+<script type="text/javascript" src="media/script/tabpane.js"></script>
+<div class="tab-pane" id="chunkPane">
+	<script type="text/javascript">
+		tp = new WebFXTabPane( document.getElementById( "chunkPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
+	</script>
+	<div class="tab-page" id="tabGeneral">
+	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
+	<script type="text/javascript">tp.addTabPage( document.getElementById( "tabGeneral" ) );</script>
     <p><?php echo $_lang['htmlsnippet_msg']?></p>
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr><td align="left"><?php echo $_lang['htmlsnippet_name']?>:</td>
-			<td align="left"><span style="font-family:'Courier New', Courier, mono">{{</span><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span style="font-family:'Courier New', Courier, mono">}}</span><span class="warning" id="savingMessage">&nbsp;</span></td></tr>
-        <tr><td align="left"><?php echo $_lang['htmlsnippet_desc']?>:&nbsp;&nbsp;</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="description" type="text" maxlength="255" value="<?php echo htmlspecialchars($content['description'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td></tr>
-        <tr><td align="left"><?php echo $_lang['existing_category']?>:&nbsp;&nbsp;</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span>
-            <select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
-                <option>&nbsp;</option>
-<?php
-include_once(MODX_MANAGER_PATH.'includes/categories.inc.php');
-$ds = getCategories();
-if ($ds) {
-    foreach ($ds as $n => $v) {
-        echo "\t\t\t\t".'<option value="'.$v['id'].'"'.($content['category'] == $v['id'] || (empty($content['category']) && $_POST['categoryid'] == $v['id']) ? ' selected="selected"' : '').'>'.htmlspecialchars($v['category'])."</option>\n";
-    }
-}
-?>
-            </select></td></tr>
-        <tr><td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
-            <td align="left" valign="top" style="padding-top:5px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td></tr>
-        <tr><td align="left" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 || $content['locked'] == 'on' ? ' checked="checked"' : ''?> class="inputBox" value="on" /> <?php echo $_lang['lock_htmlsnippet']?>
-            <span class="comment"><?php echo $_lang['lock_htmlsnippet_msg']?></span></td></tr>
+	<table>
+		<tr>
+			<td align="left"><?php echo $_lang['htmlsnippet_name']?>:</td>
+			<td align="left">{{<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>}}<span class="warning" id="savingMessage">&nbsp;</span></td>
+		</tr>
     </table>
 
-    <div style="width:100%; position:relative;">
-        <div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border:1px solid #e0e0e0; margin-top:5px;">
-			<span style="font-weight:bold;">&nbsp;<?php echo $_lang['chunk_code']?></span>
+	<div>
+		<div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+			<span style="font-weight:bold;"><?php echo $_lang['chunk_code']?></span>
         </div>
-        <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" onChange="documentDirty=true;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
+        <textarea dir="ltr" class="phptextarea" name="post" style="height:350px;width:100%" onchange="documentDirty=true;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
         </div>
 
     <span class="warning"><?php echo $_lang['which_editor_title']?></span>
@@ -199,7 +194,6 @@ if (is_array($evtOut)) {
 }
 ?>
             </select>
-</div><!-- end .sectionBody -->
 <?php
 
 // invoke OnChunkFormRender event
@@ -210,8 +204,47 @@ if (is_array($evtOut))
     echo implode('', $evtOut);
 ?>
 
+</div>
+
+<div class="tab-page" id="tabInfo">
+<h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
+<table>
+	<tr>
+		<td align="left"><?php echo $_lang['existing_category']?>:</td>
+		<td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
+		<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+			<option>&nbsp;</option>
+<?php
+include_once(MODX_MANAGER_PATH.'includes/categories.inc.php');
+$ds = getCategories();
+if ($ds) {
+			foreach ($ds as $n => $v) {
+			echo "\t\t\t\t".'<option value="'.$v['id'].'"'.($content['category'] == $v['id'] || (empty($content['category']) && $_POST['categoryid'] == $v['id']) ? ' selected="selected"' : '').'>'.htmlspecialchars($v['category'])."</option>\n";
+			}
+}
+?>
+        </select></td>
+    </tr>
+	<tr>
+		<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
+		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
+	</tr>
+	<tr>
+		<td align="left"><?php echo $_lang['htmlsnippet_desc']?>:</td>
+		<td align="left"><textarea name="description" style="padding:0;height:4em;width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['description']);?></textarea></td>
+	</tr>
+	<tr>
+		<td align="left" colspan="2">
+		<label><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 || $content['locked'] == 'on' ? ' checked="checked"' : ''?> class="inputBox" value="on" /> <?php echo $_lang['lock_htmlsnippet']?>
+		<span class="comment"><?php echo $_lang['lock_htmlsnippet_msg']?></span></label></td>
+	</tr>
+</table>
+</div>
+
 <input type="submit" name="save" style="display:none;" />
 </form>
+</div>
 <?php
 // invoke OnRichTextEditorInit event
 if ($use_editor == 1) {
@@ -224,4 +257,3 @@ if ($use_editor == 1) {
     if (is_array($evtOut))
         echo implode('', $evtOut);
 }
-?>

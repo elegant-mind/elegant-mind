@@ -807,6 +807,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('datetime_format','dd-mm-YYYY'),
 ('warning_visibility', '1'),
 ('remember_last_tab', '1'),
+('send_errormail', '3'),
 ('tree_page_click', 'auto');
 
 
@@ -926,6 +927,7 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('204','OnBeforeDocDuplicate','1','Documents'),
 ('205','OnDocDuplicate','1','Documents'),
 ('206','OnManagerMainFrameHeaderHTMLBlock','2',''),
+('300','OnMakeUrl','1',''),
 ('999','OnPageUnauthorized','1',''),
 ('1000','OnPageNotFound','1','');
 

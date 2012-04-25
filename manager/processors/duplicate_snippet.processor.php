@@ -7,12 +7,14 @@ if(!$modx->hasPermission('new_snippet')) {
 $id=$_GET['id'];
 
 // duplicate Snippet
-	$sql = "INSERT INTO $dbase.`".$table_prefix."site_snippets` (name, description, snippet, properties, category)
-			SELECT CONCAT('Duplicate of ',name) AS 'name', description, snippet, properties, category
-			FROM $dbase.`".$table_prefix."site_snippets` WHERE id=$id;";
-	$rs = mysql_query($sql);
+$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+$tpl = $_lang['duplicate_title_string'];
+$sql = "INSERT INTO {$tbl_site_snippets} (name, description, snippet, properties, category)
+		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, properties, category
+		FROM {$tbl_site_snippets} WHERE id={$id}";
+$rs = $modx->db->query($sql);
 
-if($rs) $newid = mysql_insert_id(); // get new id
+if($rs) $newid = $modx->db->getInsertId(); // get new id
 else {
 	echo "A database error occured while trying to duplicate snippet: <br /><br />".mysql_error();
 	exit;

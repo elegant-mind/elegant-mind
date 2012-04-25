@@ -221,185 +221,143 @@ $evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", array("action" => $action
 // Now we decide what to do according to the action request. This is a BIG list :)
 switch ($action)
 {
-// frame management - show the requested frame
-    case 1 ://frame management - show the requested frame  
+	case 1 : //frame management - show the requested frame  
         // get the requested frame
         $frame = preg_replace('/[^a-z0-9]/i','',$_REQUEST['f']);
-        include_once "frames/{$frame}.php";
+		include_once "{$base_path}manager/frames/{$frame}.php";
     break;
-// show the homepage
-    case 2:
-        // get the home page
+	case 2: // get the home page
         include_once "header.inc.php";
         include_once "actions/welcome.static.php";
         include_once "footer.inc.php";
     break;
-// document data
-    case 3:
-        // get the page to show document's data
+	case 3: // get the page to show document's data
         include_once "header.inc.php";
         include_once "actions/document_data.static.php";
         include_once "footer.inc.php";
     break;
-// content management
-    case 85:
-        // get the mutate page for adding a folder
+	case 85: // get the mutate page for adding a folder
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 27:
-        // get the mutate page for changing content
+	case 27: // get the mutate page for changing content
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 4:
-        // get the mutate page for adding content
+	case 4: // get the mutate page for adding content
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 5:
-        // get the save processor
+	case 5: // get the save processor
         include_once "processors/save_content.processor.php";
     break;
-    case 6:
-        // get the delete processor
+	case 6: // get the delete processor
         include_once "processors/delete_content.processor.php";
     break;
-    case 63:
-        // get the undelete processor
+	case 63: // get the undelete processor
+		
         include_once "processors/undelete_content.processor.php";
     break;
-    case 51:
-        // get the move action
+	case 51: // get the move action
         include_once "header.inc.php";
         include_once "actions/move_document.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 52:
-        // get the move document processor
+	case 52: // get the move document processor
         include_once "processors/move_document.processor.php";
     break;
-    case 61:
-        // get the processor for publishing content
+	case 61: // get the processor for publishing content
         include_once "processors/publish_content.processor.php";
     break;
-    case 62:
-        // get the processor for publishing content
+	case 62: // get the processor for publishing content
         include_once "processors/unpublish_content.processor.php";
     break;
-// show the wait page - gives the tree time to refresh (hopefully)
-    case 7:
-        // get the wait page (so the tree can reload)
+	case 7: // get the wait page (so the tree can reload)
         include_once "header.inc.php";
         include_once "actions/wait.static.php";
         include_once "footer.inc.php";
     break;
-// let the user log out
-    case 8:
-        // get the logout processor
+	case 8: // get the logout processor
         include_once "processors/logout.processor.php";
     break;
-
-// user management
-    case 87:
-        // get the new web user page
+	case 87: // get the new web user page
         include_once "header.inc.php";
         include_once "actions/mutate_web_user.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 88:
-        // get the edit web user page
+	case 88: // get the edit web user page
         include_once "header.inc.php";
         include_once "actions/mutate_web_user.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 89:
-        // get the save web user processor
+	case 89: // get the save web user processor
         include_once "processors/save_web_user.processor.php";
     break;
-    case 90:
-        // get the delete web user page
+	case 90: // get the delete web user page
         include_once "processors/delete_web_user.processor.php";
     break;
-    case 11:
-        // get the new user page
+	case 11: // get the new user page
         include_once "header.inc.php";
         include_once "actions/mutate_user.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 12:
-        // get the edit user page
+	case 12: // get the edit user page
         include_once "header.inc.php";
         include_once "actions/mutate_user.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 32:
-        // get the save user processor
+	case 32: // get the save user processor
         include_once "processors/save_user.processor.php";
     break;
-    case 28:
-        // get the change password page
+	case 28: // get the change password page
         include_once "header.inc.php";
         include_once "actions/mutate_password.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 34:
-        // get the save new password page
+	case 34: // get the save new password page
         include_once "processors/save_password.processor.php";
     break;
-    case 33:
-        // get the delete user page
+	case 33: // get the delete user page
         include_once "processors/delete_user.processor.php";
     break;
 
 // role management
-    case 38:
-        // get the new role page
+	case 38: // get the new role page
         include_once "header.inc.php";
         include_once "actions/mutate_role.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 35:
-        // get the edit role page
+	case 35: // get the edit role page
         include_once "header.inc.php";
         include_once "actions/mutate_role.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 36:
-        // get the save role page
+	case 36: // get the save role page
         include_once "processors/save_role.processor.php";
     break;
-    case 37:
-        // get the delete role page
+	case 37: // get the delete role page
         include_once "processors/delete_role.processor.php";
     break;
-
-// template management
-    case 16:
-        // get the edit template action
+	case 16: // get the edit template action
         include_once "header.inc.php";
         include_once "actions/mutate_templates.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 19:
-        // get the new template action
+	case 19: // get the new template action
         include_once "header.inc.php";
         include_once "actions/mutate_templates.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 20:
-        // get the save processor
+	case 20: // get the save processor
         include_once "processors/save_template.processor.php";
     break;
-    case 21:
-        // get the delete processor
+	case 21: // get the delete processor
         include_once "processors/delete_template.processor.php";
     break;
-    case 96:
-        // get the duplicate template processor
+	case 96: // get the duplicate template processor
         include_once "processors/duplicate_template.processor.php";
     break;
     case 117:
@@ -408,104 +366,76 @@ switch ($action)
         include_once "actions/mutate_template_tv_rank.dynamic.php";
         include_once "footer.inc.php";
         break;
-
-// snippet management
-    case 22:
-        // get the edit snippet action
+	case 22: // get the edit snippet action
         include_once "header.inc.php";
         include_once "actions/mutate_snippet.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 23:
-        // get the new snippet action
+	case 23: // get the new snippet action
         include_once "header.inc.php";
         include_once "actions/mutate_snippet.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 24:
-        // get the save processor
+	case 24: // get the save processor
         include_once "processors/save_snippet.processor.php";
     break;
-    case 25:
-        // get the delete processor
+	case 25: // get the delete processor
         include_once "processors/delete_snippet.processor.php";
     break;
-    case 98:
-        // get the duplicate processor
+	case 98: // get the duplicate processor
         include_once "processors/duplicate_snippet.processor.php";
     break;
-
-// htmlsnippet management
-    case 78:
-        // get the edit snippet action
+	case 78: // get the edit snippet action
         include_once "header.inc.php";
         include_once "actions/mutate_htmlsnippet.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 77:
-        // get the new snippet action
+	case 77: // get the new snippet action
         include_once "header.inc.php";
         include_once "actions/mutate_htmlsnippet.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 79:
-        // get the save processor
+	case 79: // get the save processor
         include_once "processors/save_htmlsnippet.processor.php";
     break;
-    case 80:
-        // get the delete processor
+	case 80: // get the delete processor
         include_once "processors/delete_htmlsnippet.processor.php";
     break;
-    case 97:
-        // get the duplicate processor
+	case 97: // get the duplicate processor
         include_once "processors/duplicate_htmlsnippet.processor.php";
     break;
-
-// show the credits page
-    case 18:
-        // get the credits page
+	case 18: // get the credits page
         include_once "header.inc.php";
         include_once "actions/credits.static.php";
         include_once "footer.inc.php";
     break;
-
-// empty cache & synchronisation
-    case 26:
-        // get the cache emptying processor
+	case 26: // get the cache emptying processor
         include_once "header.inc.php";
         include_once "actions/refresh_site.dynamic.php";
         include_once "footer.inc.php";
     break;
-
-// Module management
-    case 106:
-        // get module management
+	case 106: // get module management
         include_once "header.inc.php";
         include_once "actions/modules.static.php";
         include_once "footer.inc.php";
     break;
-    case 107:
-        // get the new module action
+	case 107: // get the new modul
         include_once "header.inc.php";
         include_once "actions/mutate_module.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 108:
-        // get the edit module action
+	case 108: // get the edit module action
         include_once "header.inc.php";
         include_once "actions/mutate_module.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 109:
-        // get the save processor
+	case 109: // get the save processor
         include_once "processors/save_module.processor.php";
     break;
-    case 110:
-        // get the delete processor
+	case 110: // get the delete processor
         include_once "processors/delete_module.processor.php";
     break;
-    case 111:
-        // get the duplicate processor
+	case 111: // get the duplicate processor
         include_once "processors/duplicate_module.processor.php";
     break;
     case 112:
@@ -514,49 +444,40 @@ switch ($action)
         include_once "processors/execute_module.processor.php";
         //include_once "footer.inc.php";
         break;
-    case 113:
-        // get the module resources (dependencies) action
+	case 113: // get the module resources (dependencies) action
         include_once "header.inc.php";
         include_once "actions/mutate_module_resources.dynamic.php";
         include_once "footer.inc.php";
     break;
-
-// plugin management
-    case 100:
-        // change the plugin priority
+	case 100: // change the plugin priority
         //include_once "header.inc.php"; - in action file
         include_once "actions/mutate_plugin_priority.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 101:
-        // get the new plugin action
+	case 101: // get the new plugin action
         include_once "header.inc.php";
         include_once "actions/mutate_plugin.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 102:
-        // get the edit plugin action
+	case 102: // get the edit plugin action
         include_once "header.inc.php";
         include_once "actions/mutate_plugin.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 103:
-        // get the save processor
+	case 103: // get the save processor
         include_once "processors/save_plugin.processor.php";
     break;
-    case 104:
-        // get the delete processor
+	case 104: // get the delete processor
         include_once "processors/delete_plugin.processor.php";
     break;
-    case 105:
-        // get the duplicate processor
+	case 105: // get the duplicate processor
         include_once "processors/duplicate_plugin.processor.php";
     break;
 
 // view phpinfo
-    case 200:
-        // show phpInfo
-        if($modx->hasPermission('logs')) {
+	case 200: // show phpInfo
+		if($modx->hasPermission('logs'))
+		{
             include_once "header.inc.php";
             include_once "actions/phpinfo.static.php";
             include_once "footer.inc.php";
@@ -564,21 +485,17 @@ switch ($action)
     break;
 
 // errorpage
-    case 29:
-        // get the error page
+	case 29: // get the error page
         include_once "actions/error_dialog.static.php";
     break;
 
 // file manager
-    case 31:
-        // get the page to manage files
+	case 31: // get the page to manage files
         include_once "header.inc.php";
         include_once "actions/files.dynamic.php";
         include_once "footer.inc.php";
     break;
-
-// access permissions
-    case 40:
+	case 40: // access permissions
         include_once "header.inc.php";
         include_once "actions/access_permissions.dynamic.php";
         include_once "footer.inc.php";
@@ -588,136 +505,78 @@ switch ($action)
         include_once "actions/web_access_permissions.dynamic.php";
         include_once "footer.inc.php";
     break;
-
-// access groups processor
-    case 41:
+	case 41: // access groups processor
         include_once "processors/access_groups.processor.php";
     break;
     case 92:
         include_once "processors/web_access_groups.processor.php";
     break;
-
-// settings editor
-    case 17:
-        // get the settings editor
+	case 17: // get the settings editor
         include_once "header.inc.php";
         include_once "actions/mutate_settings.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 118:
-        // call settings ajax include
+	case 118: // call settings ajax include
         ob_clean();
         include_once "includes/mutate_settings.ajax.php";
     break;
-
-// save settings
-    case 30:
-        // get the save settings processor
+	case 30: // get the save settings processor
         include_once "processors/save_settings.processor.php";
     break;
-
-// system information
-    case 53:
-        // get the settings editor
+	case 53: // get the settings editor
         include_once "header.inc.php";
         include_once "actions/sysinfo.static.php";
         include_once "footer.inc.php";
     break;
-
-// optimise table
-    case 54:
-        // get the table optimizer/truncate processor
+	case 54: // get the table optimizer/truncate processor
         include_once "processors/optimize_table.processor.php";
     break;
-
-// view logging
-    case 13:
-        // view logging
+	case 13: // view logging
         include_once "header.inc.php";
         include_once "actions/logging.static.php";
         include_once "footer.inc.php";
     break;
-
-// empty logs
-    case 55:
-        // get the settings editor
+	case 55: // get the settings editor
         include_once "processors/empty_table.processor.php";
     break;
-
-// calls test page
-    case 999:
-        // get the test page
-        include_once "header.inc.php";
-        include_once "test_page.php";
-        include_once "footer.inc.php";
-    break;
-
-// Empty recycle bin
-    case 64:
-        // get the Recycle bin emptier
+    case 64: // get the Recycle bin emptier
         include_once "processors/remove_content.processor.php";
     break;
-
-// Messages
-    case 10:
-        // get the messages page
+	case 10: // get the messages page
         include_once "header.inc.php";
         include_once "actions/messages.static.php";
         include_once "footer.inc.php";
     break;
-
-// Delete a message
-    case 65:
-        // get the message deleter
+	case 65: // get the message deleter
         include_once "processors/delete_message.processor.php";
     break;
-
-// Send a message
-    case 66:
-        // get the message deleter
+	case 66: // get the message deleter
         include_once "processors/send_message.processor.php";
     break;
-
-// Remove locks
-    case 67:
-        // get the lock remover
+	case 67: // get the lock remover
         include_once "processors/remove_locks.processor.php";
     break;
-
-// Site schedule
-    case 70:
-        // get the schedule page
+	case 70: // get the schedule page
         include_once "header.inc.php";
         include_once "actions/site_schedule.static.php";
         include_once "footer.inc.php";
     break;
-
-// Search
-    case 71:
-        // get the search page
+	case 71: // get the search page
         include_once "header.inc.php";
         include_once "actions/search.static.php";
         include_once "footer.inc.php";
     break;
-
-// About
-    case 59:
-        // get the about page
+	case 59: // get the about page
         include_once "header.inc.php";
         include_once "actions/about.static.php";
         include_once "footer.inc.php";
     break;
-
-// Add weblink
-    case 72:
-        // get the weblink page
+	case 72: // get the weblink page
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";
     break;
-
-// User management
-    case 75:
+	case 75: // User management
         include_once "header.inc.php";
         include_once "actions/user_management.static.php";
         include_once "footer.inc.php";
@@ -732,16 +591,12 @@ switch ($action)
         include_once "actions/role_management.static.php";
         include_once "footer.inc.php";
     break;
-
-// template/ snippet management
-    case 76:
+	case 76: // template/ snippet management
         include_once "header.inc.php";
         include_once "actions/resources.static.php";
         include_once "footer.inc.php";
     break;
-
-// keywords management
-    case 81:
+	case 81: // keywords management
         include_once "header.inc.php";
         include_once "actions/manage_metatags.dynamic.php";
         include_once "footer.inc.php";
@@ -749,97 +604,76 @@ switch ($action)
     case 82:
         include_once "processors/metatags.processor.php";
     break;
-
-// Export to file
-    case 83:
+	case 83: // Export to file
         include_once "header.inc.php";
         include_once "actions/export_site.static.php";
         include_once "footer.inc.php";
     break;
-
-// Resource Selector
-    case 84:
+	case 84: // Resource Selector
         include_once "actions/resource_selector.static.php";
     break;
-
-// Backup Manager
-    case 93:
+	case 93: // Backup Manager
         # header and footer will be handled interally
         include_once "actions/bkmanager.static.php";
     break;
-
-// Duplicate Document
-    case 94:
-        // get the duplicate processor
+	case 94: // get the duplicate processor
         include_once "processors/duplicate_content.processor.php";
     break;
-
-// Import Document from file
-    case 95:
+	case 95: // Import Document from file
         include_once "header.inc.php";
         include_once "actions/import_site.static.php";
         include_once "footer.inc.php";
     break;
-
-// Help
-    case 9:
-        // get the help page
+	case 9: // get the help page
         include_once "header.inc.php";
         include_once "actions/help.static.php";
         include_once "footer.inc.php";
     break;
-
-// Template Variables - Based on Apodigm's Docvars
-    case 300:
+	case 300: // Template Variables - Based on Apodigm's Docvars
         // get the new document variable action
         include_once "header.inc.php";
         include_once "actions/mutate_tmplvars.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 301:
-        // get the edit document variable action
+	case 301: // get the edit document variable action
         include_once "header.inc.php";
         include_once "actions/mutate_tmplvars.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 302:
-        // get the save processor
+	case 302: // get the save processor
         include_once "processors/save_tmplvars.processor.php";
     break;
-    case 303:
-        // get the delete processor
+	case 303: // get the delete processor
         include_once "processors/delete_tmplvars.processor.php";
     break;
-    case 304:
-        // get the duplicate processor
+	case 304: // get the duplicate processor
         include_once "processors/duplicate_tmplvars.processor.php";
     break;
-
-
-// Event viewer: show event message log
-    case 114:
-        // get event logs
+	case 114: // Event viewer: show event message log
         include_once "header.inc.php";
         include_once "actions/eventlog.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 115:
-        // get event log details viewer
+	case 115: // get event log details viewer
         include_once "header.inc.php";
         include_once "actions/eventlog_details.dynamic.php";
         include_once "footer.inc.php";
     break;
-    case 116:
-        // get the event log delete processor
+	case 116: // get the event log delete processor
         include_once "processors/delete_eventlog.processor.php";
     break;
-    case 501:
-        //delete category
+	case 501: //delete category
         include_once "processors/delete_category.processor.php";
     break;
-
-// default action: show not implemented message
-    default :
+	case 998: //Output of OnManagerPageInit with Header/Footer
+		include_once "header.inc.php";
+		if (is_array($evtOutOnMPI)) echo implode('', $evtOutOnMPI);
+		include_once "footer.inc.php";
+		break;
+	case 999: //Output of OnManagerPageInit
+		if (is_array($evtOutOnMPI)) echo implode('', $evtOutOnMPI);
+		break;
+	default : // default action: show not implemented message
         // say that what was requested doesn't do anything yet
         include_once "header.inc.php";
         echo "
