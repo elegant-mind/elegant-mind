@@ -1,14 +1,16 @@
 /* -------------------------[ Neutralize styles, fonts and viewport ]--- */
 html { /overflow-x: hidden; /overflow-y: auto;} /* for IE7, IE6 */
-html, body, form, fieldset {
+html, body, form, fieldset,img {
 	margin: 0;
 	padding: 0;
+}
+img {
+	border: none;
 }
 html {
 	font-size: 100.01%;
 	line-height: 1.5;
-	font-family: Helvetica, Arial, sans-serif !important;
-	font-family: Arial, Tahoma, Helvetica, sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	color: #111;
 }
 body {
@@ -23,13 +25,9 @@ body#mainpane,
 body.treeframebody {
 	background-image :url(images/misc/mainbg.png);
 	background-repeat:repeat-x;
-	border-top:1px solid #f5f5f5;
 }
-img, a img {
-	border: 0 !important;
+a img {
 	text-decoration: none;
-	padding: 0;
-	margin: 0;
 }
 h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
 	margin: 0 0 .5em;
@@ -108,11 +106,9 @@ h4 {
 }
 h5 {
 	font-size: 100%;
-	font-weight: bold;
 }
 h6 {
 	font-size: 86%;
-	font-weight: bold;
 }
 p.caption, p.comment {
 	font-size: 86%;
@@ -129,7 +125,7 @@ button {
 		margin: 0 0 0 5px;
 	}
 a, a:active, a:visited, a:link {
-	color: #1a32c7;
+	color: #00577d;
 	text-decoration: underline;
 }
 a:hover {
@@ -254,6 +250,9 @@ tbody, thead, tr {
 form label {
 	cursor: pointer;
 }
+form label input[type="radio"] {
+margin:0;
+}
 fieldset {
 	border: none;
 }
@@ -273,10 +272,13 @@ form input[type=text],
 form textarea {
 	border: 1px solid #ddd;
 	border-left-color: #c3c3c3;
-	border-top-color: #7c7c7c;
+	border-top-color: #acacac;
 	padding: 3px 3px 2px 2px;
 	background: #fff url(images/misc/input-bg.gif) repeat-x top left;
 	vertical-align: baseline;
+}
+form input[type=text] {
+	line-height:1;
 }
 	.rtl form input[type=text],
 	.rtl form textarea {
@@ -330,9 +332,13 @@ form input.hidden {
 		text-align: left;
 	}
 form textarea {
-	height: 75px;
-	width: 300px;
+	height: 85px;
+	width: 310px;
 	margin-top: 0;
+	padding:5px;
+	-webkit-box-sizing: border-box; /* Chrome, Safari */
+	-moz-box-sizing: border-box;    /* Firefox */
+	box-sizing: border-box;         /* IE8+, Opera */
 }
 .form legend {
 	color: #04C;
@@ -429,19 +435,22 @@ input.submit {
 	display: block;
 	background: #fff url(images/misc/tabareabg.gif) repeat-x top;
 }
-	.tab-page .sectionBody {
-		margin: 0 10px 0;
-	}
-	.rtl .sectionBody, .layerVisible {
-		direction: rtl;
-		position: inherit;
-	}
+.tab-page .sectionBody {
+	margin: 0 10px 10px;
+}
+.rtl .sectionBody, .layerVisible {
+	direction: rtl;
+	position: inherit;
+}
 .showHideVisible, .layerVisible {
 	margin: 0 10px 4px;
 }
 .sectionHeader {
 	padding: 5px 3px 5px 18px;
 	background: #EFEFEF url(images/misc/fade.gif) repeat-x top;
+	border-radius : 5px 5px 0 0;
+	-moz-border-radius : 5px 5px 0 0;
+	-webkit-border-radius:5px 5px 0 0;
 }
 	.rtl .sectionHeader {
 		direction: rtl;
@@ -573,9 +582,9 @@ a img {
 	border: 1px solid #c8c8d4;
 	padding: 1px;
 }
-.unpublishedNode {
-	color: #aaa;
-	font-style: italic;
+.unpublishedNode,
+.unpublished a {
+	color: #b68282;
 }
 .deletedNode {
 	color: #A52A2A;
@@ -614,7 +623,7 @@ table.grid {
 	width: 100%;
 	background-color: #fff;
 	border-collapse:collapse;
-	margin-bottom:20px;
+	margin-bottom:10px;
 }
 table.grid th, table.grid td {
 	border:1px solid #ccc;
@@ -716,17 +725,18 @@ a.hometblink:hover {
 	width: 300px;
 	height: 150px;
 	padding: 50px;
-	border: 1px solid #039;
+	border: 1px solid #999;
 }
 /* -------------------------[ contextmenu in editing modules ]--- */
 .contextMenu {
 	background: #fff;
 	margin: 0;
-	padding: 0;
+	padding: 8px;
 	border: 1px solid #039;
 	border-color: #eaeaea #909090 #707070 #eaeaea;
 	position: absolute;
 	z-index: 10000;
+	white-space: nowrap;
 }
 .cntxMnuItem {
 	background-image: url(images/misc/_tx_.gif);
@@ -741,7 +751,7 @@ a.hometblink:hover {
 .cntxMnuItemDisabled {
 	cursor: default;
 	padding: 3px 16px 3px 2px;
-	color: #111;
+	color: #787878;
 }
 .cntxMnuItemOver {
 	cursor: pointer;
@@ -1037,8 +1047,11 @@ a.hometblink:hover {
 	z-index: 1;
 	position: relative;
 	top: 0;
-	background: #f5f5f5;
+	background: #ececec;
 	border: 1px solid #e0e0e0;
+	border-radius : 2px 2px 0 0;
+	-moz-border-radius : 2px 2px 0 0;
+	-webkit-border-radius: 2px 2px 0 0;
 }
 	.rtl .dynamic-tab-pane-control .tab-row .tab {
 	    margin: 3px 5px 1px -3px;
@@ -1052,12 +1065,12 @@ a.hometblink:hover {
 	text-decoration: none;
 }
 .dynamic-tab-pane-control .tab-row .tab.selected {
-	color: #333;
-	z-index: 3;
+	background: none repeat scroll 0 0 #FFFFFF;
+	border-color: #FFCC72 #C0C0C0 #FFFFFF #E0E0E0;
+	border-style: solid;
+	border-width: 1px;
 	top: 0;
-	background: #fff;
-	border: 1px solid #e4e4e4;
-	border-color: #e0e0e0 #c0c0c0 #fff #e0e0e0;
+	z-index: 3;
 }
 .dynamic-tab-pane-control .tab-row .tab.selected span {
 	color: #111;
@@ -1204,16 +1217,18 @@ padding:4px;
 	display: inline;
 	width: 15px;
 	margin: 0 0 0 1px;
+	padding:0;
 }
 #pagination li a {
-	padding: 3px;
-	border: 1px solid #D9E7C2;
+	padding: 2px 5px;
+	border: 1px solid #ccc;
 	text-decoration: none;
 	color: #333;
 }
 #pagination li.currentPage a, #pagination li a:hover {
-	color: #060;
-	border: 1px solid #060;
+	color: #333;
+	border: 1px solid #999;
+	background-color:#dddddd;
 }
 
 fieldset.tab-page {
@@ -1336,7 +1351,7 @@ form#mutate input
 }
 form#mutate input.inputBox,
 form#mutate textarea,
-div.tmplvars input {
+div.tmplvars input[type=text] {
 	background: #fff url(images/misc/input-bg.gif) repeat-x top left;
 }
 form#mutate textarea.tv_textareamini {
@@ -1498,9 +1513,8 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
 	width: 150px;
 	padding: 3px 3px 3px 24px;
 	border: 1px solid #b4cde4;
-	font-size: 13px;
 	background: #fff url(images/icons/datenofocus.gif) no-repeat top left;
-	cursor: pointer;
+	ime-mode:disabled;
 }
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
 	background: #fffce9 url(images/icons/datefocus.gif) no-repeat top left;
@@ -1614,12 +1628,18 @@ td input.button {width:30px !important;cursor:pointer;border:1px solid #ccc; bac
 
 form#mutate input.text,
 input.inputBox,
-form#mutate input.imageField {width:300px;}
+form#mutate input.imageField,
+#displayparams input[type=text],
+#displayparams select
+{width:300px;}
 form#mutate textarea.inputBox {width:300px;height:80px;}
 form#mutate textarea {width:90%;height:240px;}
 form#mutate textarea.textareamini {height:120px;}
 form#mutate input.number,input.email {ime-mode:disabled;}
-form#mutate input.number {width:80px !important;text-align:right;}
+form#mutate input.number {width:60px !important;padding-right:10px;text-align:right;}
 form#mutate div.tmplvars label {display:block;}
 
 .phptextarea {font-family: 'Courier New','Courier', monospace;}
+optgroup {font-style:normal;}
+
+#mainpane table th {vertical-align:top;}

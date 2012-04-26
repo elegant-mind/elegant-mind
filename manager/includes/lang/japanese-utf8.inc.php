@@ -8,7 +8,7 @@
  * Author:         yamamoto          - http://kyms.jp
  * Date:           2011/08/28
  * Version:        2.0.5
- * MODX version:   Evolution 1.0.0 - 1.0.5J-r6
+ * MODX version:   Evolution 1.0.0 - 1.0.6J
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
@@ -234,7 +234,7 @@ $_lang["disabled"] = '停止';
 $_lang["doc_data_title"] = 'リソースの詳細情報';
 $_lang["duplicate"] = '複製';
 $_lang["duplicate_alias_found"] = 'リソース「%s」が「%s」というエイリアスをすでに使用しています。他のエイリアスを入力してください。';
-$_lang["duplicate_alias_message"] = '「はい」を選択すると、同じエイリアス名を持つ複数のリソースを作ることができるようになります。この場合、エイリアス名をURL表現に用いると問題が発生する可能性があるため、ご注意ください。';
+$_lang["duplicate_alias_message"] = '同じ階層内でエイリアス名の重複を許可します。この場合、エイリアス名をURL表現に用いると問題が発生する可能性があるため、ご注意ください。';
 $_lang["duplicate_alias_title"] = '重複エイリアスを許可';
 $_lang["duplicate_name_found_general"] = '%sにはすでに「%s」という名前が存在します。重複しない名前を指定してください。';
 $_lang["duplicate_name_found_module"] = 'すでに「%s」という名前が存在します。重複しない名前を指定してください。';
@@ -264,8 +264,8 @@ $_lang["empty_folder"] = 'このコンテナは空です';
 $_lang["empty_recycle_bin"] = '削除済みリソースを消去';
 $_lang["empty_recycle_bin_empty"] = '消去するための削除済みリソースがありません。';
 $_lang["enable_resource"] = '外部ファイルを有効に';
-$_lang["enable_sharedparams"] = '共有パラメータを使用';
-$_lang["enable_sharedparams_msg"] = '<strong>注意:</strong> 上のglobally unique id (GUID)はこのモジュールとその共有パラメータを一意に識別するために用いられます。GUIDは、モジュールと、共有パラメータにアクセスするプラグインやスニペットとの間のリンクにも用いられます。';
+$_lang["enable_sharedparams"] = 'パラメータを共有';
+$_lang["enable_sharedparams_msg"] = '<strong>注意:</strong>GUID(globally unique id)はこのモジュールとその共有パラメータを一意に識別するために用いられます。GUIDは、モジュールと、共有パラメータにアクセスするプラグインやスニペットとの間のリンクにも用いられます。';
 $_lang["enabled"] = '有効';
 $_lang["error"] = 'エラー';
 $_lang["error_sending_email"] = 'メール送信中にエラー';
@@ -358,7 +358,7 @@ $_lang["forgot_your_password"] = 'パスワードを忘れた場合はこちら'
 $_lang["friday"] = '金';
 $_lang["friendly_alias_message"] = 'フレンドリーURLを使用して、かつリソースがエイリアスを持つ場合、URL表現にエイリアスを用います。このオプションを「はい」に設定することで、フレンドリーURLのプレフィックスとサフィックスもエイリアスに適用されます。例えば、リソースのIDが1、エイリアスが「introduction」、プレフィックスが「」(空白)、サフィックスが「.html」の場合、このオプションを「はい」にすると、URLは「introduction.html」となります。 エイリアスを設定していない場合は、MODXが「1.html」というリンクを生成します。';
 $_lang["friendly_alias_title"] = 'エイリアスを使用';
-$_lang["friendlyurls_message"] = '静的URI機能（フレンドリーURL）を有効にします。この機能はMODXがApache上で動作している時のみ有効です。この機能を動作させるためにはMODXインストールディレクトリのht.accessファイルを.htaccessにリネームしてください。動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
+$_lang["friendlyurls_message"] = '静的URI機能(フレンドリーURL)を動作させるためにはMODXインストールディレクトリの<b>sample.htaccessファイルを.htaccessにリネーム</b>する必要があります。動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
 $_lang["friendlyurls_title"] = 'フレンドリーURLを使用';
 $_lang["friendlyurlsprefix_message"] = 'フレンドリーURLのプレフィックスを指定してください。例えばプレフィックスを「page」に設定した場合、URLの /index.php?id=2 は、 /page2.htmlというフレンドリーURLに変換されます(サフィックスが .htmlに設定されていると仮定)。';
 $_lang["friendlyurlsprefix_title"] = 'プレフィックス';
@@ -379,12 +379,12 @@ $_lang["htmlsnippet_management_msg"] = '<h3 style="font-weight:bold;">チャン�
 $_lang["htmlsnippet_msg"] = '<p>チャンクはテキストのパーツです。テンプレートやリソース(投稿画面)に<strong>{{チャンク名}}</strong>と記述すると、そのチャンクの内容を出力します。</p>';
 $_lang["htmlsnippet_name"] = 'チャンク名';
 $_lang["htmlsnippet_title"] = 'チャンクの作成/編集';
-$_lang["icon"] = 'Action';
+$_lang["icon"] = 'アイコン';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = '親リソースの指定:\n\nリソースは選択リソースのサブリソースです。';
 $_lang["illegal_parent_self"] = '親リソースの指定:\n\n自分自身を親に割り当てることはできません。';
 $_lang["import_files_found"] = '<b>インポート対象のリソースが %s個あります。</b>';
-$_lang["import_params"] = '共有パラメータのインポート';
+$_lang["import_params"] = 'パラメータの関連付け';
 $_lang["import_params_msg"] = 'ドロップダウンメニューからモジュール名を選択することにより、モジュール側から設定値を与えることができます。<br />※対象モジュール側で共有パラメータの設定と関連付けをしておく必要があります。';
 $_lang["import_parent_resource"] = '親リソース';
 $_lang["import_site"] = 'サイトをインポート';
@@ -462,7 +462,7 @@ $_lang["manager"] = '管理画面';
 $_lang["manager_lockout_message"] = '管理画面にログインしています。セッションを閉じたいときは「ログアウト」ボタンをクリックしてください。<br />管理画面のホームあるいはスタート画面に行きたいときは「ホーム」ボタンをクリックします。';
 $_lang["manager_permissions"] = 'グループ管理';
 $_lang["manager_theme"] = '管理画面のテーマ';
-$_lang["manager_theme_message"] = '管理画面で使用するデザインテーマを選択してください。この選択肢を増やすには<a href="http://modxcms.com/extras/repository/packages/?repository=7" target="_blank">MODX開発元の配布ページ</a>から入手して /manager/media/style/ ディレクトリに置く必要があります。';
+$_lang["manager_theme_message"] = '管理画面で使用するデザインテーマを選択してください。';
 $_lang["messages"] = 'メッセージ';
 $_lang["messages_all"] = '全員';
 $_lang["messages_compose"] = 'メッセージを作成';
@@ -651,7 +651,7 @@ $_lang["plugin_event_msg"] = 'このプラグインが使用するイベント�
 $_lang["plugin_management_msg"] = '<h3 style="font-weight:bold;">プラグインの管理</h3>プラグインはシステム寄りの拡張機能で、実行するためには任意のシステムイベントに関連付ける必要があります。スニペットほど直感的ではありませんが、管理画面のカスタマイズもできるなど応用幅が広いです。';
 $_lang["plugin_msg"] = 'プラグイン名には日本語を用いることができます。先頭と末尾の「&lt;?php」「?&gt;」は不要です。プラグインを実行するためには、必ず任意のシステムイベントと関連付けてください。';
 $_lang["plugin_name"] = 'プラグイン名';
-$_lang["plugin_priority"] = 'イベント発生時のプラグインの実行順を編集';
+$_lang["plugin_priority"] = 'プラグインの実行順を編集';
 $_lang["plugin_priority_instructions"] = 'プラグインの実行順を変更するには、各イベント名の下にあるプラグインをドラッグしてください。最初に実行するプラグインは最上位にしてください。';
 $_lang["plugin_priority_title"] = 'プラグインの実行順';
 $_lang["plugin_title"] = 'プラグインの作成/編集';
@@ -769,7 +769,7 @@ $_lang["role_edit_doc_metatags"] = 'METAタグとキーワード編集画面を�
 $_lang["role_edit_module"] = 'モジュール編集画面を開く';
 $_lang["role_edit_plugin"] = 'プラグイン編集画面を開く';
 $_lang["role_edit_role"] = 'ロール編集画面を開く';
-$_lang["role_edit_settings"] = 'サイト設定を変更';
+$_lang["role_edit_settings"] = 'グローバル設定を変更';
 $_lang["role_edit_snippet"] = 'スニペット編集画面を開く';
 $_lang["role_edit_template"] = 'テンプレート編集画面を開く';
 $_lang["role_edit_user"] = 'ユーザー編集画面を開く';
@@ -931,7 +931,7 @@ $_lang["template_code"] = 'テンプレート コード (html)';
 $_lang["template_desc"] = '説明';
 $_lang["template_edit_tab"] = 'テンプレートの編集';
 $_lang["template_management_msg"] = '<h3 style="font-weight:bold;">テンプレートデザインの管理</h3>テンプレートはいくつでも作成でき、各ページ(リソース)ごとに自由に割り当てることができます。カッコ内の数字はテンプレートIDです。';
-$_lang["template_msg"] = 'テンプレートを作成/編集します。通常のhtmlに埋め込む独自タグとして、[*リソース変数*] [*テンプレート変数*] [(コンフィグ変数)] [~リンクタグ~] [[スニペット]] {{チャンク}} [^ベンチマークタグ^] などを記述できます。';
+$_lang["template_msg"] = 'テンプレートを作成/編集します。[*リソース変数*] [*テンプレート変数*] [(コンフィグ変数)] [~リンクタグ~] [[スニペット]] {{チャンク}} [^ベンチマークタグ^] などを記述できます。';
 $_lang["template_name"] = 'テンプレート名';
 $_lang["template_no_tv"] = 'テンプレート変数は定義されていません。';
 $_lang["template_reset_all"] = '全てのリソースに適用する';
@@ -1005,7 +1005,7 @@ $_lang["uploadable_images_message"] = 'ファイルブラウザを使用して�
 $_lang["uploadable_images_title"] = 'アップロード可能な画像タイプ';
 $_lang["uploadable_media_message"] = 'ファイルブラウザを使用して「assets/media/ 」にアップロードできるメディアファイルの拡張子を入力してください。カンマで区切って複数入力できます。';
 $_lang["uploadable_media_title"] = 'アップロード可能なメディアタイプ';
-$_lang["use_alias_path_message"] = 'このオプションを「はい」に設定すると、リソースのエイリアスがパスとして表示されます。例えば、「child」というエイリアスを持ったリソース「parent」というエイリアスのリソースの下に配置されていると、エイリアスパスは「/parent/child.html」になります。<br /><strong>注意: このオプションを「はい」にしてエイリアスパスを使用するときは、リソースから参照するものは（画像・CSS・JavaScriptなど）絶対パスで指定する必要があります。例えば、assets/imagesに対しては/assets/imagesと指定します。または、<a href="http://www.google.com/search?hl=ja&q=html+base+href" target="_blank">baseタグ</a>を利用すると、相対パス記述でも正しく参照できます。</strong>';
+$_lang["use_alias_path_message"] = 'リソースの階層構造をそのままURL構成として反映できます。例えば「parent」というエイリアスのリソースの下に「child」というエイリアスのリソースを配置すると、URL(エイリアスパス)は「/parent/child.html」になります。<br /><strong>注意: このオプションを「はい」にしてエイリアスパスを使用するときは、リソースから参照するものは（画像・CSS・JavaScriptなど）絶対パスで指定する必要があります。例えば、assets/imagesに対しては/assets/imagesと指定します。または、<a href="http://www.google.com/search?hl=ja&q=html+base+href" target="_blank">baseタグ</a>を利用すると、相対パス記述でも正しく参照できます。</strong>';
 $_lang["use_alias_path_title"] = 'エイリアスパスを使用';
 $_lang["use_editor_message"] = 'リッチテキストエディター(RTE)の使用を設定します。「いいえ」を選択するとRTEを利用できなくなります。この設定は全てのリソース・全てのユーザーに影響します。';
 $_lang["use_editor_title"] = 'リッチテキストエディターの使用';
@@ -1091,9 +1091,32 @@ $_lang["tree_page_click_option_auto"] = '自動(推奨)';
 $_lang["too_many_resources"] = 'リソース数が多いため非表示';
 $_lang['setting_resource_tree_node_name'] = 'リソースツリーのノード名';
 $_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
-$_lang['setting_cache_enabled'] = 'グローバルキャッシュを有効にする';
-$_lang['setting_cache_enabled_desc'] = '「いいえ」を選択すると、全てのキャッシュ機能を無効にします。 キャッシュを無効にすることは推奨しません。';
+$_lang['setting_cache_type'] = 'グローバルキャッシュ';
+$_lang['setting_cache_type_desc'] = '「バイパスモード」はプラグインの出力もキャッシュするため、プラグインとの相性問題が発生することがあります。';
 $_lang['duplicate_title_string'] = 'コピー - [+title+]';
 $_lang["confirm_delete_category"] = 'このカテゴリー名を削除してもよろしいですか?';
 $_lang["site_url_title"] = 'サイトのURL';
 $_lang["site_url_message"] = '例：<b>' . MODX_SITE_URL . '</b><br />空白にすると自動的に処理します(wwwの有無・http/httpsの違いなどにより動的に変わります)。';
+$_lang["chunk_opt_published"] = '公開ステータス';
+$_lang["delete_category"] = 'カテゴリー名を削除';
+
+// bkmanager.static.php
+$_lang["bkmgr_alert_mkdir"] = 'ディレクトリにファイルを作成できません。[+snapshot_path+]のパーミッションを確認してください。';
+$_lang["bkmgr_restore_msg"] = '<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />※SQL文を実行するだけなので、他の用途にも使えます(拡張機能のインストールなど)。<br />異なる領域に移行する場合は、リストア後にグローバル設定の [(rb_base_dir)]・[(filemanager_path)] の設定をリセットする必要があります。</p>';
+$_lang["bkmgr_restore_title"] = 'リストア';
+$_lang["bkmgr_import_ok"] = 'リストアは正常に実行されました。';
+$_lang["bkmgr_snapshot_ok"] = 'スナップショットは正常に保存されました。';
+$_lang["bkmgr_run_sql_file_label"] = 'ファイルから実行';
+$_lang["bkmgr_run_sql_direct_label"] = 'SQL文を直接実行';
+$_lang["bkmgr_run_sql_submit"] = 'リストア実行';
+$_lang["bkmgr_run_sql_result"] = '結果一覧';
+$_lang["bkmgr_snapshot_title"] = 'スナップショット';
+$_lang["bkmgr_snapshot_msg"] = '<p>データベースの内容をサーバに保存します。<br />保存先 : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_submit"] = 'スナップショットを追加する';
+$_lang["bkmgr_snapshot_list_title"] = 'スナップショットの一覧';
+$_lang["bkmgr_restore_submit"] = 'このデータに戻す';
+$_lang["bkmgr_snapshot_nothing"] = 'スナップショットはありません。';
+$_lang["settings_friendlyurls_alert"] = "フレンドリーURL機能を利用するにはMODXインストールディレクトリの\nsample.htaccessファイルを.htaccessにリネームする必要があります。";
+
+$_lang["configcheck_rb_base_dir"] = 'ファイルブラウザディレクトリのパス設定が正しくありません。';
+$_lang["configcheck_filemanager_path"] = 'ファイル管理機能の対象ディレクトリのパス設定が正しくありません。';

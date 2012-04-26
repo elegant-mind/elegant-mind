@@ -1089,9 +1089,32 @@ $_lang["tree_page_click_option_auto"] = 'Auto';
 $_lang["too_many_resources"] = 'Undisplayed, there are many resources';
 $_lang['setting_resource_tree_node_name'] = 'The node name of a resource tree';
 $_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
-$_lang['setting_cache_enabled'] = 'A global cache is enabled.';
-$_lang['setting_cache_enabled_desc'] = 'Selection of "no" will repeal all the cache functions. Caching invalid does not recommend.';
+$_lang['setting_cache_type'] = 'A global cache is enabled.';
+$_lang['setting_cache_type_desc'] = 'Selection of "no" will repeal all the cache functions. Caching invalid does not recommend.';
 $_lang['duplicate_title_string'] = '[+title+] duplicated';
 $_lang["confirm_delete_category"] = 'May delete this category name?';
 $_lang["site_url_title"] = 'Site URL';
 $_lang["site_url_message"] = 'Example¡§<b>' . MODX_SITE_URL . '</b><br />If it is made blank, it will process automatically (it changes dynamically by the difference between the existence and http/https of www, etc.)';
+$_lang["chunk_opt_published"] = 'Published';
+$_lang["delete_category"] = 'Are you sure you want to delete this category name?';
+
+// bkmanager.static.php
+$_lang["bkmgr_alert_mkdir"] = 'A file cannot be created in a directory.  Please check the permission of ' . $modx->config['snapshot_path'];
+$_lang["bkmgr_restore_msg"] = '<p>A site can be restore using an SQL file. </p>';
+$_lang["bkmgr_restore_title"] = 'Restore';
+$_lang["bkmgr_import_ok"] = 'SQL recovery was performed normally.';
+$_lang["bkmgr_snapshot_ok"] = 'The snapshot was saved normally.';
+$_lang["bkmgr_run_sql_file_label"] = 'Execute by sql file';
+$_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
+$_lang["bkmgr_run_sql_submit"] = 'Execute restore';
+$_lang["bkmgr_run_sql_result"] = 'Result';
+$_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
+$_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
+$_lang["bkmgr_restore_submit"] = 'Revert this data';
+$_lang["bkmgr_snapshot_nothing"] = 'No snapshot';
+$_lang["settings_friendlyurls_alert"] = 'It is necessary to rename the sample.htaccess file of a MODX installation directory at .htaccess to use the Friendly URL function.';
+
+$_lang["configcheck_rb_base_dir"] = 'The path setting of a file browser directory is not right.';
+$_lang["configcheck_filemanager_path"] = 'The path setting of the object directory of a file management function is not right.';

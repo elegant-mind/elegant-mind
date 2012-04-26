@@ -8,6 +8,15 @@
 		global $_lang;
 		global $content;
 
+		if(!isset($modx->config['imanager_url']))
+		{
+			$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
+		}
+		if(!isset($modx->config['fmanager_url']))
+		{
+			$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
+		}
+		
 		$field_html ='';
 		$field_value = ($field_value!="" ? $field_value : $default_text);
 
@@ -133,6 +142,7 @@
 				global $_lang;
 				global $ResourceManagerLoaded;
 				global $content,$use_editor,$which_editor;
+				$url_convert = get_js_trim_path_pattern();
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
 					$field_html .= <<< EOT
 					<script type="text/javascript">
@@ -149,19 +159,19 @@
 								sOptions += ',top=' + iTop ;
 
 								var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
-							}			
+							}
 							function BrowseServer(ctrl) {
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
 							}
 							
 							function BrowseFileServer(ctrl) {
 								lastFileCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
 							}
 							
 							function SetUrl(url, width, height, alt){
@@ -179,8 +189,8 @@
 							}
 					</script>
 EOT;
-					$ResourceManagerLoaded  = true;					
-				} 
+					$ResourceManagerLoaded  = true;
+				}
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
 				break;
 			case "file": // handles the input of file uploads
@@ -188,6 +198,7 @@ EOT;
                 global $_lang;
 				global $ResourceManagerLoaded;
 				global $content,$use_editor,$which_editor;
+				$url_convert = get_js_trim_path_pattern();
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
 				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
 					$field_html .= <<< EOT
@@ -211,14 +222,14 @@ EOT;
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
 							}
 										
 							function BrowseFileServer(ctrl) {
 								lastFileCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
 							}
 							
 							function SetUrl(url, width, height, alt){
@@ -269,7 +280,7 @@ EOT;
                         $custom_output = $_lang['chunk_no_exist']
                             . '(' . $_lang['htmlsnippet_name']
                             . ':' . $chunk_name . ')';
-                    } else {
+                } else {
                         $custom_output = $chunk_body;
                     }
                 } elseif(substr($field_elements, 0, 5) == "@EVAL") {
@@ -278,13 +289,13 @@ EOT;
                 } else {
                     $custom_output = $field_elements;
                 }
-                $replacements = array(
-                    '[+field_type+]'   => $field_type,
-                    '[+field_id+]'     => $field_id,
-                    '[+default_text+]' => $default_text,
-                    '[+field_value+]'  => htmlspecialchars($field_value),
-                    '[+field_style+]'  => $field_style,
-                );
+                    $replacements = array(
+                        '[+field_type+]'   => $field_type,
+                        '[+field_id+]'     => $field_id,
+                        '[+default_text+]' => $default_text,
+                        '[+field_value+]'  => htmlspecialchars($field_value),
+                        '[+field_style+]'  => $field_style,
+                        );
                 $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                 $modx->documentObject = $content;
                 $custom_output = $modx->parseDocumentSource($custom_output);
@@ -292,7 +303,15 @@ EOT;
                 break;
             
 			default: // the default handler -- for errors, mostly
-				$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' onchange="documentDirty=true;" />';
+				$sname = strtolower($field_type);
+				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='input:{$field_type}'");
+				if($modx->db->getRecordCount($result)==1)
+				{
+					$field_html .= eval($modx->db->getValue($result));
+				}
+				else
+					$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' onchange="documentDirty=true;" />';
 		} // end switch statement
 		return $field_html;
 	} // end renderFormElement function
@@ -305,5 +324,35 @@ EOT;
 		}
 		else $a = explode("||", $v);
 		return $a;
-	}	
+	}
+	
+	function get_js_trim_path_pattern()
+	{
+		global $modx;
+		$ph['surl'] = $modx->config['site_url'];
+		$ph['surl_ptn'] = '^' . $ph['surl'];
+		$ph['surl_ptn'] = str_replace('/','\\/',$ph['surl_ptn']);
+		$ph['burl'] = $modx->config['base_url'];
+		$ph['burl_ptn'] = '^' . $ph['burl'];
+		$ph['burl_ptn'] = str_replace('/','\\/',$ph['burl_ptn']);
+		$js_block[] = "var burl_ptn = new RegExp('[+burl_ptn+]');";
+		$js_block[] = "var surl_ptn = new RegExp('[+surl_ptn+]');";
+		if($modx->config['strip_image_paths']==='1')
+		{
+			$js_block[] = "if(url.match(burl_ptn)){url = url.replace(burl_ptn,'');}";
+			$js_block[] = "else if(url.match(surl_ptn)){url = url.replace(surl_ptn,'');}";
+		}
+		else
+		{
+			$js_block[] = "if(url.match(burl_ptn)){url = url.replace(burl_ptn,'[+surl+]');}";
+			$js_block[] = "else if(url.match(/^[^(http)]/)){url = surl + url;}";
+		}
+		$output = join("\n",$js_block);
+		foreach($ph as $k=>$v)
+		{
+			$k = '[+' . $k . '+]';
+			$output = str_replace($k, $v, $output);
+		}
+		return $output;
+	}
 ?>

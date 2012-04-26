@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   KEY `id` (`id`),
   KEY `parent` (`parent`),
   KEY aliasidx (alias),
+  KEY typeidx (`type`),
   FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
 ) ENGINE=MyISAM COMMENT='Contains the site document tree.';
 
@@ -153,6 +154,9 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_htmlsnippets` (
   `id` int(10) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
   `description` varchar(255) NOT NULL default 'Chunk',
+  `published` int(1) NOT NULL default '1',
+  `pub_date` int(20) NOT NULL default '0',
+  `unpub_date` int(20) NOT NULL default '0',
   `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor',
   `category` integer NOT NULL DEFAULT '0' COMMENT 'category id',
   `cache_type`	tinyint(1) NOT NULL default '0' COMMENT 'Cache option',
@@ -514,12 +518,20 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_settings` (
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ALTER TABLE `{PREFIX}web_users` ADD COLUMN `cachepwd` varchar(100) NOT NULL default '' COMMENT 'Store new unconfirmed password' AFTER `password`;
+
 ALTER TABLE `{PREFIX}site_tmplvars` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`;
+ 
 ALTER TABLE `{PREFIX}site_tmplvars` MODIFY COLUMN `name` varchar(50) NOT NULL default '';
+
 ALTER TABLE `{PREFIX}site_tmplvars` ADD INDEX `indx_rank`(`rank`);
+
 ALTER TABLE `{PREFIX}site_content` ADD INDEX `aliasidx` (alias);
+
+ALTER TABLE `{PREFIX}site_content` ADD INDEX `typeidx` (`type`);
+
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `introtext` text COMMENT 'Used to provide quick summary of the document' AFTER `isfolder`;
+
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `menutitle` varchar(255) NOT NULL default '' COMMENT 'Menu title' AFTER `deletedby`,
  ADD COLUMN `donthit` tinyint(1) NOT NULL default '0' COMMENT 'Disable page hit count' AFTER `menutitle`,
  ADD COLUMN `haskeywords` tinyint(1) NOT NULL default '0' COMMENT 'has links to keywords' AFTER `donthit`,
@@ -527,38 +539,58 @@ ALTER TABLE `{PREFIX}site_content` ADD COLUMN `menutitle` varchar(255) NOT NULL 
  ADD COLUMN `privateweb` tinyint(1) NOT NULL default '0' COMMENT 'Private web document' AFTER `hasmetatags`,
  ADD COLUMN `privatemgr` tinyint(1) NOT NULL default '0' COMMENT 'Private manager document' AFTER `privateweb`;
 
+
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `content_dispo` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-inline, 1-attachment' AFTER `privatemgr`;
+
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `hidemenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Hide document from menu' AFTER `content_dispo`;
+
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `publishedon` int(20) NOT NULL DEFAULT '0' COMMENT 'Date the document was published' AFTER `deletedby`;
+
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `publishedby` int(10) NOT NULL DEFAULT '0' COMMENT 'ID of user who published the document' AFTER `publishedon`;
+
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
  ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
 
+
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `disabled` tinyint NOT NULL DEFAULT '0' COMMENT 'Disables the plugin' AFTER `properties`;
+
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `moduleguid` varchar(32) NOT NULL DEFAULT '' COMMENT 'GUID of module from which to import shared parameters' AFTER `disabled`;
-ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
- ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
- ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
+
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `unpub_date` int(20) NOT NULL default '0' AFTER `pub_date`;
 
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
  ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
 
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `properties` varchar(255) NOT NULL default '' COMMENT 'Default Properties' AFTER `locked`;
+
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `moduleguid` varchar(32) NOT NULL default '' COMMENT 'GUID of module from which to import shared parameters' AFTER `properties`;
+
 ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
  ADD COLUMN `icon` varchar(255) NOT NULL default '' COMMENT 'url to icon file' AFTER `category`,
  ADD COLUMN `template_type` integer NOT NULL DEFAULT '0' COMMENT '0-page,1-content' AFTER `icon`;
 
 ALTER TABLE `{PREFIX}document_groups` DROP INDEX `indx_doc_groups`;
+
 ALTER TABLE `{PREFIX}document_groups` ADD INDEX `document` (`document`);
+
 ALTER TABLE `{PREFIX}document_groups` ADD INDEX `document_group` (`document_group`);
+
 ALTER TABLE `{PREFIX}system_settings` MODIFY COLUMN `setting_value` text;
+
 ALTER TABLE `{PREFIX}site_plugins` MODIFY COLUMN `properties` text;
+
 ALTER TABLE `{PREFIX}site_snippets` MODIFY COLUMN `properties` text;
+
 ALTER TABLE `{PREFIX}system_eventnames` ADD COLUMN `groupname` varchar(20) NOT NULL default '' AFTER `service`;
+
 ALTER TABLE `{PREFIX}documentgroup_names` 
  ADD COLUMN `private_memgroup` tinyint DEFAULT '0' COMMENT 'determine whether the document group is private to manager users' AFTER `name`,
  ADD COLUMN `private_webgroup` tinyint DEFAULT '0' COMMENT 'determines whether the document is private to web users' AFTER `private_memgroup`;
@@ -647,11 +679,17 @@ ALTER TABLE `{PREFIX}site_content`
   MODIFY COLUMN `menutitle` varchar(255) NOT NULL DEFAULT '' COMMENT 'Menu title';
 
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `link_attributes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link attriubtes' AFTER `alias`;
+
 ALTER TABLE `{PREFIX}site_plugin_events` ADD COLUMN `priority` INT(10) NOT NULL default 0 COMMENT 'determines the run order of the plugin' AFTER `evtid`;
+
 ALTER TABLE `{PREFIX}site_tmplvar_templates` ADD COLUMN `rank` integer(11) NOT NULL DEFAULT '0' AFTER `templateid`;
+
 ALTER TABLE `{PREFIX}manager_users` MODIFY COLUMN `username` varchar(100) NOT NULL DEFAULT '';
+
 ALTER TABLE `{PREFIX}user_settings` MODIFY COLUMN `setting_value` text;
+
 ALTER TABLE `{PREFIX}web_user_settings` MODIFY COLUMN `setting_value` text;
+
 ALTER TABLE `{PREFIX}user_attributes` 
   MODIFY COLUMN `state` varchar(25) NOT NULL default '',
   MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
@@ -668,7 +706,9 @@ ALTER TABLE `{PREFIX}web_user_attributes`
   MODIFY COLUMN `comment` text;
   
 ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0';
+
 ALTER TABLE `{PREFIX}member_groups` ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
+
 ALTER TABLE `{PREFIX}web_groups` ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
 
 # Set the private manager group flag
@@ -679,15 +719,22 @@ UPDATE `{PREFIX}documentgroup_names` AS dgn
       dgn.private_webgroup = (wga.webgroup IS NOT NULL);
 
 UPDATE `{PREFIX}site_plugins` SET `disabled` = '1' WHERE `name` IN ('Bottom Button Bar');
+
 UPDATE `{PREFIX}site_plugins` SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template');
+
 UPDATE `{PREFIX}system_settings` SET `setting_value` = '' WHERE `setting_name` = 'settings_version';
+
 UPDATE `{PREFIX}system_settings` SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00';
 
 # start related to #MODX-1321
 UPDATE `{PREFIX}site_content` SET `type`='reference', `contentType`='text/html' WHERE `type`='' AND `content` REGEXP '^https?://([-\w\.]+)+(:\d+)?/?';
+
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/xml' WHERE `type`='' AND `alias` REGEXP '[.period.](rss|xml)$';
+
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/javascript' WHERE `type`='' AND `alias` REGEXP '[.period.]js$';
+
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/css' WHERE `type`='' AND `alias` REGEXP '[.period.]css$';
+
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/html' WHERE `type`='';
 
 # end related to #MODX-1321
@@ -746,15 +793,16 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('auto_template_logic','{AUTOTEMPLATELOGIC}'),
 ('default_template','3'),
 ('old_template',''),
-('publish_default','0'),
+('publish_default','1'),
 ('cache_default','1'),
+('cache_type','1'),
 ('search_default','1'),
 ('friendly_urls','0'),
 ('friendly_url_prefix',''),
 ('friendly_url_suffix','.html'),
 ('friendly_alias_urls','1'),
 ('use_alias_path','1'),
-('use_udperms','1'),
+('use_udperms','0'),
 ('udperms_allowroot','0'),
 ('failed_login_attempts','3'),
 ('blocked_minutes','60'),
@@ -781,7 +829,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('upload_media','au,avi,mp3,mp4,mpeg,mpg,wav,wmv'),
 ('upload_flash','fla,flv,swf'),
 ('clean_uploaded_filename','0'),
-('upload_files','aac,au,avi,css,cache,doc,docx,gz,gzip,htaccess,htm,html,js,mp3,mp4,mpeg,mpg,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,wav,wmv,xls,xlsx,xml,z,zip'),
+('upload_files','aac,css,cache,doc,docx,gz,gzip,htaccess,htm,html,js,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,xls,xlsx,xml,z,zip'),
 ('upload_maxsize','3145728'),
 ('new_file_permissions','0644'),
 ('new_folder_permissions','0755'),
@@ -793,9 +841,9 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('mail_check_timeperiod','60'),
 ('manager_direction','ltr'),
 ('tinymce_editor_theme','editor'),
-('tinymce_custom_plugins','style,advimage,advlink,searchreplace,print,contextmenu,paste,fullscreen,nonbreaking,xhtmlxtras,visualchars,media'),
-('tinymce_custom_buttons1','undo,redo,selectall,separator,pastetext,pasteword,separator,search,replace,separator,nonbreaking,hr,charmap,separator,image,link,unlink,anchor,media,separator,cleanup,removeformat,separator,fullscreen,print,code,help'),
-('tinymce_custom_buttons2','bold,italic,underline,strikethrough,sub,sup,separator,bullist,numlist,outdent,indent,separator,justifyleft,justifycenter,justifyright,justifyfull,separator,styleselect,formatselect,separator,styleprops'),
+('tinymce_custom_plugins','inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table'),
+('tinymce_custom_buttons1','undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help'),
+('tinymce_custom_buttons2','image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat'),
 ('tree_show_protected', '0'),
 ('rss_url_news', 'http://feeds.feedburner.com/modx-announce'),
 ('rss_url_security', 'http://feeds.feedburner.com/modxsecurity'),
@@ -805,7 +853,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('allow_duplicate_alias','0'),
 ('automatic_alias','0'),
 ('datetime_format','dd-mm-YYYY'),
-('warning_visibility', '1'),
+('warning_visibility', '0'),
 ('remember_last_tab', '1'),
 ('send_errormail', '3'),
 ('tree_page_click', 'auto');
@@ -971,4 +1019,5 @@ UPDATE `{PREFIX}user_roles` SET
 # Update any invalid Manager Themes in User Settings and reset the default theme
 
 UPDATE `{PREFIX}user_settings` SET `setting_value`='MODxCarbon' WHERE `setting_name`='manager_theme';
+
 REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','MODxCarbon');

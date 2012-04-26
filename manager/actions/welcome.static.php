@@ -8,6 +8,8 @@ if($modx->hasPermission('settings') && (!isset($settings_version) || $settings_v
     exit;
 }
 
+$uid = $modx->getLoginUserID();
+
 $script = <<<JS
         <script type="text/javascript">
         function hideConfigCheckWarning(key){
@@ -57,7 +59,7 @@ if($modx->hasPermission('messages')) {
 }
 
 // setup icons
-if($modx->hasPermission('new_user')||$modx->hasPermission('edit_user')) { 
+if($modx->hasPermission('new_user')||$modx->hasPermission('edit_user')) {
 	$src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
 	$modx->setPlaceholder('SecurityIcon',$src);
 }
@@ -85,15 +87,21 @@ if($modx->hasPermission('help')) {
 // setup modules
 if($modx->hasPermission('exec_module')) {
 	// Each module
-	if ($_SESSION['mgrRole'] != 1) {
+	if ($_SESSION['mgrRole'] != 1)
+	{
 		// Display only those modules the user can execute
-		$rs = $modx->db->query('SELECT DISTINCT sm.id, sm.name, mg.member
-				FROM '.$modx->getFullTableName('site_modules').' AS sm
-				LEFT JOIN '.$modx->getFullTableName('site_module_access').' AS sma ON sma.module = sm.id
-				LEFT JOIN '.$modx->getFullTableName('member_groups').' AS mg ON sma.usergroup = mg.user_group
-				WHERE (mg.member IS NULL OR mg.member = '.$modx->getLoginUserID().') AND sm.disabled != 1
-				ORDER BY sm.editedon DESC');
-	} else {
+		$tbl_site_modules       = $modx->getFullTableName('site_modules');
+		$tbl_site_module_access = $modx->getFullTableName('site_module_access');
+		$tbl_member_groups      = $modx->getFullTableName('member_groups');
+		$field = 'DISTINCT sm.id, sm.name, mg.member';
+		$from  = "{$tbl_site_modules} AS sm";
+		$from .= " LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id";
+		$from .= " LEFT JOIN {$tbl_member_groups} AS mg ON sma.usergroup = mg.user_group";
+		$where = "(mg.member IS NULL OR mg.member={$uid}) AND sm.disabled != 1";
+		$rs = $modx->db->select($field,$from,$where,'sm.editedon DESC');
+	}
+	else
+	{
 		// Admins get the entire list
 		$rs = $modx->db->select('id,name,icon', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
 	}
@@ -109,55 +117,70 @@ if(0<count($modulemenu)) $modules = join("\n",$modulemenu);
 $modx->setPlaceholder('Modules',$modules);
 
 // do some config checks
-if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $modx->config['warning_visibility'] == 1) {
+if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $modx->config['warning_visibility'] == 1)
+{
     include_once "config_check.inc.php";
     $modx->setPlaceholder('settings_config',$_lang['settings_config']);
     $modx->setPlaceholder('configcheck_title',$_lang['configcheck_title']);
     if($config_check_results != $_lang['configcheck_ok']) {    
-        $modx->setPlaceholder('config_check_results',$config_check_results);
-        $modx->setPlaceholder('config_display','block');
+    $modx->setPlaceholder('config_check_results',$config_check_results);
+    $modx->setPlaceholder('config_display','block');
     }
     else {
         $modx->setPlaceholder('config_display','none');
     }
 } else {
-     $modx->setPlaceholder('config_display','none');
+    $modx->setPlaceholder('config_display','none');
 }
-
-// include rss feeds for important forum topics
-include_once "rss.inc.php"; 
+if(!empty($modx->config['rss_url_news']) || !empty($modx->config['rss_url_security']))
+{
+	$feedData = include_once "rss.inc.php"; 
+}
+if(!empty($modx->config['rss_url_news']))
+{
+	$modx_news_content = $feedData['modx_news_content'];
+}
+else $modx_news_content = '-';
+if(!empty($modx->config['rss_url_security']))
+{
+	$modx_security_notices_content = $feedData['modx_security_notices_content'];
+}
+else $modx_security_notices_content = '-';
 
 // modx news
 $modx->setPlaceholder('modx_news',$_lang["modx_news_tab"]);
 $modx->setPlaceholder('modx_news_title',$_lang["modx_news_title"]);
-$modx->setPlaceholder('modx_news_content',$feedData['modx_news_content']);
+$modx->setPlaceholder('modx_news_content',$modx_news_content);
 
 // security notices
 $modx->setPlaceholder('modx_security_notices',$_lang["security_notices_tab"]);
 $modx->setPlaceholder('modx_security_notices_title',$_lang["security_notices_title"]);
-$modx->setPlaceholder('modx_security_notices_content',$feedData['modx_security_notices_content']);
+$modx->setPlaceholder('modx_security_notices_content',$modx_security_notices_content);
 
 // recent document info
 $html = $_lang["activity_message"].'<br /><br /><ul>';
-$sql  = 'SELECT id, pagetitle, description, editedon, editedby';
-$sql .= ' FROM ' . $modx->getFullTableName('site_content');
-//$sql .= ' LEFT JOIN ' . $modx->getFullTableName('manager_log') . ' AS mlog ON mlog.internalKey = editedby';
-$sql .= ' WHERE deleted=0 AND editedby=' . $modx->getLoginUserID();
-$sql .= ' ORDER BY editedon DESC LIMIT 10';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if($limit<1) {
+$field = 'id, pagetitle, description, editedon, editedby';
+$tbl_site_content = $modx->getFullTableName('site_content');
+$where = "deleted=0 AND editedby={$uid}";
+$rs = $modx->db->select($field,$tbl_site_content,$where,'editedon DESC',10);
+$limit = $modx->db->getRecordCount($rs);
+if($limit<1)
+{
     $html .= '<li>'.$_lang['no_activity_message'].'</li>';
-} else {
-    for ($i = 0; $i < $limit; $i++) {
-        $row = mysql_fetch_assoc($rs);
-        if($i==0) {
-            $syncid = $row['id'];
-        }
+}
+else
+{
+	for ($i = 0; $i < $limit; $i++)
+	{
+		$row = $modx->db->getRow($rs);
+		if($i==0)
+		{
+			$syncid = $row['id'];
+		}
         
-        $html.='<li><b>' . $modx->toDateFormat($row['editedon']) . '</b> - [' . $row['id'] .'] <a href="index.php?a=3&amp;id='.$row['id'].'">'.$row['pagetitle'].'</a>'.($row['description']!='' ? ' - '.$row['description'] : '')
-        .'</li>';
-    }
+		$html.='<li><b>' . $modx->toDateFormat($row['editedon']) . '</b> - [' . $row['id'] .'] <a href="index.php?a=3&amp;id='.$row['id'].'">'.$row['pagetitle'].'</a>'.($row['description']!='' ? ' - '.$row['description'] : '')
+		.'</li>';
+	}
 }
 $html.='</ul>';
 $modx->setPlaceholder('recent_docs',$_lang['recent_docs']);
@@ -203,36 +226,38 @@ $modx->setPlaceholder('UserInfo',$html);
 // online users
 $modx->setPlaceholder('online',$_lang['online']);
 $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
-    $timetocheck = (time()-(60*20));//+$server_offset_time;
+$timetocheck = (time()-(60*20));//+$server_offset_time;
 
-    include_once "actionlist.inc.php";
-
-    $sql = "SELECT * FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.lasthit>'$timetocheck' ORDER BY username ASC";
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
-    if($limit<2) {
-        $html = "<p>".$_lang['no_active_users_found']."</p>";
-    } else {
-        $html = '<p>' . $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>)</p>';
-        $html .= '
-                <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
-                  <thead>
-                    <tr>
-                      <td><b>'.$_lang["onlineusers_user"].'</b></td>
-                      <td><b>'.$_lang["onlineusers_userid"].'</b></td>
-                      <td><b>'.$_lang["onlineusers_ipaddress"].'</b></td>
-                      <td><b>'.$_lang["onlineusers_lasthit"].'</b></td>
-                      <td><b>'.$_lang["onlineusers_action"].'</b></td>
-                    </tr>
-                  </thead>
-                  <tbody>
-        ';
-        for ($i = 0; $i < $limit; $i++) {
-            $activeusers = mysql_fetch_assoc($rs);
-            $currentaction = getAction($activeusers['action'], $activeusers['id']);
-            $webicon = ($activeusers['internalKey']<0)? "<img src='media/style/{$manager_theme}/images/tree/globe.gif' alt='Web user' />":'';
-            $html.= "<tr bgcolor='#FFFFFF'><td><b>".$activeusers['username']."</b></td><td>$webicon&nbsp;".abs($activeusers['internalKey'])."</td><td>".$activeusers['ip']."</td><td>".strftime('%H:%M:%S', $activeusers['lasthit']+$server_offset_time)."</td><td>$currentaction</td></tr>";
-        }
+include_once "actionlist.inc.php";
+$tbl_active_users = $modx->getFullTableName('active_users');
+$rs = $modx->db->select('*',$tbl_active_users,"lasthit>'{$timetocheck}'",'username ASC');
+$limit = $modx->db->getRecordCount($rs);
+if($limit<2)
+{
+	$html = "<p>".$_lang['no_active_users_found']."</p>";
+}
+else
+{
+	$html = '<p>' . $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>)</p>';
+	$html .= '
+	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
+	<thead>
+	<tr>
+	<td><b>'.$_lang["onlineusers_user"].'</b></td>
+	<td><b>'.$_lang["onlineusers_userid"].'</b></td>
+	<td><b>'.$_lang["onlineusers_ipaddress"].'</b></td>
+	<td><b>'.$_lang["onlineusers_lasthit"].'</b></td>
+	<td><b>'.$_lang["onlineusers_action"].'</b></td>
+	</tr>
+	</thead>
+	<tbody>
+	';
+	while ($row = $modx->db->getRow($rs))
+	{
+		$currentaction = getAction($row['action'], $row['id']);
+		$webicon = ($row['internalKey']<0)? '<img src="' . $style_path . 'tree/globe.gif" alt="Web user" />':'';
+		$html.= "<tr bgcolor='#FFFFFF'><td><b>".$row['username']."</b></td><td>{$webicon}&nbsp;".abs($row['internalKey'])."</td><td>".$row['ip']."</td><td>".strftime('%H:%M:%S', $row['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
+	}
         $html.= '
                 </tbody>
                 </table>
@@ -241,19 +266,22 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
 $modx->setPlaceholder('OnlineInfo',$html);
 
 // load template file
-if(file_exists($tplFile)) {
-	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
-}
-else {
-	$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
-}
-$tpl = file_get_contents($tplFile);
-
+global $tpl;
 // invoke event OnManagerWelcomePrerender
 $evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');
 if(is_array($evtOut)) {
     $output = implode('',$evtOut);
     $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
+}
+
+if(!isset($tpl) || empty($tpl))
+{
+	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
+	if(!file_exists($tplFile))
+	{
+		$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
+	}
+	$tpl = file_get_contents($tplFile);
 }
 
 // invoke event OnManagerWelcomeHome
@@ -286,4 +314,3 @@ function get_icon($title,$action,$icon_path,$alt='')
 	$icon = '<a class="hometblink" href="'.$action.'" alt="'.$alt.'"><img src="' . $icon_path . '" /><br />' . $title . "</a>\n";
 	return '<span class="wm_button" style="border:0">' . $icon . '</span>';
 }
-?>

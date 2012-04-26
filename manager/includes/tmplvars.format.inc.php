@@ -84,78 +84,8 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
             }
             break;
 
-        case "floater":
-            $value = parseInput($value," ");
-            $modx->regClientStartupScript("manager/media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
-            $modx->regClientStartupScript("manager/media/script/mootools/moodx.js", array('name'=>'moodx', 'version'=>'0', 'plaintext'=>false));
-            $class = (!empty($params['class']) ? " class=\"".$params['class']."\"" : "");
-            $style = (!empty($params['style']) ? " style=\"".$params['style']."\"" : "");
-            $o .= "\n<div id=\"".$id."\"".$class.$style.">".$value."</div>\n";
-            $o .= "<script type=\"text/javascript\">\n";
-            $o .= "	window.addEvent('domready', function(){\n";
-            $o .= "		var modxFloat = new MooFloater(\$(\"".$id."\"),{\n";
-            $o .= "			width: '".$params['width']."',\n";
-            $o .= "			height: '".$params['height']."',\n";
-            $o .= "			position: '".$params['pos']."',\n";
-            $o .= "			glidespeed: ".$params['gs'].",\n";
-            $o .= "			offsetx: ".intval($params['x']).",\n";
-            $o .= "			offsety: ".intval($params['y'])."\n";
-            $o .= "		});\n";
-            $o .= "	});\n";
-            $o .= "</script>\n";
-            break;
-
-        case "marquee":
-            $value = parseInput($value," ");
-            $modx->regClientStartupScript("manager/media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
-            $modx->regClientStartupScript("manager/media/script/mootools/moodx.js", array('name'=>'moodx', 'version'=>'0', 'plaintext'=>false));
-            $class = (!empty($params['class']) ? " class=\"".$params['class']."\"" : "");
-            $style = (!empty($params['style']) ? " style=\"".$params['style']."\"" : "");
-            $o .= "\n<div id=\"".$id."\"".$class.$style."><div id=\"marqueeContent\">".$value."</div></div>\n";
-            $o .= "<script type=\"text/javascript\">\n";
-            $o .= "	window.addEvent('domready', function(){\n";
-            $o .= "		var modxMarquee = new MooMarquee(\$(\"".$id."\"),{\n";
-            $o .= "			width: '".$params['width']."',\n";
-            $o .= "			height: '".$params['height']."',\n";
-            $o .= "			speed: ".$params['speed'].",\n";
-            $o .= "			modifier: ".$params['modifier'].",\n";
-            $o .= "			mousepause: '".$params['pause']."',\n";
-            $o .= "			direction: '".$params['tfx']."'\n";
-            $o .= "		});\n";
-            $o .= "	});\n";
-            $o .= "</script>\n";
-            break;
-
-        case "ticker":
-            $modx->regClientStartupScript("manager/media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
-            $modx->regClientStartupScript("manager/media/script/mootools/moostick.js?init=false", array('name'=>'moostick', 'version'=>'0', 'plaintext'=>false));
-            $class = (!empty($params['class']) ? " class=\"".$params['class']."\"" : "");
-            $style = (!empty($params['style']) ? " style=\"".$params['style']."\"" : "");
-            $o .= "\n<div id=\"".$id."\"".$class.$style.">\n";
-            if(!empty($value)){
-                $delim = ($params['delim'])? $params['delim']:"||";
-                if ($delim=="\\n") $delim = "\n";
-                $val = parseInput($value,$delim,"array",false);
-                if(count($val)>0){
-                    $o.= "    <ul id=\"".$id."Ticker\">\n";
-                    for($i=0;$i<count($val);$i++){
-                        $o.= "        <li id=\"tickerItem{$i}\">".$val[$i]."</li>\n";
-                    }
-                    $o.= "    </ul>\n";
-                }
-            }
-            $o .= "</div>\n";
-            $o .= "<script type=\"text/javascript\">\n";
-            $o .= "	window.addEvent('domready', function(){\n";
-            $o .= "		var modxTicker = new Moostick(\$(\"".$id."Ticker\"), true, ".(!empty($params['delay'])?$params['delay']:"true").")\n";
-            $o .= "		$(\"".$id."Ticker\").setStyle('width','".$params['width']."');\n";
-            $o .= "		$(\"".$id."Ticker\").setStyle('height','".$params['height']."');\n";
-            $o .= "	});\n";
-            $o .= "</script>\n";
-            break;
-
-        case "hyperlink":
-            $value = parseInput($value,"||","array");
+			case 'hyperlink':
+				$value = parseInput($value,'||','array');
             for ($i = 0; $i < count($value); $i++) {
 					list($name,$url) = is_array($value[$i]) ? $value[$i]: explode('==',$value[$i]);
                 if (!$url) $url = $name;
@@ -230,47 +160,6 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
             $o = getUnixtimeFromDateString($value);
             break;
 
-			case 'viewport':
-            $value = parseInput($value);
-            $id = '_'.time();
-            if(!$params['vpid']) $params['vpid'] = $id;
-            if($_SESSION['browser']=='ns' && $_SESSION['browser_version']<'5.0') {
-					$sTag = '<ilayer';
-					$eTag = '</ilayer>';
-            }
-            else {
-					$sTag = '<iframe';
-					$eTag = '</iframe>';
-            }
-				$autoMode = '0';
-            $w = $params['width'];
-            $h = $params['height'];
-            if ($params['stretch']=='Yes') {
-					$w = '100%';
-					$h = '100%';
-            }
-            if ($params['asize']=='Yes' || ($params['awidth']=='Yes' && $params['aheight']=='Yes')) {
-					$autoMode = '3';  //both
-            }
-            else if ($params['awidth']=='Yes') {
-					$autoMode = '1'; //width only
-            }
-            else if ($params['aheight']=='Yes') {
-					$autoMode = '2';	//height only
-            }
-
-				$modx->regClientStartupScript('manager/media/script/bin/viewport.js', array('name'=>'viewport', 'version'=>'0', 'plaintext'=>false));
-            $o =  $sTag." id='".$params['vpid']."' name='".$params['vpid']."' ";
-            if ($params['class']) $o.= " class='".$params['class']."' ";
-            if ($params['style']) $o.= " style='".$params['style']."' ";
-            if ($params['attrib']) $o.= $params['attrib']." ";
-            $o.= "scrolling='".($params['sbar']=='No' ? "no":($params['sbar']=='Yes' ? "yes":"auto"))."' ";
-            $o.= "src='".$value."' frameborder='".$params['borsize']."' ";
-            $o.= "onload=\"window.setTimeout('ResizeViewPort(\\'".$params['vpid']."\\',".$autoMode.")',100);\" width='".$w."' height='".$h."' ";
-				$o.= '>';
-            $o.= $eTag;
-            break;
-
 			case 'datagrid':
 				include_once MODX_BASE_PATH.'manager/includes/controls/datagrid.class.php';
             $grd = new DataGrid('',$value);
@@ -318,7 +207,9 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
             $widget_output = '';
             $o = '';
             /* If we are loading a file */
-            if(substr($params['output'], 0, 5) == "@FILE") {
+				$params['output'] = $modx->parsePlaceholder($params['output'],array('value'=>$value,'tvname'=>$name));
+				if(substr($params['output'], 0, 5) == '@FILE')
+				{
                 $file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
 					if( !file_exists($file_name) )
 					{

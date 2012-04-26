@@ -4,13 +4,10 @@ RewriteBase /
 
 # Fix Apache internal dummy connections from breaking [(site_url)] cache
 RewriteCond %{HTTP_USER_AGENT} ^.*internal\ dummy\ connection.*$ [NC]
-RewriteRule .* - [F,L]
+RewriteRule ^(manager|assets)/.*$ - [L]
+# RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
+RewriteRule ^index\.php$ - [L]
 
-# Exclude /assets and /manager directories and images from rewrite rules
-RewriteRule ^(manager|assets)/*$ - [L]
-RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
-
-# For Friendly URLs
 RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

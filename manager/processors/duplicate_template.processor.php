@@ -7,19 +7,24 @@ if(!$modx->hasPermission('new_template')) {
 $id=$_GET['id'];
 
 // duplicate template
-	$sql = "INSERT INTO $dbase.`".$table_prefix."site_templates` (templatename, description, content, category)
-			SELECT CONCAT('Duplicate of ',templatename) AS 'templatename', description, content, category
-			FROM $dbase.`".$table_prefix."site_templates` WHERE id=$id;";
-	$rs = mysql_query($sql);
+$tpl = $_lang['duplicate_title_string'];
+$tbl_site_templates = $modx->getFullTableName('site_templates');
+$sql = "INSERT INTO {$tbl_site_templates} (templatename, description, content, category)
+		SELECT REPLACE('{$tpl}','[+title+]',templatename) AS 'templatename', description, content, category
+		FROM {$tbl_site_templates} WHERE id={$id}";
+$rs = $modx->db->query($sql);
 
 if($rs) {
-	$newid = mysql_insert_id(); // get new id
+	$newid = $modx->db->getInsertId(); // get new id
 	// duplicate TV values
-	$tvs = $modx->db->select('*', $modx->getFullTableName('site_tmplvar_templates'), 'templateid='.$id);
-	if ($modx->db->getRecordCount($tvs) > 0) {
-		while ($row = $modx->db->getRow($tvs)) {
+	$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+	$tvs = $modx->db->select('*', $tbl_site_tmplvar_templates, 'templateid='.$id);
+	if ($modx->db->getRecordCount($tvs) > 0)
+	{
+		while ($row = $modx->db->getRow($tvs))
+		{
 			$row['templateid'] = $newid;
-			$modx->db->insert($row, $modx->getFullTableName('site_tmplvar_templates'));
+			$modx->db->insert($row, $tbl_site_tmplvar_templates);
 		}
 	}
 } else {

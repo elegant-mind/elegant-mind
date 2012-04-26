@@ -50,7 +50,46 @@ $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 $cwd = str_replace('\\','/',dirname(__FILE__)) . '/';
-if(file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
+
+include_once("{$cwd}assets/cache/sitePublishing.idx.php");
+if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTime < time())
+{
+	session_name($site_sessionname);
+	session_cache_limiter('');
+	session_start();
+	if(!isset($_SESSION['mgrValidated']))
+	{
+		$filename = md5($_SERVER['REQUEST_URI']);
+		if(file_exists("{$cwd}assets/cache/{$filename}.pageCache.php"))
+		{
+			$handle = fopen("{$cwd}assets/cache/{$filename}.pageCache.php", 'rb');
+			$src = fread($handle, filesize("{$cwd}assets/cache/{$filename}.pageCache.php"));
+			
+				$msize = memory_get_peak_usage() - $mstart;
+				$units = array('B', 'KB', 'MB');
+				$pos = 0;
+				while($msize >= 1024) $msize /= 1024; $pos++;
+				$msize = round($msize,2) . ' ' . $units[$pos];
+				list ($usec, $sec)= explode(' ', microtime());
+				$now =  ((float) $usec + (float) $sec);
+				$totalTime= ($now - $tstart);
+				$totalTime= sprintf("%2.4f s", $totalTime);
+				$src= str_replace('[^q^]', '0', $src);
+				$src= str_replace('[^qt^]', '0s', $src);
+				$src= str_replace('[^p^]', $totalTime, $src);
+				$src= str_replace('[^t^]', $totalTime, $src);
+				$src= str_replace('[^s^]', 'bypass_cache', $src);
+				$src= str_replace('[^m^]', $msize, $src);
+			if(file_exists("{$cwd}autoload.php")) $loaded_autoload = include_once("{$cwd}autoload.php");
+			if($src !== false)
+			{
+				echo $src;
+				exit;
+			}
+		}
+	}
+}
+if(!isset($loaded_autoload) && file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
 
 // harden it
 require_once("{$cwd}manager/includes/protect.inc.php");

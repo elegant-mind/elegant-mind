@@ -5,7 +5,6 @@ if(!$modx->hasPermission('settings'))
 	$e->setError(3);
 	$e->dumpError();
 }
-
 // check to see the edit settings page isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=17";
 $rs = $modx->db->query($sql);
@@ -28,6 +27,7 @@ if($limit>1) {
 // this will prevent user-defined settings from being saved as system setting
 
 $show_meta               = '0';
+$fe_editor_lang          = 'english';
 $validate_referer        = '1';
 $datepicker_offset       = '-10';
 $warning_visibility      = '0';
@@ -40,16 +40,22 @@ $websignupemail_message  = $_lang['system_email_websignup'];
 $webpwdreminder_message  = $_lang['system_email_webreminder'];
 $resource_tree_node_name = 'pagetitle';
 $suffix_mode             = '0';
-$cache_enabled           = '1';
+$cache_type              = '1';
 $send_errormail          = '3';
 
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
 $settings = array();
+
 while ($row = $modx->db->getRow($rs))
 {
 	$settings[$row['setting_name']] = $row['setting_value'];
 }
+if ($modx->manager->hasFormValues()) {
+	$modx->manager->loadFormValues();
+}
+$settings = array_merge($settings, $_POST);
+
 extract($settings, EXTR_OVERWRITE);
 
 $displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;
@@ -213,9 +219,15 @@ function confirmLangChange(el, lkey, elupd)
     <input type="hidden" name="site_id" value="<?php echo $site_id; ?>" />
     <input type="hidden" name="settings_version" value="<?php echo $modx_version; ?>" />
     <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
-    <?php if(!isset($settings_version) || $settings_version!=$modx_version) { ?>
+<?php
+	if(!isset($settings_version) || $settings_version!=$modx_version)
+	{
+		include(MODX_MANAGER_PATH.'includes/upgrades.php');
+	?>
     <div class='sectionBody'><p><?php echo $_lang['settings_after_install']; ?></p></div>
-    <?php } ?>
+<?php
+	}
+?>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <div class="tab-pane" id="settingsPane">
       <script type="text/javascript">
@@ -411,11 +423,12 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang['setting_cache_enabled'] ?></th>
+	<th><?php echo $_lang['setting_cache_type'] ?></th>
 	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('cache_enabled','1',$cache_enabled=='1'));?><br />
-		<?php echo wrap_label($_lang["no"],form_radio('cache_enabled','0',$cache_enabled=='0'));?><br />
-		<?php echo $_lang["setting_cache_enabled_desc"] ?>
+		<?php echo wrap_label('Standard mode',form_radio('cache_type','1',$cache_type=='1'));?><br />
+		<?php echo wrap_label('Bypass mode',form_radio('cache_type','2',$cache_type=='2'));?><br />
+		<?php echo wrap_label('Cache disabled',form_radio('cache_type','0',$cache_type=='0'));?><br />
+		<?php echo $_lang["setting_cache_type_desc"] ?>
 	</td>
 </tr>
 <tr>

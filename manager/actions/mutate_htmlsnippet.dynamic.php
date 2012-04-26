@@ -73,9 +73,27 @@ else
     $_SESSION['itemname'] = 'New Chunk';
 }
 
+// restore saved form
+$formRestored = false;
+if ($modx->manager->hasFormValues())
+{
+	$modx->manager->loadFormValues();
+	$formRestored = true;
+}
+
+if ($formRestored == true || isset ($_REQUEST['changeMode']))
+{
+	$content = array_merge($content, $_POST);
+	$content['content'] = $_POST['ta'];
+	if (empty ($content['pub_date'])) unset ($content['pub_date']);
+	else $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
+	if (empty ($content['unpub_date'])) unset ($content['unpub_date']);
+	else $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
+}
+
 if (isset($_POST['which_editor']))
         $which_editor = $_POST['which_editor'];
-else    $which_editor = 'none';
+elseif(!isset($content['editor_type']) || empty($content['editor_type'])) $which_editor = 'none';
 
 $formRestored = $modx->manager->loadFormValues();
 if($formRestored) $content = array_merge($content, $_POST);
@@ -97,6 +115,7 @@ function changeRTE(){
     documentDirty=false;
     document.mutate.a.value = <?php echo $action?>;
     document.mutate.which_editor.value = newEditor;
+	document.mutate.changeMode.value = newEditor;
     document.mutate.submit();
 }
 
@@ -114,6 +133,32 @@ function deletedocument() {
     }
 }
 </script>
+<?php
+$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
+$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
+?>
+<script type="text/javascript" src="media/calendar/datepicker.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+window.addEvent('domready', function(){
+	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
+	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
+	var dayNames = <?php echo $dayNames;?>;
+	var monthNames = <?php echo $monthNames;?>;
+	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+});
+
+function resetpubdate() {
+	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
+		if (confirm("pub_date and unpub_date are reset.")==true) {
+			document.mutate.pub_date.value='';
+			document.mutate.unpub_date.value='';
+		}
+	}
+	documentDirty=true;
+}
+</script>
 
 <form class="htmlsnippet" id="mutate" name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
@@ -129,13 +174,14 @@ if (is_array($evtOut))
 <input type="hidden" name="a" value="79" />
 <input type="hidden" name="id" value="<?php echo $_REQUEST['id']?>" />
 <input type="hidden" name="mode" value="<?php echo (int) $_REQUEST['a']?>" />
+<input type="hidden" name="changeMode" value="" />
 
     <h1><?php echo $_lang['htmlsnippet_title']?></h1>
 
     <div id="actions">
           <ul class="actionButtons">
               <li id="Button1">
-                <a href="#" onclick="documentDirty=false; document.mutate.save.click();">
+    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
                   <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
                 </a>
                   <span class="and"> + </span>
@@ -158,6 +204,7 @@ if (is_array($evtOut))
           </ul>
     </div>
 
+<div class="sectionBody">
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="chunkPane">
 	<script type="text/javascript">
@@ -169,7 +216,7 @@ if (is_array($evtOut))
     <p><?php echo $_lang['htmlsnippet_msg']?></p>
 	<table>
 		<tr>
-			<td align="left"><?php echo $_lang['htmlsnippet_name']?>:</td>
+			<th align="left"><?php echo $_lang['htmlsnippet_name']?></th>
 			<td align="left">{{<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>}}<span class="warning" id="savingMessage">&nbsp;</span></td>
 		</tr>
     </table>
@@ -187,8 +234,10 @@ if (is_array($evtOut))
 <?php
 // invoke OnRichTextEditorRegister event
 $evtOut = $modx->invokeEvent('OnRichTextEditorRegister');
-if (is_array($evtOut)) {
-    foreach ($evtOut as $i => $editor) {
+if (is_array($evtOut))
+{
+	foreach ($evtOut as $i => $editor)
+	{
         echo "\t".'<option value="'.$editor.'"'.($which_editor == $editor ? ' selected="selected"' : '').'>'.$editor."</option>\n";
     }
 }
@@ -211,7 +260,33 @@ if (is_array($evtOut))
 <script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
 	<tr>
-		<td align="left"><?php echo $_lang['existing_category']?>:</td>
+		<th align="left"><?php echo $_lang['chunk_opt_published'];?></th>
+		<td><input name="published" onclick="resetpubdate();" type="checkbox"<?php echo (!isset($content['published']) || $content['published'] == 1) ? ' checked="checked"' : '';?> class="inputBox" value="1" /></td>
+	</tr>
+	<tr>
+		<?php
+			$content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0') ? $modx->toDateFormat($content['pub_date']) : '';
+		?>
+		<th align="left"><?php echo $_lang['page_data_publishdate'];?></th>
+		<td>
+			<input id="pub_date" name="pub_date" type="text" value="<?php echo $content['pub_date'];?>" class="DatePicker" />
+            <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
+			<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
+		</td>
+	</tr>
+	<tr>
+		<?php
+			$content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date']!='0') ? $modx->toDateFormat($content['unpub_date']) : '';
+		?>
+		<th align="left"><?php echo $_lang['page_data_unpublishdate'];?></th>
+		<td>
+			<input id="unpub_date" name="unpub_date" type="text" value="<?php echo $content['unpub_date'];?>" class="DatePicker" />
+			<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
+			<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
+		</td>
+	</tr>
+	<tr>
+		<th align="left"><?php echo $_lang['existing_category'];?></th>
 		<td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
 		<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 			<option>&nbsp;</option>
@@ -227,12 +302,16 @@ if ($ds) {
         </select></td>
     </tr>
 	<tr>
-		<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
-		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
+		<th align="left" valign="middle"><?php echo $_lang['new_category']?></th>
+		<td align="left" valign="top"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
 	</tr>
 	<tr>
-		<td align="left"><?php echo $_lang['htmlsnippet_desc']?>:</td>
+		<th align="left"><?php echo $_lang['htmlsnippet_desc']?></th>
 		<td align="left"><textarea name="description" style="padding:0;height:4em;width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['description']);?></textarea></td>
+	</tr>
+	<tr>
+		<th align="left" valign="middle"><?php echo $_lang['resource_opt_richtext']?></th>
+		<td align="left" valign="top"><input name="editor_type" type="checkbox"<?php echo $content['editor_type'] == 1 ? ' checked="checked"' : ''?> class="inputBox" value="1" /></td>
 	</tr>
 	<tr>
 		<td align="left" colspan="2">
@@ -243,6 +322,7 @@ if ($ds) {
 </div>
 
 <input type="submit" name="save" style="display:none;" />
+</div>
 </form>
 </div>
 <?php

@@ -211,6 +211,7 @@ if (!class_exists("truncate")) {
 		}
 
 		function textTrunc($string, $limit, $break=". ") {
+			global $modx;
 	  	// Original PHP code from The Art of Web: www.the-art-of-web.com
 		    mb_internal_encoding($modx->config['modx_charset']);
 	    // return with no change if string is shorter than $limit

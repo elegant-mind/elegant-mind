@@ -24,5 +24,5 @@ if(!$rs){
 	echo "An error occured while attempting to save the new password.";
 	exit;
 }
-
+if($_SESSION['mgrForgetPassword']) unset($_SESSION['mgrForgetPassword']);
 header("Location: index.php?a=7");

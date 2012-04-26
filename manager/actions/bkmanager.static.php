@@ -90,7 +90,7 @@ elseif ($mode=='snapshot')
 	}
 	if(!is_writable(rtrim($modx->config['snapshot_path'],'/')))
 	{
-		echo "A file cannot be created in a directory.  Please check the permission of {$modx->config['snapshot_path']}";
+		echo $modx->parsePlaceholder($_lang["bkmgr_alert_mkdir"],$modx->config['snapshot_path']);
 		exit;
 	}
 	$sql = 'SHOW TABLE STATUS FROM '.$dbase. ' LIKE \'' . str_replace('_', '\\_', $table_prefix) . '%\'';
@@ -150,10 +150,10 @@ if(isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '')
 	switch($_SESSION['result_msg'])
 	{
 		case 'import_ok':
-			$ph['result_msg'] = '<div style="background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;">SQL recovery was performed normally.</div>';
+			$ph['result_msg'] = '<div class="msg">' . $_lang["bkmgr_import_ok"] . '</div>';
 			break;
 		case 'snapshot_ok':
-			$ph['result_msg'] = '<div style="background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;">The snapshot was saved normally.</div>';
+			$ph['result_msg'] = '<div class="msg">' . $_lang["bkmgr_snapshot_ok"] . '</div>';
 			break;
 	}
 	$_SESSION['result_msg'] = '';
@@ -187,7 +187,7 @@ else $ph['result_msg'] = '';
 	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane')); 
 	</script>
 	<div class="tab-page" id="tabBackup">  
-	    <h2 class="tab">Backup</h2>  
+	    <h2 class="tab"><?php echo $_lang['backup']?></h2>
 	    <script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabBackup'));</script>
 	<form name="frmdb" method="post">
 	<input type="hidden" name="mode" value="" />
@@ -275,10 +275,10 @@ if ($totaloverhead > 0) {
 <!-- This iframe is used when downloading file backup file -->
 <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
 <div class="tab-page" id="tabRestore">  
-	<h2 class="tab">Restore</h2>
+	<h2 class="tab"><?php echo $_lang["bkmgr_restore_title"];?></h2>
 	<?php echo $ph['result_msg']; ?>
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
-	<p>A site can be restore using an SQL file. </p>
+	<?php echo $_lang["bkmgr_restore_msg"]; ?>
 	<form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="restore1" />
@@ -353,42 +353,42 @@ function checked($cond)
 }
 ?>
 	<p>
-	<label><input type="radio" name="sel" onclick="showhide('file');" <?php echo checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text');?> /> ファイルから実行</label>
-	<label><input type="radio" name="sel" onclick="showhide('textarea');" <?php echo checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text');?> /> SQL文を直接実行</label>
+	<label><input type="radio" name="sel" onclick="showhide('file');" <?php echo checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text');?> /> <?php echo $_lang["bkmgr_run_sql_file_label"];?></label>
+	<label><input type="radio" name="sel" onclick="showhide('textarea');" <?php echo checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text');?> /> <?php echo $_lang["bkmgr_run_sql_direct_label"];?></label>
 	</p>
 	<div><input type="file" name="sqlfile" id="sqlfile" size="70" style="display:<?php echo $f_display;?>;" /></div>
 	<div id="textarea" style="display:<?php echo $t_display;?>;">
 		<textarea name="textarea" style="width:500px;height:200px;"><?php echo $value;?></textarea>
 	</div>
 	<div class="actionButtons" style="margin-top:10px;">
-	<a href="#" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> Execute</a>
+	<a href="#" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang["bkmgr_run_sql_submit"];?></a>
 	</div>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 <?php
-	if(isset($result)) echo '<div style="margin-top:20px;"><p style="font-weight:bold;">Results</p>' . $result . '</div>';
+	if(isset($result)) echo '<div style="margin-top:20px;"><p style="font-weight:bold;"><?php echo $_lang["bkmgr_run_sql_result"];?></p>' . $result . '</div>';
 ?>
 </div>
 
 <div class="tab-page" id="tabSnapshot">
-	<h2 class="tab">SQL Snapshot</h2>
+	<h2 class="tab"><?php echo $_lang["bkmgr_snapshot_title"];?></h2>
 	<?php echo $ph['result_msg']; ?>
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabSnapshot'));</script>
-	<p>The contents of the database are saved and restored to a server.<br />
-	Preservation place ($modx->config['snapshot_path']) : <?php echo $modx->config['snapshot_path']; ?></p>
+	<?php echo $modx->parsePlaceholder($_lang["bkmgr_snapshot_msg"],"snapshot_path={$modx->config['snapshot_path']}");?>
 	<form method="post" name="snapshot" action="index.php">
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="snapshot" />
 	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
-	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" />Add snapshot</a>
+	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 	</div>
 	<style type="text/css">
 	table {background-color:#fff;border-collapse:collapse;}
 	table td {border:1px solid #ccc;padding:4px;}
+	.msg {background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;}
 	</style>
-<div class="sectionHeader">List of snapshot</div>
+<div class="sectionHeader"><?php echo $_lang["bkmgr_snapshot_list_title"];?></div>
 <div class="sectionBody">
 	<form method="post" name="restore2" action="index.php">
 	<input type="hidden" name="a" value="93" />
@@ -402,7 +402,7 @@ if(is_array($files) && 0 < $total)
 {
 	echo '<ul>';
 	arsort($files);
-	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">Revert this data</a>)</li>' . "\n";
+	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
 	while ($file = array_shift($files))
 	{
 		$filename = substr($file,strrpos($file,'/')+1);
@@ -413,7 +413,7 @@ if(is_array($files) && 0 < $total)
 }
 else
 {
-	echo 'No snapshot';
+	echo $_lang["bkmgr_snapshot_nothing"];
 }
 ?>
 <input type="submit" name="save" style="display:none;" />

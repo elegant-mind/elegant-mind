@@ -50,6 +50,7 @@ class DocumentParser {
     var $referenceListing;
     var $documentMap_cache;
     var $safeMode;
+    var $qs_hash;
 
     // constructor
 	function DocumentParser()
@@ -121,11 +122,30 @@ class DocumentParser {
 			set_error_handler(array(& $this,'phpError'));
 		}
 
-        $this->db->connect();
+		if(!empty($_SERVER['QUERY_STRING']))
+		{
+			$qs = $_GET;
+			if($qs['id']) unset($qs['id']);
+			if(0 < count($qs)) $this->qs_hash = '_' . md5(join('&',$qs));
+			else $this->qs_hash = '';
+		}
 
         // get the settings
+		$this->db->connect();
             $this->getSettings();
 
+		if(0 < count($_POST)) $this->config['cache_type'] = 0;
+		
+		$this->documentOutput = $this->get_static_pages();
+		if(!empty($this->documentOutput))
+		{
+			$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+			$this->invokeEvent('OnWebPagePrerender');
+			echo $this->documentOutput;
+			$this->invokeEvent('OnWebPageComplete');
+			exit;
+		}
+		
         // IIS friendly url fix
 		if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
 		{
@@ -213,11 +233,6 @@ class DocumentParser {
         // invoke OnWebPageInit event
 		$this->invokeEvent('OnWebPageInit');
 
-        // invoke OnLogPageView event
-		if ($this->config['track_visitors'] == 1)
-		{
-			$this->invokeEvent('OnLogPageHit');
-        }
         $this->prepareResponse();
     }
 
@@ -238,7 +253,6 @@ class DocumentParser {
 			if ($this->documentObject['deleted'] == 1)
 			{
                 $this->sendErrorPage();
-				exit;
             }
             //  && !$this->checkPreview()
 			if ($this->documentObject['published'] == 0)
@@ -247,7 +261,6 @@ class DocumentParser {
 				if (!$this->hasPermission('view_unpublished'))
 				{
                     $this->sendErrorPage();
-					exit;
 				}
 				else
 				{
@@ -261,7 +274,6 @@ class DocumentParser {
 					if (!$udperms->checkPermissions())
 					{
                         $this->sendErrorPage();
-						exit;
                     }
                 }
             }
@@ -354,11 +366,8 @@ class DocumentParser {
     	}
 
     	// Moved from prepareResponse() by sirlancelot
-    	// Insert Startup jscripts & CSS scripts into template - template must have a <head> tag
 		if ($js= $this->getRegisteredClientStartupScripts())
 		{
-    		// change to just before closing </head>
-    		// $this->documentContent = preg_replace("/(<head[^>]*>)/i", "\\1\n".$js, $this->documentContent);
     		$this->documentOutput= preg_replace("/(<\/head>)/i", $js . "\n\\1", $this->documentOutput);
     	}
 
@@ -409,48 +418,27 @@ class DocumentParser {
                 header($header);
             }
         }
-
-        $totalTime= ($this->getMicroTime() - $this->tstart);
-        $queryTime= $this->queryTime;
-        $phpTime= $totalTime - $queryTime;
-
-        $queryTime= sprintf("%2.4f s", $queryTime);
-        $totalTime= sprintf("%2.4f s", $totalTime);
-        $phpTime= sprintf("%2.4f s", $phpTime);
-		$source= $this->documentGenerated == 1 ? 'database' : 'cache';
-        $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-		if(function_exists('memory_get_peak_usage'))
+		if($this->config['cache_type'] !=2)
 		{
-			$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
-		}
-		else
-		{
-			$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
+			$this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
 		}
 
-        $out =& $this->documentOutput;
 		if ($this->dumpSQL)
 		{
-            $out .= $this->queryCode;
+			$this->documentOutput = preg_replace("/(<\/body>)/i", $this->queryCode . "\n\\1", $this->documentOutput);
         }
 		if ($this->dumpSnippets)
 		{
-			$out .= $this->snipCode;
+			$this->documentOutput = preg_replace("/(<\/body>)/i", $this->snipCode . "\n\\1", $this->documentOutput);
 		}
-		$out= str_replace('[^q^]', $queries, $out);
-		$out= str_replace('[^qt^]', $queryTime, $out);
-		$out= str_replace('[^p^]', $phpTime, $out);
-		$out= str_replace('[^t^]', $totalTime, $out);
-		$out= str_replace('[^s^]', $source, $out);
-		$out= str_replace('[^m^]', $total_mem, $out);
-        //$this->documentOutput= $out;
 
         // invoke OnWebPagePrerender event
 		if (!$noEvent)
 		{
 			$this->invokeEvent('OnWebPagePrerender');
         }
-        echo $this->documentOutput;
+		if(strpos($this->documentOutput,'[^')) echo $this->mergeBenchmarkContent($this->documentOutput);
+		else                                   echo $this->documentOutput;
         ob_end_flush();
     }
 
@@ -477,14 +465,31 @@ class DocumentParser {
 				$this->documentObject['__MODxDocGroups__'] = implode(',', $docGroups);
 			}
 
+			$base_path = $this->config['base_path'];
+			
+			switch($this->config['cache_type'])
+			{
+				case '1':
 			$cacheContent  = "<?php die('Unauthorized access.'); ?>\n";
 			$cacheContent .= serialize($this->documentObject);
 			$cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
-			$base_path = $this->config['base_path'];
-			$page_cache_path = "{$base_path}assets/cache/docid_{$docid}.pageCache.php";
+					$filename = "docid_{$docid}{$this->qs_hash}";
+					break;
+				case '2':
+					$cacheContent  = $this->documentOutput;
+					$filename = md5($_SERVER['REQUEST_URI']);
+					break;
+			}
+			$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent);
         }
 
+		// invoke OnLogPageView event
+		if ($this->config['track_visitors'] == 1)
+		{
+			$this->invokeEvent('OnLogPageHit');
+		}
+		
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
 
@@ -563,44 +568,96 @@ class DocumentParser {
         }
     }
 
-    function sendForward($id, $responseCode= '') {
-        if ($this->forwards > 0) {
+	function sendForward($id, $responseCode= '')
+	{
+		if ($this->forwards > 0)
+		{
             $this->forwards= $this->forwards - 1;
             $this->documentIdentifier= $id;
             $this->documentMethod= 'id';
             $this->documentObject= $this->getDocumentObject('id', $id);
-            if ($responseCode) {
+			if ($responseCode)
+			{
                 header($responseCode);
             }
             $this->prepareResponse();
-            exit();
-        } else {
+		}
+		else
+		{
             header('HTTP/1.0 500 Internal Server Error');
             die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
         }
+		exit();
     }
 
-    function sendErrorPage() {
+	function sendErrorPage()
+	{
         // invoke OnPageNotFound event
         $this->invokeEvent('OnPageNotFound');
-        $this->sendForward($this->config['error_page'] ? $this->config['error_page'] : $this->config['site_start'], 'HTTP/1.0 404 Not Found');
-        exit();
+		
+		if($this->config['error_page']) $dist = $this->config['error_page'];
+		else                            $dist = $this->config['site_start'];
+		
+		$this->sendForward($dist, 'HTTP/1.0 404 Not Found');
     }
 
-    function sendUnauthorizedPage() {
+	function sendUnauthorizedPage()
+	{
         // invoke OnPageUnauthorized event
         $_REQUEST['refurl'] = $this->documentIdentifier;
         $this->invokeEvent('OnPageUnauthorized');
-        if ($this->config['unauthorized_page']) {
-            $unauthorizedPage= $this->config['unauthorized_page'];
-        } elseif ($this->config['error_page']) {
-            $unauthorizedPage= $this->config['error_page'];
-        } else {
-            $unauthorizedPage= $this->config['site_start'];
-        }
-        $this->sendForward($unauthorizedPage, 'HTTP/1.1 401 Unauthorized');
-        exit();
+		
+		if($this->config['unauthorized_page']) $dist = $this->config['unauthorized_page'];
+		elseif($this->config['error_page'])    $dist = $this->config['error_page'];
+		else                                   $dist = $this->config['site_start'];
+		
+		$this->sendForward($dist , 'HTTP/1.1 401 Unauthorized');
     }
+
+	function get_static_pages()
+	{
+		$filepath = $_SERVER['REQUEST_URI'];
+		if(strpos($filepath,'?')!==false) $filepath = substr($filepath,0,strpos($filepath,'?'));
+		$filepath = substr($filepath,strlen($this->config['base_url']));
+		if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
+		$filepath = $this->config['base_path'] . 'assets/public_html/' . $filepath;
+		if(file_exists($filepath)!==false)
+		{
+			$ext = strtolower(substr($filepath,strrpos($filepath,'.')));
+			switch($ext)
+			{
+				case '.html':
+				case '.htm':
+					$mime_type = 'text/html'; break;
+				case '.css':
+					$mime_type = 'text/css'; break;
+				case '.js':
+					$mime_type = 'text/javascript'; break;
+				case '.txt':
+					$mime_type = 'text/plain'; break;
+				case '.jpg':
+				case '.jpeg':
+				case '.png':
+				case '.gif':
+					if($ext==='.ico') $mime_type = 'image/x-icon';
+					else
+					{
+						$info = getImageSize($filepath);
+						$mime_type = $info['mime'];
+					}
+					header("Content-type: {$mime_type}");
+					readfile($filepath);
+					exit;
+				default:
+					exit;
+			}
+			header("Content-type: {$mime_type}");
+			$src = file_get_contents($filepath);
+		}
+		else $src = false;
+		
+		return $src;
+	}
 
 	function getSettings()
 	{
@@ -854,9 +911,17 @@ class DocumentParser {
 
 	function checkCache($id)
 	{
-		if(isset($this->config['cache_enabled']) && $this->config['cache_enabled'] == 0) return ''; // jp-edition only
-		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
-		if(file_exists($cacheFile))
+		
+		if(isset($this->config['cache_type']) && $this->config['cache_type'] == 0) return ''; // jp-edition only
+		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}{$this->qs_hash}.pageCache.php";
+		
+		if(isset($_SESSION['mgrValidated']) || 0 < count($_POST)) $this->config['cache_type'] = '1';
+		
+		if($this->config['cache_type'] == 2)
+		{
+			$flContent = '';
+		}
+		elseif(file_exists($cacheFile))
 		{
 			$flContent = file_get_contents($cacheFile, false);
 		}
@@ -912,13 +977,11 @@ class DocumentParser {
 				{
                             // match found but not publicly accessible, send the visitor to the unauthorized_page
                             $this->sendUnauthorizedPage();
-                            exit; // stop here
 				}
 				else
 				{
                             // no match found, send the visitor to the error_page
                             $this->sendErrorPage();
-                            exit; // stop here
                         }
                     }
 				// Grab the Scripts
@@ -935,6 +998,7 @@ class DocumentParser {
 	function checkPublishStatus()
 	{
 		$tbl_site_content = $this->getFullTableName('site_content');
+		$tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
 		$cacheRefreshTime = 0;
 		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
 		include_once($cache_path);
@@ -948,12 +1012,22 @@ class DocumentParser {
 		$rs = $this->db->update($fields,$tbl_site_content,$where);
 
             // now, check for documents that need un-publishing
-		$fields = array();
-		$fields['published']   = '0';
-		$fields['publishedon'] = '0';
+		$fields = "published='0', publishedon='0'";
 		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
 		$rs = $this->db->update($fields,$tbl_site_content,$where);
 
+		// now, check for chunks that need publishing
+		$fields = "published='1'";
+		$where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
+		$rs = $this->db->update($fields,$tbl_site_htmlsnippets,$where);
+		
+		// now, check for chunks that need un-publishing
+		$fields = "published='0'";
+		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
+		$rs = $this->db->update($fields,$tbl_site_htmlsnippets,$where);
+	
+		unset($this->chunkCache);
+	
             // clear the cache
 		$this->clearCache();
 
@@ -973,6 +1047,20 @@ class DocumentParser {
                 $timesArr[]= $minunpub;
             }
 
+		$rs = $this->db->select('MIN(pub_date) AS minpub',$tbl_site_htmlsnippets,"{$timeNow} < pub_date");
+		$minpub= $this->db->getValue($rs);
+		if ($minpub != NULL)
+		{
+			$timesArr[]= $minpub;
+		}
+		
+		$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_htmlsnippets,"{$timeNow} < unpub_date");
+		$minunpub= $this->db->getValue($rs);
+		if ($minunpub != NULL)
+		{
+			$timesArr[]= $minunpub;
+		}
+		
 		if (count($timesArr) > 0) $nextevent = min($timesArr);
 		else                      $nextevent = 0;
 
@@ -1041,7 +1129,7 @@ class DocumentParser {
 				else
 				{
 					$escaped_name = $this->db->escape($name);
-					$where = "`name`='{$escaped_name}'";
+					$where = "`name`='{$escaped_name}' AND `published`='1'";
 					$result= $this->db->select('snippet',$this->getFullTableName('site_htmlsnippets'),$where);
                     $limit= $this->db->getRecordCount($result);
 					if ($limit < 1)
@@ -1092,6 +1180,29 @@ class DocumentParser {
         return $content;
     }
 
+	function mergeBenchmarkContent($content)
+	{
+		$totalTime= ($this->getMicroTime() - $this->tstart);
+		$queryTime= $this->queryTime;
+		$phpTime= $totalTime - $queryTime;
+		
+		$queryTime= sprintf("%2.4f s", $queryTime);
+		$totalTime= sprintf("%2.4f s", $totalTime);
+		$phpTime= sprintf("%2.4f s", $phpTime);
+		$source= ($this->documentGenerated == 1 || $this->config['cache_type'] ==0) ? 'database' : 'full_cache';
+		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
+		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		
+		$content= str_replace('[^q^]', $queries, $content);
+		$content= str_replace('[^qt^]', $queryTime, $content);
+		$content= str_replace('[^p^]', $phpTime, $content);
+		$content= str_replace('[^t^]', $totalTime, $content);
+		$content= str_replace('[^s^]', $source, $content);
+		$content= str_replace('[^m^]', $total_mem, $content);
+		
+		return $content;
+	}
+	
     // evalPlugin
 	function evalPlugin($pluginCode, $params)
 	{
@@ -1110,7 +1221,7 @@ class DocumentParser {
 			if (!strpos($php_errormsg, 'Deprecated'))
 			{   // ignore php5 strict errors
                 // log error
-				$request_uri = getenv('REQUEST_URI');
+				$request_uri = $_SERVER['REQUEST_URI'];
 				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
 				if(isset($this->documentIdentifier))
 				{
@@ -1159,7 +1270,7 @@ class DocumentParser {
 			{
 				// ignore php5 strict errors
                 // log error
-				$request_uri = getenv('REQUEST_URI');
+				$request_uri = $_SERVER['REQUEST_URI'];
 				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
 				$docid = "ID = {$this->documentIdentifier}<br />";
 //				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
@@ -1381,6 +1492,7 @@ class DocumentParser {
 			if(isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1) $suff = ''; // jp-edition only
 		}
 		//container_suffix
+		if(substr($alias,0,1) === '[' && substr($alias,-1) === ']') return '[~' . $alias . '~]';
         return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
     }
 
@@ -1538,12 +1650,10 @@ class DocumentParser {
 			{
                 // match found but not publicly accessible, send the visitor to the unauthorized_page
                 $this->sendUnauthorizedPage();
-                exit; // stop here
 			}
 			else
 			{
                 $this->sendErrorPage();
-                exit;
             }
         }
 
@@ -1625,7 +1735,7 @@ class DocumentParser {
                     $passes++; // if content change then increase passes because
 				}
             } // we have not yet reached maxParserPasses
-            if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
+			if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);
         }
         return $source;
     }
@@ -1798,7 +1908,7 @@ class DocumentParser {
             if(($insert_id % $trim) == 0)
             {
                 $limit = (isset($this->config['event_log_limit'])) ? intval($this->config['event_log_limit']) : 2000;
-                $this->purge_event_log($limit,$trim);
+				$this->purge_log('event_log',$limit,$trim);
             }
         }
     }
@@ -1842,18 +1952,25 @@ class DocumentParser {
 		return $rs;
 	}
 	
-	function purge_event_log($limit=2000, $trim=100)
+	function purge_log($target='event_log',$limit=2000, $trim=100)
 	{
+		global $dbase;
+		
 		if($limit < $trim) $trim = $limit;
 		
-		$tbl_event_log = $this->getFullTableName('event_log');
-		$count = $this->db->getValue($this->db->select('COUNT(id)',$tbl_event_log));
+		$target = $this->getFullTableName($target);
+		$count = $this->db->getValue($this->db->select('COUNT(id)',$target));
 		$over = $count - $limit;
 		if(0 < $over)
 		{
 			$trim = ($over + $trim);
-			$this->db->delete($tbl_event_log,'',$trim);
-			$this->db->query($sql);
+			$this->db->delete($target,'',$trim);
+		}
+		$result = $this->db->query("SHOW TABLE STATUS FROM {$dbase}");
+		while ($row = $this->db->getRow($result))
+		{
+			$tbl_name = $row['Name'];
+			$this->db->query("OPTIMIZE TABLE {$tbl_name}");
 		}
 	}
 	
@@ -2308,6 +2425,19 @@ class DocumentParser {
 	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 	{ // jp-edition only
 		if(!$ph) return $src;
+		elseif(is_string($ph) && strpos($ph,'='))
+		{
+			if(strpos($ph,',')) $pairs   = explode(',',$ph);
+			else                $pairs[] = $ph;
+	
+			unset($ph);
+			$ph = array();
+			foreach($pairs as $pair)
+	{
+				list($k,$v) = explode('=',$pair);
+				$ph[$k] = $v;
+			}
+		}
 		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
 	
@@ -2536,7 +2666,8 @@ class DocumentParser {
 			}
             else
 			{
-				$tvnames = $this->db->escape(implode("','", $idnames));
+				$tvnames = $this->db->escape(implode("\t", $idnames));
+				$tvnames = str_replace("\t","','",$tvnames);
 				$where = (is_numeric($idnames[0])) ? 'tv.id' : "tv.name IN ('{$tvnames}')";
 			}
             if ($docgrp= $this->getUserDocGroups())
@@ -3414,14 +3545,8 @@ class DocumentParser {
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
 
-		if(function_exists('memory_get_peak_usage'))
-		{
 			$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
-		}
-		else
-		{
-			$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
-		}
+		
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;
         $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
