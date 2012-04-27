@@ -9,7 +9,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 	
 	
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 		
 	// if we aren't creating a new document or folder, we don't want to do this
 	// Which action IDs so we want to do this for?
@@ -126,10 +126,6 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 					$output .= '
 					$j("input[name=richtextcheck]").removeAttr("checked");
 					// Make the RTE displayed match the default value that has been set here
-					if (originalRichtextValue != "none") {
-						$j("#which_editor").val("none");
-						changeRTE();
-					}				
 					
 					';
 					$output .= ''."\n";
@@ -174,7 +170,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 function mm_inherit($fields, $roles='', $templates='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -188,17 +184,16 @@ function mm_inherit($fields, $roles='', $templates='') {
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 		
 		// Get the parent info
-		if (isset($_REQUEST['pid'])){
-			$parentID = $modx->getPageInfo($_REQUEST['pid'],0,'id');
-			$parentID = $parentID['id'];
+		if (isset($_REQUEST['pid']) && is_numeric($_REQUEST['pid'])){
+			$parentID = intval($_REQUEST['pid']);
+		} else if (isset($_REQUEST['parent']) && is_numeric($_REQUEST['parent'])){
+			$parentID = intval($_REQUEST['parent']);
 		} else {
 			$parentID = 0;
 		}
 	
 		$output = " // ----------- Inherit (from page $parentID)-------------- \n";
 	
-		
-		
 		foreach ($fields as $field) {
 			
 			// get some info about the field we are being asked to use
@@ -209,6 +204,9 @@ function mm_inherit($fields, $roles='', $templates='') {
 						
 						// Get this field data from the parent
 						$newArray = $modx->getDocument($parentID, $dbname);
+						if ( empty($newArray)) { // If no results, check if there is an unpublished doc
+							$newArray = $modx->getDocument($parentID, $dbname, 0);
+						}
 						$newvalue = $newArray[$dbname];
 			} else {
 				break;	 // If it's not something stored in the database, don't get the value
@@ -274,7 +272,7 @@ function mm_inherit($fields, $roles='', $templates='') {
 function mm_synch_fields($fields, $roles='', $templates='') {
 
 	global $modx, $mm_fields;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -337,8 +335,3 @@ function mm_synch_fields($fields, $roles='', $templates='') {
 		
 	}	// end if
 }	// end function
-
-
-
-
-?>

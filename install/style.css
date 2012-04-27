@@ -19,17 +19,13 @@ vertical-align:baseline;
 body {
 -x-system-font:none;
 font-family:Helvetica,Arial,'Liberation Sans',FreeSans,sans-serif;
-font-size:75%;
+font-size:78.5%;
 font-size-adjust:none;
 font-stretch:normal;
 font-style:normal;
 font-variant:normal;
 font-weight:normal;
 line-height:1.5;
-}
-
-body {
-font-family: "Lucida Grande","Lucida Sans Unicode",Verdana,Arial,Helvetica,sans-serif;
 }
 
 ol, ul {

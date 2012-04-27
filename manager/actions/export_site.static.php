@@ -348,7 +348,7 @@ class EXPORT_SITE
 			if ($row['isfolder'])
 			{ // needs making a folder
 				if(empty($row['alias'])) $row['alias'] = $row['id'];
-				$dirname = $dirpath.$row['alias'];
+				$dirname = $dirpath . $row['alias'];
 				if(strpos($dirname,MODX_BASE_PATH)===false) return FALSE;
 				if (!is_dir($dirname))
 				{
@@ -374,5 +374,5 @@ class EXPORT_SITE
 		}
 		// remove No-MODx files/dirs 
 		if (!$this->scanDirectory($dirpath, $dircontent)) exit;
-}
+	}
 }

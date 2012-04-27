@@ -92,7 +92,7 @@ top.mainMenu.reloadtree();
 }
 
 function run()
-	{
+{
 	global $modx;
 	$tbl_site_content = $modx->getFullTableName('site_content');
 	$output = '';

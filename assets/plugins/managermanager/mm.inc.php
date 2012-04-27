@@ -21,18 +21,15 @@ $mm_version = '0.3.11';
 
 // Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
 
-
-
 // JS URL
-switch ($which_jquery) {
+switch ($which_jquery)
+{
  case 'local (assets/js)':
   $js_url  = $js_default_url_local; 
  break;
-
  case 'remote (google code)':
   $js_url  = $js_default_url_remote;
  break;
-
  case 'manual url (specify below)':
   $js_url  = $js_src_override;
  break;
@@ -46,75 +43,85 @@ $remove_deprecated_tv_types = ($remove_deprecated_tv_types_pref == 'yes') ? true
 $ignore_first_chars = array('.', '_', '!'); 
 
 // Include functions - we'll load all *.inc.php files in the "functions" folder
-$function_dir = $modx->config['base_path'] . 'assets/plugins/managermanager/functions';
-if ($handle = opendir($function_dir)) {
-    while (false !== ($file = readdir($handle))) {
-        if (!in_array(substr($file, 0, 1), $ignore_first_chars) && $file != ".." && substr($file, -8) == '.inc.php') {
-            include_once($function_dir.'/'.$file);
+$function_dir = "{$modx->config['base_path']}assets/plugins/managermanager/functions";
+if ($files = scandir($function_dir))
+{
+	foreach($files as $file)
+	{
+		if (!in_array(substr($file, 0, 1), $ignore_first_chars) && $file != '..' && substr($file, -8) == '.inc.php')
+		{
+			include_once("{$function_dir}/{$file}");
         }
     }
-    closedir($handle);
 }
-
 
 // Include widgets
 // We look for a PHP file with the same name as the directory - e.g.
 // /widgets/widgetname/widgetname.php
-$widget_dir = $modx->config['base_path'] . 'assets/plugins/managermanager/widgets';
-if ($handle = opendir($widget_dir)) {
-    while (false !== ($file = readdir($handle))) {
-        if (!in_array(substr($file, 0, 1), $ignore_first_chars)  && $file != ".."  && is_dir($widget_dir.'/'.$file)) {
-            include_once($widget_dir.'/'.$file.'/'.$file.'.php');
+$widget_dir = "{$modx->config['base_path']}assets/plugins/managermanager/widgets";
+if ($files = scandir($widget_dir))
+{
+	foreach($files as $file)
+	{
+		if (!in_array(substr($file, 0, 1), $ignore_first_chars)  && $file != '..'  && is_dir($widget_dir.'/'.$file))
+		{
+			include_once("{$widget_dir}/{$file}/{$file}.php");
         }
     }
-    closedir($handle);
 }
 
-
-
 // Set variables
-global $content,$default_template, $mm_current_page, $mm_fields;
+global $content,$default_template, $mm_current_page, $mm_fields, $splitter;
 $mm_current_page = array();
-$mm_current_page['template'] = isset($_POST['template']) ? $_POST['template'] : isset($content['template']) ? $content['template'] : $default_template;
+
+if    (isset($_POST['template']))   $mm_current_page['template'] = $_POST['template'];
+elseif(isset($_GET['newtemplate'])) $mm_current_page['template'] = $_GET['newtemplate'];
+elseif(isset($content['template'])) $mm_current_page['template'] = $content['template'];
+else                                $mm_current_page['template'] = $default_template;
+
 $mm_current_page['role'] = $_SESSION['mgrRole'];
 
-
 // What are the fields we can change, and what types are they?
-$mm_fields = array(
-	'pagetitle' => array('fieldtype'=>'input', 'fieldname'=>'pagetitle', 'dbname'=>'pagetitle', 'tv'=>false),
-	'longtitle' => array('fieldtype'=>'input', 'fieldname'=>'longtitle', 'dbname'=>'longtitle', 'tv'=>false),
-	'description' => array('fieldtype'=>'input', 'fieldname'=>'description', 'dbname'=>'description', 'tv'=>false),
-	'alias' => array('fieldtype'=>'input', 'fieldname'=>'alias', 'dbname'=>'alias', 'tv'=>false),
-	'link_attributes' => array('fieldtype'=>'input', 'fieldname'=>'link_attributes', 'dbname'=>'link_attributes', 'tv'=>false),
-	'introtext' => array('fieldtype'=>'textarea', 'fieldname'=>'introtext', 'dbname'=>'introtext', 'tv'=>false), 
-	'template' => array('fieldtype'=>'select', 'fieldname'=>'template', 'dbname'=>'template', 'tv'=>false),  
-	'menutitle' => array('fieldtype'=>'input', 'fieldname'=>'menutitle','dbname'=>'menutitle',  'tv'=>false),
-	'menuindex' => array('fieldtype'=>'input', 'fieldname'=>'menuindex', 'dbname'=>'menuindex', 'tv'=>false),
-	'show_in_menu' => array('fieldtype'=>'input', 'fieldname'=>'hidemenucheck','dbname'=>'hidemenu',  'tv'=>false),
-	'hide_menu' => array('fieldtype'=>'input', 'fieldname'=>'hidemenucheck', 'dbname'=>'hidemenu', 'tv'=>false), // synonym for show_in_menu
-	'parent' => array('fieldtype'=>'input', 'fieldname'=>'parent', 'dbname'=>'parent', 'tv'=>false),
-	'is_folder' => array('fieldtype'=>'input', 'fieldname'=>'isfoldercheck', 'dbname'=>'isfolder', 'tv'=>false),
-	'is_richtext' => array('fieldtype'=>'input', 'fieldname'=>'richtextcheck','dbname'=>'richtext',  'tv'=>false),
-	'log' => array('fieldtype'=>'input', 'fieldname'=>'donthitcheck', 'dbname'=>'donthit', 'tv'=>false),
-	'published' => array('fieldtype'=>'input', 'fieldname'=>'publishedcheck','dbname'=>'published',  'tv'=>false),
-	'pub_date' => array('fieldtype'=>'input', 'fieldname'=>'pub_date', 'dbname'=>'pub_date', 'tv'=>false),
-	'unpub_date' => array('fieldtype'=>'input', 'fieldname'=>'unpub_date', 'dbname'=>'unpub_date', 'tv'=>false),
-	'searchable' => array('fieldtype'=>'input', 'fieldname'=>'searchablecheck','dbname'=>'searchable',  'tv'=>false),
-	'cacheable' => array('fieldtype'=>'input', 'fieldname'=>'cacheablecheck', 'dbname'=>'cacheable', 'tv'=>false),
-	'clear_cache' => array('fieldtype'=>'input', 'fieldname'=>'syncsitecheck','dbname'=>'',  'tv'=>false),
-	'content_type' => array('fieldtype'=>'select', 'fieldname'=>'contentType', 'dbname'=>'contentType', 'tv'=>false),
-	'content_dispo' => array('fieldtype'=>'select', 'fieldname'=>'content_dispo', 'dbname'=>'content_dispo', 'tv'=>false),
-	'keywords' => array('fieldtype'=>'select', 'fieldname'=>'keywords[]', 'dbname'=>'', 'tv'=>false),
-	'metatags' => array('fieldtype'=>'select', 'fieldname'=>'metatags[]', 'dbname'=>'', 'tv'=>false),
-	'content' => array('fieldtype'=>'textarea', 'fieldname'=>'ta', 'dbname'=>'content', 'tv'=>false),
-	'which_editor' => array('fieldtype'=>'select', 'fieldname'=>'which_editor','dbname'=>'',  'tv'=>false),
-	'resource_type' => array('fieldtype'=>'select', 'fieldname'=>'type', 'dbname'=>'isfolder', 'tv'=>false),
-	'weblink' => array('fieldtype'=>'input', 'fieldname'=>'ta', 'dbname'=>'content', 'tv'=>false)
-);				
-
+$field['pagetitle']       = array('input', 'pagetitle', 'pagetitle');
+$field['longtitle']       = array('input', 'longtitle', 'longtitle');
+$field['description']     = array('input', 'description', 'description');
+$field['alias']           = array('input', 'alias', 'alias');
+$field['link_attributes'] = array('input', 'link_attributes', 'link_attributes');
+$field['menutitle']       = array('input', 'menutitle','menutitle');
+$field['menuindex']       = array('input', 'menuindex', 'menuindex');
+$field['show_in_menu']    = array('input', 'hidemenucheck','hidemenu');
+$field['hide_menu']       = array('input', 'hidemenucheck', 'hidemenu'); // synonym for show_in_menu
+$field['parent']          = array('input', 'parent', 'parent');
+$field['is_folder']       = array('input', 'isfoldercheck', 'isfolder');
+$field['is_richtext']     = array('input', 'richtextcheck','richtext');
+$field['log']             = array('input', 'donthitcheck', 'donthit');
+$field['published']       = array('input', 'publishedcheck','published');
+$field['pub_date']        = array('input', 'pub_date', 'pub_date');
+$field['unpub_date']      = array('input', 'unpub_date', 'unpub_date');
+$field['searchable']      = array('input', 'searchablecheck','searchable');
+$field['cacheable']       = array('input', 'cacheablecheck', 'cacheable');
+$field['clear_cache']     = array('input', 'syncsitecheck','');
+$field['weblink']         = array('input', 'ta', 'content');
+$field['introtext']       = array('textarea', 'introtext', 'introtext');
+$field['content']         = array('textarea', 'ta', 'content');
+$field['template']        = array('select', 'template', 'template');
+$field['content_type']    = array('select', 'contentType', 'contentType');
+$field['content_dispo']   = array('select', 'content_dispo', 'content_dispo');
+$field['keywords']        = array('select', 'keywords[]', '');
+$field['metatags']        = array('select', 'metatags[]', '');
+$field['which_editor']    = array('select', 'which_editor','');
+$field['resource_type']   = array('select', 'type', 'isfolder');
+foreach($field as $k=>$a)
+{
+	$mm_fields[$k]['fieldtype'] = $a[0];
+	$mm_fields[$k]['fieldname'] = $a[1];
+	$mm_fields[$k]['dbname']    = $a[2];
+	$mm_fields[$k]['tv']        = false;
+}
+unset($field);
 
 // Add in TVs to the list of available fields
-$all_tvs = $modx->db->makeArray( $modx->db->select("name,type,id", $modx->db->config['table_prefix']."site_tmplvars", '', 'name ASC')   );
+$all_tvs = $modx->db->makeArray( $modx->db->select('name,type,id,elements', $modx->getFullTableName('site_tmplvars'), '', 'name ASC')   );
 foreach ($all_tvs as $thisTv) {
 	
 	$n = $thisTv['name']; // What is the field name?
@@ -143,6 +150,20 @@ foreach ($all_tvs as $thisTv) {
 		case 'checkbox':
 			$t = 'input';
 			$fieldname_suffix = '[]';
+		break;
+		
+		case 'custom_tv':
+			if(strpos($thisTv['elements'],'tvtype="textarea"')!==false)
+				$t = 'textarea';
+			elseif(strpos($thisTv['elements'],'tvtype="select"')!==false)
+				$t = 'select';
+			elseif(strpos($thisTv['elements'],'tvtype="checkbox"')!==false)
+			{
+				$t = 'input';
+				$fieldname_suffix = '[]';
+			}
+			else
+				$t = 'input';
 		break;
 		
 		default:
@@ -176,14 +197,9 @@ if (!function_exists("make_changes")) {
 	} 
 } 
 
-
-
-
 // Check the current event
 global $e;
-$e = &$modx->Event;
-
-
+$e = &$modx->event;
 
 // The start of adding or editing a document (before the main form)
 switch ($e->name) { 
@@ -192,9 +208,8 @@ switch ($e->name) {
 // if it's the plugin config form, give us a copy of all the relevant values
 
 case 'OnPluginFormRender':
-	
 	$plugin_id_editing = $e->params['id']; // The ID of the plugin we're editing
-	$result = $modx->db->select("name, id", $modx->db->config['table_prefix']."site_plugins", "id=$plugin_id_editing");
+	$result = $modx->db->select('name, id', $modx->getFullTableName('site_plugins'), "id={$plugin_id_editing}");
 	$all_plugins = $modx->db->makeArray( $result );
 	$plugin_editing_name = $all_plugins[0]['name'];
 
@@ -203,48 +218,48 @@ case 'OnPluginFormRender':
 	if (strtolower($plugin_editing_name) == 'managermanager') {
 	
 		// Get all templates
-		$result = $modx->db->select("templatename, id, description", $modx->db->config['table_prefix']."site_templates", '', 'templatename ASC');
+		$result = $modx->db->select('templatename, id, description', $modx->getFullTableName('site_templates'), '', 'templatename ASC');
 		$all_templates = $modx->db->makeArray( $result );
 		$template_table = '<table>';
-		$template_table .= '<tr><th class="gridHeader">Template name</th><th class="gridHeader">Template description</th><th class="gridHeader">ID</th></tr>';
-		$template_table .= '<tr><td class="gridItem">(blank)</td><td class="gridItem">Blank</td><td class="gridItem">0</td></tr>';
+		$template_table .= '<tr><th class="gridHeader">ID</th><th class="gridHeader">Template name</th><th class="gridHeader">Template description</th></tr>';
+		$template_table .= '<tr><td class="gridItem">0</td><td class="gridItem">(blank)</td><td class="gridItem">Blank</td></tr>';
 		foreach ($all_templates as $count=>$tpl) {
 			$class = ($count % 2) ? 'gridItem':'gridAltItem';
 			$template_table .= '<tr>';
+			$template_table .= '<td class="'.$class.'">'.$tpl['id'].'</td>';
 			$template_table .= '<td class="'.$class.'">'.jsSafe($tpl['templatename']).'</td>';
 			$template_table .= '<td class="'.$class.'">'.jsSafe($tpl['description']).'</td>';
-			$template_table .= '<td class="'.$class.'">'.$tpl['id'].'</td>';
 			$template_table .= '</tr>';
 		}
 		$template_table .= '</table>';
 
 		// Get all tvs
-		$result = $modx->db->select("name,caption,id", $modx->db->config['table_prefix']."site_tmplvars", '', 'name ASC');
+		$result = $modx->db->select('name,caption,id', $modx->getFullTableName('site_tmplvars'), '', 'name ASC');
 		$all_tvs = $modx->db->makeArray( $result );
 		$tvs_table = '<table>';
-		$tvs_table .= '<tr><th class="gridHeader">TV name</th><th class="gridHeader">TV caption</th><th class="gridHeader">ID</th></tr>';
+		$tvs_table .= '<tr><th class="gridHeader">ID</th><th class="gridHeader">TV name</th><th class="gridHeader">TV caption</th></tr>';
 		
 		foreach ($all_tvs as $count=>$tv) {
 			$class = ($count % 2) ? 'gridItem':'gridAltItem';
 			$tvs_table .= '<tr>';
+			$tvs_table .= '<td class="'.$class.'">'.$tv['id'].'</td>';
 			$tvs_table .= '<td class="'.$class.'">'.jsSafe($tv['name']).'</td>';
 			$tvs_table .= '<td class="'.$class.'">'.jsSafe($tv['caption']).'</td>';
-			$tvs_table .= '<td class="'.$class.'">'.$tv['id'].'</td>';
 			$tvs_table .= '</tr>';
 		}
 		$tvs_table .= '</table>';
 		
 		
 		// Get all roles
-		$result = $modx->db->select("name, id", $modx->db->config['table_prefix']."user_roles", '', 'name ASC');
+		$result = $modx->db->select('name, id', $modx->getFullTableName('user_roles'), '', 'name ASC');
 		$all_roles = $modx->db->makeArray( $result );
 		$roles_table = '<table>';
-		$roles_table .= '<tr><th class="gridHeader">Role name</th><th class="gridHeader">ID</th></tr>';
+		$roles_table .= '<tr><th class="gridHeader">ID</th><th class="gridHeader">Role name</th></tr>';
 		foreach ($all_roles as $count=>$role) {
 			$class = ($count % 2) ? 'gridItem':'gridAltItem';
 			$roles_table .= '<tr>';
-			$roles_table .= '<td class="'.$class.'">'.jsSafe($role['name']).'</td>';
 			$roles_table .= '<td class="'.$class.'">'.$role['id'].'</td>';
+			$roles_table .= '<td class="'.$class.'">'.jsSafe($role['name']).'</td>';
 			$roles_table .= '</tr>';
 		}
 		$roles_table .= '</table>';
@@ -268,33 +283,33 @@ case 'OnPluginFormRender':
 	break;
 
 
+case 'OnManagerMainFrameHeaderHTMLBlock':
+	global $action;
+	if(empty($action) && isset($_GET['a'])) $action = $_GET['a'];
+	switch($action)
+	{
+		case '4':
+		case '27':
+		case '72':
+		case '73':
+		case '76':
+		case '300':
+		case '301':
+			$output  = '<!-- Begin ManagerManager output -->' . "\n";
+			$output .= includeJs($js_url, 'html');
+			$e->output($output);
+			break;
+		default: return;
+	}
 
+	break;
 
 case 'OnDocFormPrerender':
-/*
-	// Are we clashing with the ShowImageTVs (or any other) plugins?
-	//$conflicted_plugins = array('ShowImageTVs');
-	//$conflicts = array();
-	//foreach ($conflicted_plugins as $plg) {
-		
-	//	$sql= "SELECT * FROM " . $this->getFullTableName("site_plugins") . " WHERE name='" . $plg . "' OR name='" . strtolower($plg) . "'AND disabled=0;";
-       // $result= $modx->db->query($sql);
-       //	if ($modx->db->getRecordCount($result) > 0) {
-       //	$conflicts[] = $plg;
-	//	}
-	//}
-	//if (count($conflicts) > 0) {
-	//	echo '		
-	//	<script type="text/javascript">
-	//		alert("You appear to be running '.(count($conflicts)>1?'some plugins which are':'a plugin which is').' incompatible with ManagerManager: \n\n  '.implode('  \n  ', $conflicts).'\n\nYou may experience errors or unpredictable behaviour. \n\nPlease see the ManagerManager documentation for details of how to fix this.");
-	//	<script>	
-	//	';	
-	//}
-*/	
-
 	// Load the jquery library
-	echo '<!-- Begin ManagerManager output -->';
-	echo includeJs($js_url, 'html');	
+	echo '<!-- Begin ManagerManager output -->' . "\n";
+	$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
+	$rs = $modx->db->select('`name`',$tbl_system_eventnames,"`name`='OnManagerMainFrameHeaderHTMLBlock'");
+	if($modx->db->getRecordCount($rs)<1) echo includeJs($js_url, 'html');
 
 	// Create a mask to cover the page while the fields are being rearranged
 	echo '		
@@ -314,7 +329,6 @@ case 'OnDocFormRender':
 	
 	// The main document editing form
 	
-
     // Include the JQuery call
     $e->output( '
 <!-- ManagerManager Plugin :: '.$mm_version.' -->
@@ -334,6 +348,8 @@ $j(document).ready(function() {
 	try {
 						   					
 	  // Change section index depending on Content History running or not                  
+	if(jQuery.bindReady())
+	{
       var sidx = ($j("div.sectionBody:eq(1)").attr("id") == "ch-body")?1:0;  //ch-body is the CH id name (currently at least)
       
       // Give IDs to the sections of the form
@@ -343,7 +359,7 @@ $j(document).ready(function() {
    
       $j("div.sectionBody:eq(sidx+1)").attr("id", "sectionContentBody");
       $j("div.sectionBody:eq(sidx+2)").attr("id", "sectionTVsBody");						   
-
+	}
 	'			
 			);
 	
@@ -415,7 +431,7 @@ $j(document).ready(function() {
 </script>
 <!-- ManagerManager Plugin :: End -->
 		');
-break;
+	break;
 
 
 
@@ -427,7 +443,6 @@ case 'OnTVFormRender':
 
 		// Load the jquery library
 		echo '<!-- Begin ManagerManager output -->';
-		echo includeJs($js_url, 'html');	
 	
 		// Create a mask to cover the page while the fields are being rearranged
 		echo '		
@@ -456,7 +471,3 @@ case 'OnBeforeDocFormSave':
 break;
 
 } // end switch
-
-
-
-?>

@@ -1,9 +1,4 @@
 <?php
-
-
-
-
-
 //---------------------------------------------------------------------------------
 // mm_renameField
 // Change the label for an element
@@ -11,7 +6,7 @@
 function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 		
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
@@ -60,11 +55,6 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
 	} // end if
 } // end function
 
-
-
-
-
-
 //---------------------------------------------------------------------------------
 // mm_hideFields
 // Hide a field
@@ -72,7 +62,7 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
 function mm_hideFields($fields, $roles='', $templates='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;	
+	$e = &$modx->event;
 		
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -139,11 +129,6 @@ function mm_hideFields($fields, $roles='', $templates='') {
 	} // end if
 } // end function
 
-
-
-
-
-
 //---------------------------------------------------------------------------------
 // mm_changeFieldHelp
 // Change the help text of a field
@@ -151,7 +136,7 @@ function mm_hideFields($fields, $roles='', $templates='') {
 function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;	
+	$e = &$modx->event;
 		
 	if ($helptext=='') {
 		return;
@@ -163,9 +148,6 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 	$output = " // ----------- Change field help -------------- \n";
 	
 			switch ($field) {
-			
-	
-				
 				// Ones that follow the regular pattern
 				default:
 					// What type is this field?
@@ -188,23 +170,14 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 	} // end if
 } // end function
 
-
-
-
-
-
-
-
-
-
 //---------------------------------------------------------------------------------
 // mm_moveFieldsToTab
 // Move a field to a different tab
 //--------------------------------------------------------------------------------- 
 function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 
-	global $modx, $mm_fields;
-	$e = &$modx->Event;
+	global $modx, $mm_fields,$splitter;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -226,7 +199,11 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 		
 		// Make sure the new tab exists in the DOM
 		$output .= "if ( \$j('#tab".$newtab."').length > 0) { \n";
-		$output .= 'var ruleHtml = \'<tr style="height: 10px"><td colspan="2"><div class="split"></div></td></tr>\'; ';
+		if(isset($splitter) && $splitter==='none')
+		{
+			 $output .= "var ruleHtml = ''; ";
+		}
+		else $output .= 'var ruleHtml = \'<tr style="height: 10px"><td colspan="2"><div class="split"></div></td></tr>\'; ';
 		
 		// Try and identify any URL type TVs
 		$output .= '$j("select[id$=_prefix]").each( function() { $j(this).parents("tr:first").addClass("urltv"); }  ); ';
@@ -280,7 +257,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 						';
 					}	
 								
-						
 				break;
 			
 			} // end switch	
@@ -292,13 +268,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 	}	// end if
 } // end function
 
-
-
-
-
-
-
-
 //---------------------------------------------------------------------------------
 // mm_requireFields
 // Make fields required. Currently works with text fields only. 
@@ -309,7 +278,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 function mm_requireFields($fields, $roles='', $templates=''){
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 
 	// if we've been supplied with a string, convert it into an array
 	$fields = makeArray($fields);
@@ -365,7 +334,6 @@ function mm_requireFields($fields, $roles='', $templates=''){
 
 				// Ones that follow the regular pattern
 				default:
-						
 					// What type is this field?		
 					$fieldname = $mm_fields[$field]['fieldname'];
 					
@@ -395,7 +363,6 @@ function mm_requireFields($fields, $roles='', $templates=''){
 						
 							// Find the label (this will be easier in Evo 1.1 with more semantic code)
 							var lbl = $sel.parent("td").prev("td").children("span.warning").text().replace($j(requiredHTML).text(), "");
-													
 							// Add the label to the errors array. Would be nice to say which tab it is on, but no
 							// easy way of doing this in 1.0.x as no semantic link between tabs and tab body
 							errors.push(lbl);
@@ -418,13 +385,9 @@ function mm_requireFields($fields, $roles='', $templates=''){
 						
 						';
 					}
-					
 				break;
 			}
-
 		}
-
-
 
 		$output .= $load_js . '
 		
@@ -450,16 +413,6 @@ function mm_requireFields($fields, $roles='', $templates=''){
 			} 
 		});
 		';
-
 		$e->output($output . "\n");
-
 	} // end if
-
 } // end function
-
-
-
-
-
-
-?>

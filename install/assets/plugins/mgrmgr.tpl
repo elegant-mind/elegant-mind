@@ -7,10 +7,11 @@
  * @category 	plugin
  * @version 	0.3.11
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties &config_chunk=Configuration Chunk;text;mm_rules; &remove_deprecated_tv_types_pref=Remove deprecated TV types;list;yes,no;yes &which_jquery=jQuery source;list;local (assets/js),remote (google code),manual url (specify below);local (assets/js) &js_src_type=jQuery URL override;text;
- * @internal	@events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnTVFormRender
+ * @internal	@properties &config_chunk=Configuration Chunk;text;mm_rules; &remove_deprecated_tv_types_pref=Remove deprecated TV types;list;yes,no;yes &which_jquery=jQuery source;list;local (assets/js),remote (google code),manual url (specify below);local (assets/js) &js_src_override=jQuery URL override;text;
+ * @internal	@events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnTVFormRender,OnManagerMainFrameHeaderHTMLBlock
  * @internal	@modx_category Manager and Admin
  * @internal    @legacy_names Image TV Preview, Show Image TVs
+ * @internal    @installset base
  */
 
 // You can put your ManagerManager rules EITHER in a chunk OR in an external file - whichever suits your development style the best
@@ -31,7 +32,7 @@
 // Here we set some default values, because this is a convenient place to change them if we need to,
 // but you should configure your preference via the Configuration tab.
 $js_default_url_local = $modx->config['site_url']. 'assets/js/jquery.min.js';
-$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js';
+$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js';
 
 // You don't need to change anything else from here onwards
 //-------------------------------------------------------
