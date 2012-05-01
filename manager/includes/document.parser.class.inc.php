@@ -827,7 +827,8 @@ class DocumentParser {
     }
 
     function evalSnippets($documentSource) {
-        preg_match_all('~\[\[(.*?)\]\]~ms', $documentSource, $matches);
+        // preg_match_all('~\[\[(.*?)\]\]~ms', $documentSource, $matches);
+	preg_match_all('~\[\[((.(?!\[[[!]))*?)\]\]~ms', $documentSource, $matches); // (TimGS)
 
         $etomite= & $this;
 
