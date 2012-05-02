@@ -24,7 +24,7 @@ else {
 // duplicate TV Template Access Permissions
 $tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
 $sql = "INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid)
-			SELECT $newid, templateid
+		SELECT $newid, templateid
 		FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid={$id}";
 $rs = $modx->db->query($sql);
 
@@ -37,7 +37,7 @@ if (!$rs) {
 // duplicate TV Access Permissions
 $tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
 $sql = "INSERT INTO {$tbl_site_tmplvar_access} (tmplvarid, documentgroup)
-			SELECT $newid, documentgroup
+		SELECT $newid, documentgroup
 		FROM {$tbl_site_tmplvar_access} WHERE tmplvarid={$id}";
 $rs = $modx->db->query($sql);
 

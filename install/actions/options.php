@@ -10,7 +10,7 @@ if ($installMode == 0 || $installMode == 2) {
         $_SESSION['databaseloginname'] = $_POST['databaseloginname'];
 }
 elseif ($installMode == 1) {
-    include "../manager/includes/config.inc.php";
+    include "{$base_path}manager/includes/config.inc.php";
 
     if (empty($database_collation)) {
         $database_collation = 'utf8_general_ci';
@@ -24,7 +24,7 @@ elseif ($installMode == 1) {
         $database_connection_method = 'SET CHARACTER SET';
     }
     if ($database_connection_method != 'SET NAMES' && $database_connection_charset != $database_charset) {
-        $database_connection_method = 'SET NAMES';
+        $database_connection_method  = 'SET NAMES';
     }
 
     $_POST['database_name'] = $dbase;
@@ -40,7 +40,7 @@ elseif ($installMode == 1) {
 <form name="install" id="install_form" action="index.php?action=summary" method="post">
   <div>
     <input type="hidden" value="<?php echo $install_language;?>" name="language" />
-    <input type="hidden" value="<?php echo $manager_language;?>" name="managerlanguage" />
+	<input type="hidden" value="<?php echo $manager_language;?>" name="managerlanguage" />
     <input type="hidden" value="<?php echo $installMode; ?>" name="installmode" />
     <input type="hidden" value="<?php echo trim($_POST['database_name'], '`'); ?>" name="database_name" />
     <input type="hidden" value="<?php echo $_POST['tableprefix']; ?>" name="tableprefix" />
@@ -59,8 +59,7 @@ elseif ($installMode == 1) {
 
 
 # load setup information file
-$setupPath = realpath(dirname(__FILE__));
-include "{$setupPath}/setup.info.php";
+include "{$installer_path}setup.info.php";
 
 if($_POST['installmode'] === '0')
 {
@@ -83,8 +82,8 @@ echo '<hr />';
 // toggle options
 echo "<h4>" . $_lang['checkbox_select_options'] . "</h4>
     <p class=\"actions\"><a id=\"toggle_check_all\" href=\"#\">" . $_lang['all'] . "</a> <a id=\"toggle_check_none\" href=\"#\">" . $_lang['none'] . "</a> <a id=\"toggle_check_toggle\" href=\"#\">" . $_lang['toggle'] . "</a></p>
-    <br class=\"clear\" />
-    <div id=\"installChoices\">";
+	<br class=\"clear\" />
+	<div id=\"installChoices\">";
 
 $options_selected = isset ($_POST['options_selected']);
 
@@ -194,7 +193,7 @@ if ($limit > 0) {
 if(!count($moduleTemplates+$moduleTVs+$moduleChunks+$moduleModules+$modulePlugins+$moduleSnippets))
 echo '<strong>There is no option for update.</strong>';
 ?>
-    </div>
+	</div>
     <p class="buttonlinks">
         <a href="javascript:document.getElementById('install_form').action='index.php?action=<?php echo (($installMode == 1) ? 'mode' : 'connection'); ?>';document.getElementById('install_form').submit();" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
         <a href="javascript:document.getElementById('install_form').submit();" title="<?php echo $_lang['btnnext_value']?>"><span><?php echo $_lang['btnnext_value']?></span></a>
@@ -233,13 +232,13 @@ echo '<strong>There is no option for update.</strong>';
                         .attr('checked', true)
                         .attr('disabled', true)
                     ;
-                } else {
+        } else {
                     jQuery(this)
                         .attr('disabled', false)
                     ;
-                }
+      }
             });
-        }
+    }
 
         // handle state of demo content checkbox on page load
         handleSampleDataCheckbox();

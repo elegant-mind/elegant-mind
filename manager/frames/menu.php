@@ -36,7 +36,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	{
 		try
 		{
-			// if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
+		// if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
 			if (now)
 				updateMailerAjx.request();
 			return false;

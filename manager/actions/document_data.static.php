@@ -77,7 +77,7 @@ if ($modx->config['show_meta'])
 	{
 		$keywords[$i] = $row['keyword'];
 	}
-
+	
 	// Get list of selected site META tags for this document
 	$field = 'meta.id, meta.name, meta.tagvalue';
 	$from = "{$tbl_site_metatags} AS meta LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id";
@@ -218,18 +218,18 @@ if ($numRecords > 0)
 			$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
 			                     array($icon,$link,$pagetitle,$description), $tpl);
 			
-		// Table header
-		$listTableHeader = array(
+			// Table header
+			$listTableHeader = array(
 				'checkbox' =>    '<input type="checkbox" name="chkselall" onclick="selectAll()" />',
-			'docid' =>  $_lang['id'],
-			'title' =>  $_lang['resource_title'],
+				'docid' =>    $_lang['id'],
+				'title' =>    $_lang['resource_title'],
 				'publishedon' => $_lang['publish_date'],
 				'editedon' => $_lang['editedon'],
 				'status' =>   $_lang['page_data_status']
-		);
+			);
 			$tbWidth = array('2%','2%', '68%', '10%', '10%', '8%');
-		$childsTable->setColumnWidths($tbWidth);
-
+			$childsTable->setColumnWidths($tbWidth);
+			
 			if($children['publishedon']!=='0')
 			{
 				$publishedon = '<span class="nowrap">' . $modx->toDateFormat($children['publishedon']) . '</span>';
@@ -245,10 +245,10 @@ if ($numRecords > 0)
 				$editedon = '<span class="nowrap">' . $modx->toDateFormat($children['editedon']) . '</span>';
 			}
 			else $editedon = '-';
-
+			
 			$listDocs[] = array(
 				'checkbox' =>    '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />',
-				'docid' =>  $children['id'],
+				'docid'    => $children['id'],
 				'title'    => $title,
 				'publishedon' => $publishedon,
 				'editedon' => $editedon,
@@ -257,7 +257,7 @@ if ($numRecords > 0)
 		}
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
 		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
-		$children_output .= '<div><input type="submit" value="Move checked resources" /></div>';
+		$children_output .= '<div><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 	}
 }
 else
@@ -271,7 +271,7 @@ else
 	function duplicatedocument(){
 		if(confirm("<?php echo $_lang['confirm_resource_duplicate'];?>")==true) {
 			document.location.href="index.php?id=<?php echo $id;?>&a=94";
-	}
+		}
 	}
 	function deletedocument() {
 		if(confirm("<?php echo $_lang['confirm_delete_resource'];?>")==true) {
@@ -456,7 +456,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 			$cache = $_lang['page_data_notcached'];
 		} else {
 			$cache = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.htmlspecialchars($cache)."</textarea>\n";
-			}
+		}
 		echo $cache;
 ?>
 	</div><!-- end tab-page -->

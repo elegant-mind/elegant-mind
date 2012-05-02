@@ -58,6 +58,7 @@
         </section>
         <section id="copyright">
             <p>&copy; [!CopyYears?startYear=`2011`!] [(site_name)] || Content managed by MODx - MODx&#8482; is licensed under the GPL</p>
+            <p>Memory : [^m^], MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], document retrieved from [^s^].</p>
         </section>
     </footer>
 <script type="text/javascript" src="js/jquery.placeholder.min.js"></script>

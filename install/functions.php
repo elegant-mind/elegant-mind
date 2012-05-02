@@ -60,23 +60,23 @@ function compare_check($params)
 	else     
 	{
 		$row = mysql_fetch_assoc($rs);
-	$count = mysql_num_rows($rs);
-	if($count===1)
-	{
-		$new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
-		$new_desc    = $new_version_str . $params['description'];
-		$old_desc    = $row['description'];
-		$old_version = substr($old_desc,0,strpos($old_desc,'</strong>'));
-		$old_version = strip_tags($old_version);
-		if($mode == 'version_compare' && $old_version === $new_version)
+		$count = mysql_num_rows($rs);
+		if($count===1)
 		{
-			                            $result = 'same';
+			$new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
+			$new_desc    = $new_version_str . $params['description'];
+			$old_desc    = $row['description'];
+			$old_version = substr($old_desc,0,strpos($old_desc,'</strong>'));
+			$old_version = strip_tags($old_version);
+			if($mode == 'version_compare' && $old_version === $new_version)
+			{
+				                            $result = 'same';
+			}
+			elseif($mode == 'name_compare') $result = 'same';
+			elseif($old_desc === $new_desc) $result = 'same';
+			else                            $result = 'diff';
 		}
-		elseif($mode == 'name_compare') $result = 'same';
-		elseif($old_desc === $new_desc) $result = 'same';
-		else                            $result = 'diff';
-	}
-	elseif($count < 1)                  $result = 'no exists';
+		elseif($count < 1)                  $result = 'no exists';
 	}
 if($params['category']=='chunk')
 {
@@ -222,7 +222,7 @@ function clean_up($sqlParser) {
 			if(count($ids)>0) {
 				mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privatemgr = 1 WHERE id IN (".implode(", ",$ids).")");	
 				unset($ids);
-			}		
+			}
 		}
 }
 
@@ -301,4 +301,53 @@ function is_webmatrix()
 function is_iis()
 {
 	return (strpos($_SERVER['SERVER_SOFTWARE'],'IIS')) ? true : false;
+}
+
+function get_upgradeable_status()
+{
+	global $base_path;
+	if (file_exists("{$base_path}manager/includes/config.inc.php"))
+	{
+		// Include the file so we can test its validity
+		include("{$base_path}manager/includes/config.inc.php");
+		// We need to have all connection settings - tho prefix may be empty so we have to ignore it
+		if ((!isset($lastInstallTime) || empty($lastInstallTime)) && !isset($database_type))
+		{
+			return 0;
+		}
+		elseif($dbase)
+		{
+			if (!@ $conn = mysql_connect($database_server, $database_user, $database_password))
+			{
+				if(isset($_POST['installmode']) && $_POST['installmode'] == 'new')
+				{
+					return 0;
+				}
+				else
+				{
+					return 2;
+				}
+			}
+			elseif (!@ mysql_select_db(trim($dbase, '`'), $conn))
+			{
+				if(isset($_POST['installmode']) && $_POST['installmode'] == 'new')
+				{
+					return 0;
+				}
+				else
+				{
+					return 2;
+				}
+			}
+			else
+			{
+				return 1;
+			}
+		}
+		else
+		{
+			return 2;
+		}
+	}
+	else return 0;
 }

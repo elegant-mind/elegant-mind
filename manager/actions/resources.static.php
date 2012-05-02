@@ -11,8 +11,8 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	    {
 	        window.location.href="index.php?a=501&catId="+catid;
 	        return false;
-        }
-    }
+	    }
+	}
 </script>
 
 <h1><?php echo $_lang['element_management']; ?></h1>
@@ -186,50 +186,50 @@ function createCategoryList()
 {
 	global $modx, $_lang;
 	
-		$displayInfo = array();
-		$hasPermission = 0;
+	$displayInfo = array();
+	$hasPermission = 0;
 	if($modx->hasPermission('edit_plugin') || $modx->hasPermission('new_plugin'))
 	{
-            $displayInfo['plugin'] = array('table'=>'site_plugins','action'=>102,'name'=>$_lang['manage_plugins']);
-            $hasPermission = 1;
-        }
+		$displayInfo['plugin'] = array('table'=>'site_plugins','action'=>102,'name'=>$_lang['manage_plugins']);
+		$hasPermission = 1;
+	}
 	if($modx->hasPermission('edit_snippet') || $modx->hasPermission('new_snippet'))
 	{
-            $displayInfo['snippet'] = array('table'=>'site_snippets','action'=>22,'name'=>$_lang['manage_snippets']);
-            $hasPermission = 1;
-        }
+		$displayInfo['snippet'] = array('table'=>'site_snippets','action'=>22,'name'=>$_lang['manage_snippets']);
+		$hasPermission = 1;
+	}
 	if($modx->hasPermission('edit_chunk') || $modx->hasPermission('new_chunk'))
 	{
-            $displayInfo['htmlsnippet'] = array('table'=>'site_htmlsnippets','action'=>78,'name'=>$_lang['manage_htmlsnippets']);
-            $hasPermission = 1;
-        }
+		$displayInfo['htmlsnippet'] = array('table'=>'site_htmlsnippets','action'=>78,'name'=>$_lang['manage_htmlsnippets']);
+		$hasPermission = 1;
+	}
 	if($modx->hasPermission('edit_template') || $modx->hasPermission('new_template'))
 	{
-            $displayInfo['templates'] = array('table'=>'site_templates','action'=>16,'name'=>$_lang['manage_templates']);
-            $displayInfo['tmplvars'] = array('table'=>'site_tmplvars','action'=>301,'name'=>$_lang['tmplvars']);
-            $hasPermission = 1;
-        }
+		$displayInfo['templates'] = array('table'=>'site_templates','action'=>16,'name'=>$_lang['manage_templates']);
+		$displayInfo['tmplvars'] = array('table'=>'site_tmplvars','action'=>301,'name'=>$_lang['tmplvars']);
+		$hasPermission = 1;
+	}
 	if($modx->hasPermission('edit_module') || $modx->hasPermission('new_module'))
 	{
-            $displayInfo['modules'] = array('table'=>'site_modules','action'=>108,'name'=>$_lang['modules']);
-            $hasPermission = 1;
-        }
-        
-        //Category Delete permission check
-        $delPerm = 0;
-        if($modx->hasPermission('save_plugin') ||
-           $modx->hasPermission('save_snippet') ||
-           $modx->hasPermission('save_chunk') ||
-           $modx->hasPermission('save_template') ||
+		$displayInfo['modules'] = array('table'=>'site_modules','action'=>108,'name'=>$_lang['modules']);
+		$hasPermission = 1;
+	}
+	
+	//Category Delete permission check
+	$delPerm = 0;
+	if($modx->hasPermission('save_plugin') ||
+		$modx->hasPermission('save_snippet') ||
+		$modx->hasPermission('save_chunk') ||
+		$modx->hasPermission('save_template') ||
 		$modx->hasPermission('save_module'))
 	{
-            $delPerm = 1;
-        }
-
+		$delPerm = 1;
+	}
+	
 	if($hasPermission)
 	{
-            $finalInfo = array();
-
+		$finalInfo = array();
+		
 		foreach ($displayInfo as $n => $v)
 		{
 			$tbl_elm = $modx->getFullTableName($v['table']);
@@ -248,42 +248,42 @@ function createCategoryList()
 			{
 				while($row = $modx->db->getRow($rs))
 				{
-                        $row['type'] = $v['name'];
-                        $row['action'] = $v['action'];
+					$row['type'] = $v['name'];
+					$row['action'] = $v['action'];
 					if (empty($row['category']))
 					{
 						$row['category'] = $_lang['no_category'];
 					}
-                        $finalInfo[] = $row;
-                    }
-        		}
-            }
-
+					$finalInfo[] = $row;
+				}
+			}
+		}
+		
 		foreach($finalInfo as $n => $v)
 		{
-                $category[$n] = $v['category'];
-                $name[$n] = $v['name'];
-            }
-
-            array_multisort($category, SORT_ASC, $name, SORT_ASC, $finalInfo);
-
-    		$preCat = '';
-    		$insideUl = 0;
+			$category[$n] = $v['category'];
+			$name[$n] = $v['name'];
+		}
+		
+		array_multisort($category, SORT_ASC, $name, SORT_ASC, $finalInfo);
+		
+		$preCat = '';
+		$insideUl = 0;
 		foreach($finalInfo as $n => $v)
 		{
 			if ($preCat !== $v['category'])
 			{
-                    echo $insideUl? '</ul>': '';
+				echo $insideUl? '</ul>': '';
 				if ($v['category'] == $_lang['no_category'] || !$delPerm)
 				{
-                        echo '<li><strong>'.$v['category'].'</strong><ul>';
+					echo '<li><strong>'.$v['category'].'</strong><ul>';
 				}
 				else
 				{
 					echo '<li><strong>'.$v['category'].'</strong> (<a href="javascript:deleteCategory(\'' . $v['catid'] . '\');">'.$_lang['delete_category'].'</a>)<ul>';
-                    }
-                    $insideUl = 1;
-                }
+				}
+				$insideUl = 1;
+			}
 			$ph = array();
 			if(array_key_exists('disabled',$v) && $v['disabled'])
 			{
@@ -307,8 +307,8 @@ function createCategoryList()
 				$tpl = str_replace($k,$value,$tpl);
 			}
 			echo $tpl;
-    		$preCat = $v['category'];
-            }
-            echo $insideUl? '</ul>': '';
-        }
+			$preCat = $v['category'];
+		}
+		echo $insideUl? '</ul>': '';
+	}
 }

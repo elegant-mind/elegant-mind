@@ -60,9 +60,9 @@ if ($_SESSION['mgrRole'] != 1) {
 		    || !$modx->hasPermission('new_role')
 		    )
 			{
-		webAlert("Illegal attempt to create/modify administrator by non-administrator!");
-		exit;
-	}
+				webAlert("Illegal attempt to create/modify administrator by non-administrator!");
+				exit;
+			}
 	}
 	// Verify that the user being edited wasn't an admin and the user ID got spoofed
 	if ($rs = $modx->db->select('role',$tbl_user_attributes,"internalKey={$id}")) {
@@ -172,7 +172,7 @@ switch ($_POST['mode']) {
 			"mode" => "new",
 			"id" => $key
 		));
-
+		
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
 		// first, check that up_perms are switched on!
@@ -198,7 +198,7 @@ switch ($_POST['mode']) {
 			} else {
 				$header = "Location: index.php?a=75";
 			}
-				header($header);
+			header($header);
 			exit;
 		} else {
 			if ($_POST['stay'] != '') {
@@ -400,7 +400,7 @@ switch ($_POST['mode']) {
 		{
 			include_once "header.inc.php";
 			$_SESSION['mgrRole'] = $roleid;
-			$modx->webAlert('In order to read an authority setup of the changed role, please relogin.','index.php?a=75');
+			$modx->webAlert($_lang['save_user.processor.php1'],'index.php?a=75');
 			include_once "footer.inc.php";
 			exit;
 		}
@@ -440,7 +440,7 @@ switch ($_POST['mode']) {
 			} else {
 				$header = "Location: index.php?a=75";
 			}
-				header($header);
+			header($header);
 			exit;
 		}
 		break;
@@ -452,7 +452,7 @@ switch ($_POST['mode']) {
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn)
 {
-	global $modx;
+	global $modx,$_lang;
 	$message = sprintf($modx->config['signupemail_message'], $uid, $pwd); // use old method
 	$ph['uid']    = $uid;
 	$ph['pwd']    = $pwd;

@@ -44,7 +44,7 @@ class GetFolders {
 			     * Initiate the array to store the filenames
 			     */
 			    $files_in_folder = array();
-
+				
 				$files = scandir($dh);
 				if($files)
 				{
@@ -54,20 +54,20 @@ class GetFolders {
 						{
 							if (is_dir($this->real_cwd."/$filename"))
 							{
-							//check if$fckphp_configured not to show this folder
-							$hide=false;
-							for($i=0;$i<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']);$i++)
+								//check if$fckphp_configured not to show this folder
+								$hide=false;
+								for($i=0;$i<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']);$i++)
 								{
 									$pattern = $this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'][$i];
 									$hide=(preg_match("/{$pattern}/",$filename) ? true : $hide);
 								}
-                           /**
-                            * Dont echo the entry, push it in the array
-                            */
-					       if (!$hide) array_push($files_in_folder,$filename);
+								/**
+								* Dont echo the entry, push it in the array
+								*/
+								if (!$hide) array_push($files_in_folder,$filename);
+							}
 						}
 					}
-				}
 				}
 			}
 
@@ -85,5 +85,3 @@ class GetFolders {
 		<?php
 	}
 }
-
-?>

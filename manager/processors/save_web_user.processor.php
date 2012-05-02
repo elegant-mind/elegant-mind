@@ -173,7 +173,7 @@ switch ($_POST['mode']) {
 			} else {
 				$header = "Location: index.php?a=99";
 			}
-				header($header);
+			header($header);
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$key" : "87";
@@ -382,8 +382,8 @@ switch ($_POST['mode']) {
 			} else {
 				$header = "Location: index.php?a=99";
 			}
-				header($header);
-			}
+			header($header);
+		}
 		break;
 	default :
 		webAlert("Unauthorized access");
@@ -424,7 +424,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 // Save User Settings
 function saveUserSettings($id) {
 	global $modx;
-
+	
 	$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
 
 	$modx->db->delete($tbl_web_user_settings, "webuser='$id'");
@@ -434,7 +434,7 @@ function saveUserSettings($id) {
 		"allowed_ip",
 		"allowed_days"
 	);
-
+	
 	foreach($settings as $name)
 	{
 		$value = $_POST[$name];

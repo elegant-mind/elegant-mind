@@ -3,29 +3,29 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 
 switch((int) $_REQUEST['a'])
 {
-  case 16:
+	case 16:
 	if(!$modx->hasPermission('edit_template'))
 	{
-      $e->setError(3);
-      $e->dumpError();
-    }
-    break;
+		$e->setError(3);
+		$e->dumpError();
+	}
+	break;
 case 19:
 	if(!$modx->hasPermission('new_template'))
 	{
-      $e->setError(3);
-      $e->dumpError();
-    }
-    break;
+		$e->setError(3);
+		$e->dumpError();
+	}
+	break;
 default:
-    $e->setError(3);
-    $e->dumpError();
+	$e->setError(3);
+	$e->dumpError();
 }
 
 if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id']))
 {
-    $id = $_REQUEST['id'];
-    // check to see the template editor isn't locked
+	$id = $_REQUEST['id'];
+	// check to see the template editor isn't locked
 	$tbl_active_users = $modx->getFullTableName('active_users');
 	$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=16 AND id={$id}");
 	if($modx->db->getRecordCount($rs)>1)
@@ -35,10 +35,10 @@ if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id']))
 			if($row['internalKey'] != $modx->getLoginUserID())
 			{
 				$msg = sprintf($_lang['lock_msg'],$row['username'],'template');
-                $e->setError(5, $msg);
-                $e->dumpError();
-            }
-        }
+				$e->setError(5, $msg);
+				$e->dumpError();
+			}
+		}
 	} // end check for lock
 }
 else
@@ -53,27 +53,27 @@ if(isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id']))
 	$total = $modx->db->getRecordCount($rs);
 	if($total > 1)
 	{
-        echo "Oops, something went terribly wrong...<p>";
-        print "More results returned than expected. Which sucks. <p>Aborting.";
-        exit;
-    }
+		echo "Oops, something went terribly wrong...<p>";
+		print "More results returned than expected. Which sucks. <p>Aborting.";
+		exit;
+	}
 	if($total < 1)
 	{
-        echo "Oops, something went terribly wrong...<p>";
-        print "No database record has been found for this template. <p>Aborting.";
-        exit;
-    }
+		echo "Oops, something went terribly wrong...<p>";
+		print "No database record has been found for this template. <p>Aborting.";
+		exit;
+	}
 	$content = $modx->db->getRow($rs);
-    $_SESSION['itemname']=$content['templatename'];
+	$_SESSION['itemname']=$content['templatename'];
 	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
 	{
-        $e->setError(3);
-        $e->dumpError();
-    }
+		$e->setError(3);
+		$e->dumpError();
+	}
 }
 else
 {
-    $_SESSION['itemname']="New template";
+	$_SESSION['itemname']="New template";
 }
 
 $content = array_merge($content, $_POST);
@@ -81,55 +81,55 @@ $content = array_merge($content, $_POST);
 ?>
 <script type="text/javascript">
 function duplicaterecord(){
-    if(confirm("<?php echo $_lang['confirm_duplicate_record'] ?>")==true) {
-        documentDirty=false;
-        document.location.href="index.php?id=<?php echo $_REQUEST['id']; ?>&a=96";
-    }
+	if(confirm("<?php echo $_lang['confirm_duplicate_record'] ?>")==true) {
+		documentDirty=false;
+		document.location.href="index.php?id=<?php echo $_REQUEST['id']; ?>&a=96";
+	}
 }
 
 function deletedocument() {
-    if(confirm("<?php echo $_lang['confirm_delete_template']; ?>")==true) {
-        documentDirty=false;
-        document.location.href="index.php?id=" + document.mutate.id.value + "&a=21";
-    }
+	if(confirm("<?php echo $_lang['confirm_delete_template']; ?>")==true) {
+		documentDirty=false;
+		document.location.href="index.php?id=" + document.mutate.id.value + "&a=21";
+	}
 }
 
 </script>
 
 <form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
-    // invoke OnTempFormPrerender event
-    $evtOut = $modx->invokeEvent("OnTempFormPrerender",array("id" => $id));
-    if(is_array($evtOut)) echo implode("",$evtOut);
+	// invoke OnTempFormPrerender event
+	$evtOut = $modx->invokeEvent("OnTempFormPrerender",array("id" => $id));
+	if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 <input type="hidden" name="a" value="20">
 <input type="hidden" name="id" value="<?php echo $_REQUEST['id'];?>">
 <input type="hidden" name="mode" value="<?php echo (int) $_REQUEST['a'];?>">
 
-    <h1><?php echo $_lang['template_title']; ?></h1>
+	<h1><?php echo $_lang['template_title']; ?></h1>
 
     <div id="actions">
-          <ul class="actionButtons">
-              <li id="Button1">
-                <a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
-                  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
-                </a>
-                  <span class="and"> + </span>
-                <select id="stay" name="stay">
-                  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
-                  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-                  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
-                </select>
-              </li>
-              <?php
-                if ($_REQUEST['a'] == '16') { ?>
-              <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>
-              <li id="Button3" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
-              <?php } else { ?>
-              <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
-              <?php } ?>
-              <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
-          </ul>
+    	  <ul class="actionButtons">
+    		  <li id="Button1">
+    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
+    			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
+    			</a>
+    			  <span class="and"> + </span>
+    			<select id="stay" name="stay">
+    			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
+    			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
+    			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+    			</select>
+    		  </li>
+    		  <?php
+    			if ($_REQUEST['a'] == '16') { ?>
+    		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>
+    		  <li id="Button3" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
+    		  <?php } else { ?>
+    		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
+    		  <?php } ?>
+    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
+    	  </ul>
     </div>
 
 <script type="text/javascript" src="media/script/tabpane.js"></script>
@@ -137,13 +137,13 @@ function deletedocument() {
 <div class="sectionBody">
 
 <div class="tab-pane" id="templatesPane">
-    <script type="text/javascript">
+	<script type="text/javascript">
 		tpResources = new WebFXTabPane( document.getElementById( "templatesPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-    </script>
+	</script>
 
-    <div class="tab-page" id="tabTemplate">
-        <h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
-        <script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplate" ) );</script>
+	<div class="tab-page" id="tabTemplate">
+    	<h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
+    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplate" ) );</script>
 
 	<div style="margin-bottom:10px;">
 	<?php echo "\t" . $_lang['template_msg']; ?>
@@ -226,29 +226,29 @@ if ($_REQUEST['a'] == '16')
 <h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
 <script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
-        <tr>
+	  <tr>
 		<th align="left"><?php echo $_lang['existing_category']; ?>:</th>
 		<td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
-                <option>&nbsp;</option>
-                <?php
-                    include_once "categories.inc.php";
-                    $ds = getCategories();
+				<option>&nbsp;</option>
+		        <?php
+		            include_once "categories.inc.php";
+					$ds = getCategories();
 					if($ds) foreach($ds as $n=>$v)
 					{
-                        echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
-                    }
-                ?>
-            </select>
-        </td>
-      </tr>
-      <tr>
+						echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
+					}
+				?>
+			</select>
+		</td>
+	</tr>
+	<tr>
 		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
 		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
-      </tr>
-      <tr>
+	</tr>
+	<tr>
 		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
-      </tr>
+	</tr>
 	  <tr>
 	    <td align="left" colspan="2">
 	    <label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>

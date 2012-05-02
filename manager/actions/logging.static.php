@@ -118,7 +118,7 @@ window.addEvent('domready', function() {
 		  <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($_REQUEST['dateto']) ? $_REQUEST['dateto'] : "" ; ?>" />
 		  <a onclick="document.logging.dateto.value=''; return true;" onmouseover="window.status='Don\'t set a date'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date" /></a>
 		 </td>
-  </tr>
+      </tr>
   <tr bgcolor="#eeeeee">
     <td><b><?php echo $_lang["mgrlog_results"]; ?></b></td>
     <td align="right">
@@ -225,7 +225,7 @@ if(isset($_REQUEST['log_submit'])) {
 		$logentries = array();
 		$i = 0;
 		while ($logentry = $modx->db->getRow($rs))
-			{
+		{
 			if(!preg_match("/^[0-9]+$/", $logentry['itemid']))
 			{
 				$item = '<div style="text-align:center;">-</div>';

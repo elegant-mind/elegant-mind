@@ -359,7 +359,7 @@ function init () {
     }
 
     if ( !defined('MAGPIE_OUTPUT_ENCODING') ) {
-        global $modx_manager_charset;
+    global $modx_manager_charset;
         if(empty($modx_manager_charset)) $modx_manager_charset = 'utf-8';
         define('MAGPIE_OUTPUT_ENCODING', $modx_manager_charset);
     }
@@ -460,4 +460,3 @@ function is_client_error ($sc) {
 function is_server_error ($sc) { 
     return $sc >= 500 && $sc < 600; 
 }
-?>

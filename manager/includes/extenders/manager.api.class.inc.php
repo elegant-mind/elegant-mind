@@ -35,7 +35,7 @@ class ManagerAPI {
 	
 	// check for saved form
 	function hasFormValues() {
-		if(isset($_SESSION["mgrFormValueId"])) {		
+		if(isset($_SESSION["mgrFormValueId"])) {
 			if($this->action==$_SESSION["mgrFormValueId"]) {
 				return true;
 			}

@@ -122,6 +122,6 @@ function evalModule($moduleCode,$params){
 			if($modx->isBackend()) $modx->event->alert("<span style='color:maroon;'><b>".$content['name']." - Module"." runtime error:</b></span><br /><br />An error occurred while loading the module. Please see the event log.");
 		}
 	}
-	unset($modx->event->params); 
+	unset($modx->event->params);
 	return $mod.$msg;
 }

@@ -38,7 +38,7 @@ elseif ($mode=='restore2')
 	if(file_exists($path))
 	{
 		$source = file_get_contents($path);
-	import_sql($source);
+		import_sql($source);
 	}
 	exit;
 }
@@ -182,18 +182,18 @@ else $ph['result_msg'] = '';
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <h1><?php echo $_lang['bk_manager']?></h1>
 <div class="sectionBody" id="lyr4">
-	<div class="tab-pane" id="dbmPane"> 
-	<script type="text/javascript"> 
-	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane')); 
+	<div class="tab-pane" id="dbmPane">
+	<script type="text/javascript">
+	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane'));
 	</script>
-	<div class="tab-page" id="tabBackup">  
+	<div class="tab-page" id="tabBackup">
 	    <h2 class="tab"><?php echo $_lang['backup']?></h2>
 	    <script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabBackup'));</script>
 	<form name="frmdb" method="post">
 	<input type="hidden" name="mode" value="" />
 	<p><?php echo $_lang['table_hoverinfo']?></p>
 
-	<p style="width:100%;"><a href="#" onclick="backup();return false;"><img src="<?php echo $style_path;?>misc/ed_save.gif" border="0" /><?php echo $_lang['database_table_clickhere']?></a> <?php echo $_lang['database_table_clickbackup']?></p>
+	<p style="width:100%;" class="actionButtons"><a href="#" onclick="backup();return false;"><img src="<?php echo $style_path;?>misc/ed_save.gif" /> <?php echo $_lang['database_table_clickbackup']?></a></p>
 	<p><label><input type="checkbox" name="droptables" checked="checked" /><?php echo $_lang['database_table_droptablestatements']?></label></p>
 	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
 		<thead><tr>
@@ -274,7 +274,7 @@ if ($totaloverhead > 0) {
 </div>
 <!-- This iframe is used when downloading file backup file -->
 <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
-<div class="tab-page" id="tabRestore">  
+<div class="tab-page" id="tabRestore">
 	<h2 class="tab"><?php echo $_lang["bkmgr_restore_title"];?></h2>
 	<?php echo $ph['result_msg']; ?>
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
@@ -379,7 +379,7 @@ function checked($cond)
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="snapshot" />
 	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
-	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
+	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 	</div>

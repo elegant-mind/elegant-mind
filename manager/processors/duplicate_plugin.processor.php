@@ -24,7 +24,7 @@ else {
 // duplicate Plugin Event Listeners
 $tbl_site_plugin_events = $modx->getFullTableName('site_plugin_events');
 $sql = "INSERT INTO {$tbl_site_plugin_events} (pluginid,evtid,priority)
-			SELECT $newid, evtid, priority
+		SELECT $newid, evtid, priority
 		FROM {$tbl_site_plugin_events} WHERE pluginid={$id}";
 $rs = $modx->db->query($sql);
 

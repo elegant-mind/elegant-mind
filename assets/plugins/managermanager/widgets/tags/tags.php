@@ -18,7 +18,7 @@ function mm_widget_tags($fields, $delimiter=',', $source='', $display_count=fals
 
 		// And likewise for the data source (if supplied)
 		$source = (empty($source) ? $fields : makeArray($source));
-
+		
 		// Does this page's template use any of these TVs? If not, quit.
 		$field_tvs = tplUseTvs($mm_current_page['template'], $fields);
 		if ($field_tvs == false) {

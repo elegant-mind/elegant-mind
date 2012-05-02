@@ -333,7 +333,7 @@ class MakeTable {
 	 */
 	function create($fieldsArray, $fieldHeadersArray=array(),$linkpage="")
 	{
-	global $_lang;
+		global $_lang;
 		if (is_array($fieldsArray))
 		{
 			$i= 0;

@@ -7,7 +7,7 @@ if(!$modx->hasPermission('save_document')) {
 
 if(isset($_REQUEST['id']))
 {
-    $id = intval($_REQUEST['id']);
+	$id = intval($_REQUEST['id']);
 }
 elseif(isset($_REQUEST['batch']))
 {
@@ -15,8 +15,8 @@ elseif(isset($_REQUEST['batch']))
 }
 else
 {
-    $e->setError(2);
-    $e->dumpError();
+	$e->setError(2);
+	$e->dumpError();
 }
 
 // check permissions on the document

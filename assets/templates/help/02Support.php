@@ -31,7 +31,7 @@ $info = array(
               'Site URL'  => $modx->config['site_url'],
               'Host name' => gethostbyaddr(getenv('SERVER_ADDR')),
               'MODX_BASE_URL' => MODX_BASE_URL,
-              'Size of siteCache' => file_size(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'),
+              'Size of siteCache' => $modx->nicesize(filesize(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')),
               'upload_tmp_dir' => ini_get('upload_tmp_dir'),
               'memory_limit' => ini_get('memory_limit'),
               'post_max_size' => ini_get('post_max_size'),
@@ -85,20 +85,6 @@ while ($row = $modx->db->getRow($rs)){
   echo '<tr><td style="padding-right:30px;">' . $row['Variable_name'] . '</td><td>' . $row['Value'] . '</td></tr>' . PHP_EOL;
 }
 echo '</table>' . PHP_EOL;
-
-function file_size($file)
-{
-// thanks for http://sozaifan.exblog.jp/839291/
-$size = filesize($file);
-$sizes = Array('バイト', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB');
-$ext = $sizes[0];
-for ($i=1; (($i < count($sizes)) && ($size >= 1024)); $i++)
-{
-$size = $size / 1024;
-$ext = $sizes[$i];
-}
-return round($size, 2).$ext;
-}
 
 ?>
 <h3>More description</h3>

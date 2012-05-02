@@ -14,24 +14,24 @@ $updateMsg = '';
 if(isset($_POST['listSubmitted']))
 {
 	$updateMsg .= '<span class="warning" id="updated">Updated!<br /><br /> </span>';
-
+	
 	foreach ($_POST as $listName=>$listValue)
 	{
-        if ($listName == 'listSubmitted') continue;
-    	$orderArray = explode(',', $listValue);
-    	$listName = ltrim($listName, 'list_');
+		if ($listName == 'listSubmitted') continue;
+		$orderArray = explode(',', $listValue);
+		$listName = ltrim($listName, 'list_');
 		if (count($orderArray) > 0)
 		{
 			foreach($orderArray as $key => $item)
 			{
-	    		if ($item == '') continue;
-	    		$pluginId = ltrim($item, 'item_');
+				if ($item == '') continue;
+				$pluginId = ltrim($item, 'item_');
 				$field['priority'] = $key;
 				$modx->db->update($field,$tbl_site_plugin_events,"pluginid={$pluginId} and evtid={$listName}");
-	    	}
-    	}
-    }
-    // empty cache
+			}
+		}
+	}
+	// empty cache
 	$modx->clearCache(); // first empty the cache
 }
 
@@ -50,17 +50,17 @@ if($total>1)
 {
 	for ($i=0;$i<$total;$i++)
 	{
-        $plugins = mysql_fetch_assoc($rs);
+		$plugins = mysql_fetch_assoc($rs);
 		if ($preEvt !== $plugins['evtid'])
 		{
-            $sortables[] = $plugins['evtid'];
-            $evtLists .= $insideUl? '</ul><br />': '';
-            $evtLists .= '<strong>'.$plugins['evtname'].'</strong><br /><ul id="'.$plugins['evtid'].'" class="sortableList">';
-            $insideUl = 1;
-        }
-        $evtLists .= '<li id="item_'.$plugins['pluginid'].'">'.$plugins['name'].'</li>';
-        $preEvt = $plugins['evtid'];
-    }
+			$sortables[] = $plugins['evtid'];
+			$evtLists .= $insideUl? '</ul><br />': '';
+			$evtLists .= '<strong>'.$plugins['evtname'].'</strong><br /><ul id="'.$plugins['evtid'].'" class="sortableList">';
+			$insideUl = 1;
+		}
+		$evtLists .= '<li id="item_'.$plugins['pluginid'].'">'.$plugins['name'].'</li>';
+		$preEvt = $plugins['evtid'];
+	}
 }
 
 $evtLists .= '</ul>';
@@ -89,11 +89,11 @@ $header = '
 
 		ul.sortableList li
 		{
-            font-weight: bold;
-            cursor: move;
+			font-weight: bold;
+			cursor: move;
             color: #444444;
             padding: 3px 5px;
-            margin: 4px 0px;
+			margin: 4px 0px;
             border: 1px solid #CCCCCC;
 			background-image: url("' . $style_path . 'misc/fade.gif");
 			background-repeat: repeat-x;
@@ -120,12 +120,12 @@ foreach ($sortables as $list) {
                         });
                     }
                     ,onComplete: function() {
-                       	var id = null;
-                       	var list = this.serialize(function(el) {
-                            id = el.getParent().id;
-                           	return el.id;
-                        });
-                       $(\'list_\' + id).value = list;
+           	var id = null;
+           	var list = this.serialize(function(el) {
+            id = el.getParent().id;
+           	return el.id;
+           });
+           $(\'list_\' + id).value = list;
                     }
                 });' ."\n";
 }

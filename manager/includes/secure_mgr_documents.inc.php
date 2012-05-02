@@ -16,7 +16,7 @@ function secureMgrDocument($docid='')
 	$tbl_site_content       = $modx->getFullTableName('site_content');
 	$tbl_document_groups    = $modx->getFullTableName('document_groups');
 	$tbl_membergroup_access = $modx->getFullTableName('membergroup_access');
-		
+	
 	$modx->db->query("UPDATE {$tbl_site_content} SET privatemgr = 0 WHERE ".($docid>0 ? "id='$docid'":"privatemgr = 1"));
 	$sql =  "SELECT DISTINCT sc.id 
 			 FROM {$tbl_site_content} sc

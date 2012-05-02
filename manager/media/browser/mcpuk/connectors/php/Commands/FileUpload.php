@@ -33,7 +33,7 @@ class FileUpload {
 	var $cwd;
 	var $actual_cwd;
 	var $newfolder;
-
+	
 	function FileUpload($fckphp_config,$type,$cwd)
 	{
 		$this->fckphp_config=$fckphp_config;
@@ -49,7 +49,7 @@ class FileUpload {
 		$modx->db->connect();
 		$modx->getSettings();
 	}
-
+	
 	function cleanFilename($filename)
 	{
 		$n_filename='';
@@ -75,7 +75,7 @@ class FileUpload {
 		
 		header ('content-type: text/html');
 		if (count($_FILES) < 1) exit(0);
-
+		
 		if (array_key_exists('NewFile',$_FILES))
 		{
 			if (! $_FILES['NewFile']['error'] && $_FILES['NewFile']['size']<($typeconfig['MaxSize']))
@@ -137,7 +137,7 @@ class FileUpload {
 								}
 								
 								if (($dirSizes[$this->type]+$_FILES['NewFile']['size'])>
-									($typeconfig['DiskQuota']*3048576))
+									($typeconfig['DiskQuota']*1048576))
 								{
 									$failSizeCheck=true;	
 									$msg="\\nYou are over the disk quota for this resource type.";
@@ -227,16 +227,16 @@ class FileUpload {
 											$disp="202,'Failed to upload file, internal error...'";
 										}
 									}
-									}
-									// (*4)
+								}
+								// (*4)
 								if (reset(explode(',', $disp)) != '202')
 								{
-										$uploaded_path = preg_replace('|\\/$|', '', $this->real_cwd);
-										$modx->invokeEvent("OnFileManagerUpload",
-												array(
-													"filepath"	=> $uploaded_path,
-													"filename"	=> $uploaded_name
-												));
+									$uploaded_path = preg_replace('|\\/$|', '', $this->real_cwd);
+									$modx->invokeEvent("OnFileManagerUpload",
+											array(
+												"filepath"	=> $uploaded_path,
+												"filename"	=> $uploaded_name
+											));
 								}
 							}
 						} else {
@@ -250,20 +250,20 @@ class FileUpload {
 						//No file extension to check
 						$disp="202,'Unable to determine file type of file'";
 					}	
-					} else {	// (*3)
-						$disp="202,'The character which cannot be used for a file name is contained.'";
-					}
-				} else {
-					//Too big
-					$disp="202,'This file exceeds the maximum upload size.'";
+				} else {	// (*3)
+					$disp="202,'The character which cannot be used for a file name is contained.'";
 				}
+			} else {
+				//Too big
+				$disp="202,'This file exceeds the maximum upload size.'";
+			}
 		}
 		else
 		{
-				//No file uploaded with field name NewFile
-				$disp="202,'Unable to find uploaded file.'";
-			}
-			
+			//No file uploaded with field name NewFile
+			$disp="202,'Unable to find uploaded file.'";
+		}
+
 		?>
 		<html>
 		<head>

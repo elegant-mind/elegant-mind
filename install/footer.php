@@ -15,16 +15,16 @@ function get_src_footer()
 {
 	$src = <<< EOT
 			</div>
-        </div><!-- // content -->
-    </div><!-- // contentarea -->
+		</div><!-- // content -->
+	</div><!-- // contentarea -->
 <div id="footer">
-    <div id="footer-inner">
+	<div id="footer-inner">
 	<div class="container_10">
 		[+footer1+]
-            <br />
+		<br />
 		[+footer2+]
-        </div>
-    </div>
+	</div>
+	</div>
 </div>
 <!-- end install screen-->
 </body>

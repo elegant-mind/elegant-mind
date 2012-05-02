@@ -23,7 +23,7 @@ else {
 // duplicate module dependencies
 $tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
 $sql = "INSERT INTO {$tbl_site_module_depobj} (module, resource, type)
-			SELECT  '$newid', resource, type  
+		SELECT  '$newid', resource, type  
 		FROM {$tbl_site_module_depobj} WHERE module={$id}";
 $rs = $modx->db->query($sql);
 
@@ -35,7 +35,7 @@ if(!$rs){
 // duplicate module user group access
 $tbl_site_module_access = $modx->getFullTableName('site_module_access');
 $sql = "INSERT INTO {$tbl_site_module_access} (module, usergroup)
-			SELECT  '$newid', usergroup  
+		SELECT  '$newid', usergroup  
 		FROM {$tbl_site_module_access} WHERE module={$id}";
 $rs = $modx->db->query($sql);
 

@@ -45,8 +45,8 @@ $wfbc = new WFBC();
 	$rowTpl   = '@CODE:' . $rowTpl;
 	$hereTpl  = '@CODE:' . $hereTpl;
 	$activeParentRowTpl = '@CODE:' . $activeParentRowTpl;
-	
-	
+
+
 class WFBC
 {
 	function WFBC()

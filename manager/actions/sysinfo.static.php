@@ -88,8 +88,8 @@ if(!$modx->hasPermission('logs')) {
 					else
 					{
 						$r = $modx->db->getRow($rs2);
-					$user = $r['username'];
-				}
+						$user = $r['username'];
+					}
 				}
 				$bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 				echo "<tr bgcolor='$bgcolor'><td style='text-align:right;'>".$content['id']."</td><td><a href='index.php?a=3&id=".$content['id']."'>".$content['pagetitle']."</a></td><td>".$user."</td><td>".$modx->toDateFormat($content['editedon']+$server_offset_time)."</td></tr>";
@@ -204,7 +204,7 @@ if(!$modx->hasPermission('logs')) {
 
 		include_once "actionlist.inc.php";
 		$tbl_active_users = $modx->getFullTableName('active_users');
-
+		
 		$rs = $modx->db->select('*',$tbl_active_users,"lasthit>{$timetocheck}",'username ASC');
 		$limit = $modx->db->getRecordCount($rs);
 		if($limit<1) {

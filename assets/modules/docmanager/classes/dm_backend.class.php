@@ -131,7 +131,7 @@ class DocManagerBackend {
 		$updateError = '';
 	
 		/*
-        $ignoreList = array();
+		$ignoreList = array();
 		if (trim($_POST['ignoreTV']) <> '') {
 			$ignoreList = explode(',', $_POST['ignoreTV']);
 			foreach ($ignoreList as $key => $value) {
@@ -198,41 +198,41 @@ class DocManagerBackend {
 								if($_POST['update_tv_' . $tvIndex] == 'yes')
 								{
 									$checkSQL = $this->modx->db->select('value',$tbl_site_tmplvar_contentvalues,"contentid='{$docID}' AND tmplvarid='{$tvValue}'");
-                                    $checkCount = $this->modx->db->getRecordCount($checkSQL);
+									$checkCount = $this->modx->db->getRecordCount($checkSQL);
 									if ($checkCount)
 									{
-                                        $checkRow = $this->modx->db->getRow($checkSQL);
+										$checkRow = $this->modx->db->getRow($checkSQL);
 										if ($checkRow['value'] == $tmplVars["$tvIndex"])
 										{
-                                            $noUpdate = true;
-                                        }
+											$noUpdate = true;
+										}
 										elseif (trim($tmplVars["$tvIndex"]) == '')
 										{
 											$this->modx->db->delete($tbl_site_tmplvar_contentvalues, "contentid='{$docID}' AND tmplvarid='{$tvValue}'");
-                                            $noUpdate = true;
-                                        }
-                                    }
-
+											$noUpdate = true;
+										}
+									}
+									
 									if ($checkCount > 0 && !isset ($noUpdate))
 									{
-                                        $fields = array (
-                                            'value' => $this->modx->db->escape($tmplVars["$tvIndex"])
-                                        );
+										$fields = array (
+										'value' => $this->modx->db->escape($tmplVars["$tvIndex"])
+										);
 										$this->modx->db->update($fields, $tbl_site_tmplvar_contentvalues, "contentid='{$docID}' AND tmplvarid='{$tvValue}'");
-                                        $updated = true;
+										$updated = true;
 									}
 									elseif (!isset ($noUpdate) && ltrim($tmplVars["$tvIndex"]) !== '')
 									{
-                                        $fields = array (
-                                            'value' => $this->modx->db->escape($tmplVars["$tvIndex"]),
-                                            'contentid' => $this->modx->db->escape($docID),
-                                            'tmplvarid' => $this->modx->db->escape($tvValue)
-                                        );
+										$fields = array (
+											'value' => $this->modx->db->escape($tmplVars["$tvIndex"]),
+											'contentid' => $this->modx->db->escape($docID),
+											'tmplvarid' => $this->modx->db->escape($tvValue)
+										);
 										$this->modx->db->insert($fields, $tbl_site_tmplvar_contentvalues);
-                                        $updated = true;
-                                    }
-                                }
-                                unset($noUpdate);
+										$updated = true;
+									}
+								}
+							unset($noUpdate);
 							}
 						}
 					}
@@ -559,7 +559,7 @@ class DocManagerBackend {
 		return $output;
 	}
     
-    function secureWebDocument($docId = '') {	
+    function secureWebDocument($docId = '') {
 		$tbl_site_content = $this->modx->getFullTableName('site_content');
 		$sql = "SELECT DISTINCT sc.id
 									 FROM " . $tbl_site_content . " sc
@@ -574,7 +574,7 @@ class DocManagerBackend {
 		}
 	}
 	
-	function secureMgrDocument($docId = '') {	
+	function secureMgrDocument($docId = '') {
 		$tbl_site_content = $this->modx->getFullTableName('site_content');
 		$sql = "SELECT DISTINCT sc.id
 									 FROM " . $tbl_site_content . " sc

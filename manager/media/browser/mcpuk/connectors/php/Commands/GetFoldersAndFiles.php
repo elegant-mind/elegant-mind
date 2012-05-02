@@ -67,10 +67,10 @@ class GetFoldersAndFiles {
 			$files=array();
 			if (opendir($this->real_cwd))
 			{
-			    /**
-			     * Initiate the array to store the foldernames
-			     */
-			    $folders_array = array();
+				/**
+				* Initiate the array to store the foldernames
+				*/
+				$folders_array = array();
 				$filenames = scandir($this->real_cwd);
 				if($filenames)
 				{
@@ -80,25 +80,25 @@ class GetFoldersAndFiles {
 						{
 							if (is_dir($this->real_cwd."/$filename"))
 							{
-							//check if$fckphp_configured not to show this folder
-							$hide=false;
-							for($i=0;$i<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']);$i++)
+								//check if$fckphp_configured not to show this folder
+								$hide=false;
+								for($i=0;$i<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']);$i++)
 								{
 									$pattern = $this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'][$i];
 									$hide=(preg_match("/{$pattern}/",$filename) ? true : $hide);
 								}
-						  /**
-                           * Dont echo the entry, push it in the array
-                           */
-    					  //if (!$hide) echo "\t\t<Folder name=\"$filename\" />\n";
-    					    if (!$hide) array_push($folders_array,$filename);
+								/**
+								* Dont echo the entry, push it in the array
+								*/
+								//if (!$hide) echo "\t\t<Folder name=\"$filename\" />\n";
+								if (!$hide) array_push($folders_array,$filename);
 							}
 							else
 							{
-							array_push($files,$filename);
+								array_push($files,$filename);
+							}
 						}
 					}
-				}
 				}
 				/**
 			     * Sort the array by the way you like and show it.

@@ -23,10 +23,10 @@ if($total>1)
 		if($row['internalKey']!=$modx->getLoginUserID())
 		{
 			$msg = sprintf($_lang['lock_msg'], $row['username'], ' template variable');
-            $e->setError(5, $msg);
-            $e->dumpError();
-        }
-    }
+			$e->setError(5, $msg);
+			$e->dumpError();
+		}
+	}
 }
 // end check for lock
 
@@ -34,35 +34,35 @@ if($total>1)
 if(!is_numeric($id))
 {
 	echo 'Passed ID is NaN!';
-    exit;
+	exit;
 }
 
 $content = array();
 if(isset($_GET['id']))
 {
-    $tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
 	$rs = $modx->db->select('*',$tbl_site_tmplvars,"id={$id}");
 	$total = $modx->db->getRecordCount($rs);
 	if($total>1)
 	{
 		echo 'Oops, Multiple variables sharing same unique id. Not good.';
-        exit;
-    }
+		exit;
+	}
 	if($total<1)
 	{
 		header("Location: /index.php?id={$site_start}");
-    }
+	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['caption'];
 	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
 	{
-        $e->setError(3);
-        $e->dumpError();
-    }
+		$e->setError(3);
+		$e->dumpError();
+	}
 }
 else
 {
-    $_SESSION['itemname']="New Template Variable";
+	$_SESSION['itemname']="New Template Variable";
 }
 
 $formRestored = $modx->manager->loadFormValues();
@@ -470,15 +470,15 @@ function decode(s){
 <?php
 	if($use_udperms==1)
 	{
-	    $groupsarray = array();
-
-	    // fetch permissions for the variable
+		$groupsarray = array();
+		
+		// fetch permissions for the variable
 		$tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
 		$rs = $modx->db->select('documentgroup',$tbl_site_tmplvar_access,"tmplvarid={$id}");
 		while($row = $modx->db->getRow($rs))
 		{
 			$groupsarray[] = $row['documentgroup'];
-	    }
+		}
 ?>
 
 <!-- Access Permissions -->
@@ -490,62 +490,62 @@ function decode(s){
 <h2 class="tab"><?php echo $_lang['access_permissions'];?></h2>
 <script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabAccess" ) );</script>
 <script type="text/javascript">
-		    function makePublic(b){
-		        var notPublic=false;
-		        var f=document.forms['mutate'];
-		        var chkpub = f['chkalldocs'];
-		        var chks = f['docgroups[]'];
-		        if(!chks && chkpub) {
-		            chkpub.checked=true;
-		            return false;
-		        }
-		        else if (!b && chkpub) {
-		            if(!chks.length) notPublic=chks.checked;
-		            else for(i=0;i<chks.length;i++) if(chks[i].checked) notPublic=true;
-		            chkpub.checked=!notPublic;
-		        }
-		        else {
-		            if(!chks.length) chks.checked = (b)? false:chks.checked;
-		            else for(i=0;i<chks.length;i++) if (b) chks[i].checked=false;
-		            chkpub.checked=true;
-		        }
-		    }
+    function makePublic(b){
+        var notPublic=false;
+        var f=document.forms['mutate'];
+        var chkpub = f['chkalldocs'];
+        var chks = f['docgroups[]'];
+        if(!chks && chkpub) {
+            chkpub.checked=true;
+            return false;
+        }
+        else if (!b && chkpub) {
+            if(!chks.length) notPublic=chks.checked;
+            else for(i=0;i<chks.length;i++) if(chks[i].checked) notPublic=true;
+            chkpub.checked=!notPublic;
+        }
+        else {
+            if(!chks.length) chks.checked = (b)? false:chks.checked;
+            else for(i=0;i<chks.length;i++) if (b) chks[i].checked=false;
+            chkpub.checked=true;
+        }
+    }
 </script>
 <p><?php echo $_lang['tmplvar_access_msg']; ?></p>
 <?php
-		    }
-		    $chk ='';
+		}
+		$chk ='';
 		$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
 		$rs = $modx->db->select('name, id',$tbl_documentgroup_names);
 		if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id']))
 		{
-		    	$groupsarray = $_POST['docgroups'];
-		    }
+			$groupsarray = $_POST['docgroups'];
+		}
 		$number_of_g = 0;
 		while($row=$modx->db->getRow($rs))
 		{
-		        $checked = in_array($row['id'], $groupsarray);
+		    $checked = in_array($row['id'], $groupsarray);
 		    if($modx->hasPermission('access_permissions'))
 		    {
-		            if($checked) $notPublic = true;
+		        if($checked) $notPublic = true;
 		        $chks .= '<label><input type="checkbox" name="docgroups[]" value="'.$row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
 		        $number_of_g++;
-		        }
+		    }
 		    elseif($checked)
 		    {
 		        echo '<input type="hidden" name="docgroups[]"  value="' .$row['id'] . '" />';
-		        }
 		    }
+		}
 		if($modx->hasPermission('access_permissions'))
 		{
 			$disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
 		    $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>'.$chks;
-		    }
-		    echo $chks;
+		}
+		echo $chks;
 ?>
 </div>
 <?php
-	                }
+	}
 ?>
 <?php
     // invoke OnTVFormRender event

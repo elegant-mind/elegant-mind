@@ -137,7 +137,7 @@ function mm_ddSetFieldValue($field, $value='', $roles='', $templates=''){
 //									$j("#which_editor").val("none");
 //									changeRTE();
 								}
-										
+								
 								';
 					$output .= ''."\n";
 				}

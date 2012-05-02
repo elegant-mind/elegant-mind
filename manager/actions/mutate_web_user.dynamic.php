@@ -519,22 +519,22 @@ function showHide(what, onoff){
 if($use_udperms==1)
 {
 	$groupsarray = array();
-
+	
 	if($_GET['a']=='88')
 	{ // only do this bit if the user is being edited
-	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_groups` where webuser=".$_GET['id']."";
+		$sql = "SELECT * FROM $dbase.`".$table_prefix."web_groups` where webuser=".$_GET['id']."";
 		$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
+		$limit = mysql_num_rows($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
 			$currentgroup=$modx->db->getRow($rs);
-		$groupsarray[$i] = $currentgroup['webgroup'];
-	}
+			$groupsarray[$i] = $currentgroup['webgroup'];
+		}
 	}
 	// retain selected user groups between post
 	if(is_array($_POST['user_groups']))
 	{
-	foreach($_POST['user_groups'] as $n => $v) $groupsarray[] = $v;
+		foreach($_POST['user_groups'] as $n => $v) $groupsarray[] = $v;
 	}
 ?>
 	<!-- Access -->

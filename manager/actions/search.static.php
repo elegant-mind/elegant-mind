@@ -71,7 +71,7 @@ if($limit<1) {
 } else {
 	printf('<p>'.$_lang['search_results_returned_msg'].'</p>', $limit);
 ?>
-	<script type="text/javascript" src="media/script/tablesort.js"></script>
+		<script type="text/javascript" src="media/script/tablesort.js"></script>
   <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-2 rowstyle-even" id="table-1" width="90%"> 
     <thead> 
       <tr bgcolor="#CCCCCC"> 
@@ -100,28 +100,28 @@ if($limit<1) {
         'image/png' => $_style["tree_page_png"]
     );
 
-	for ($i = 0; $i < $limit; $i++) {
-		$logentry = $modx->db->getRow($rs);
+			for ($i = 0; $i < $limit; $i++) { 
+				$logentry = $modx->db->getRow($rs);
 
-		// figure out the icon for the document...
-		$icon = "";
+	// figure out the icon for the document...
+	$icon = "";
 		if ($logentry['type']=='reference') {
 			$icon .= $_style["tree_linkgo"];
 		} elseif ($logentry['isfolder'] == 0) {
 			$icon .= isset($icons[$logentry['contenttype']]) ? $icons[$logentry['contenttype']] : $_style["tree_page_html"];
 		} else {
 			$icon .= $_style['tree_folder'];
-		}
+	} 
 
 		$tdClass = "";
 		if($logentry['published'] == 0) {
 			$tdClass .= ' class="unpublishedNode"';
-		}
+	}
 		if($logentry['deleted'] == 1) {
 			$tdClass .= ' class="deletedNode"';
-		}
-?>
-    <tr>
+	}
+?> 
+    <tr> 
       <td align="center"><a href="index.php?a=3&id=<?php echo $logentry['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['icons_resource_overview']; ?>" width="16" height="16" /></a></td> 
       <td><?php echo $logentry['id']; ?></td> 
 <?php
@@ -141,12 +141,12 @@ if($limit<1) {
 		}
 ?>
       <td align="center"><img src="<?php echo $icon; ?>" /></td>
-    </tr>
+    </tr> 
 <?php
 	}
-?>
-    </tbody>
-     </table>
+?> 
+    </tbody> 
+     </table> 
 <?php
 }
 ?>

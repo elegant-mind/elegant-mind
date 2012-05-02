@@ -24,7 +24,7 @@ $sql = "SELECT el.*, IFNULL(wu.username,mu.username) as 'username' " .
 		"FROM ".$modx->getFullTableName("event_log")." el ".
 		"LEFT JOIN ".$modx->getFullTableName("manager_users")." mu ON mu.id=el.user AND el.usertype=0 ".
 		"LEFT JOIN ".$modx->getFullTableName("web_users")." wu ON wu.id=el.user AND el.usertype=1 ".
-		" WHERE el.id=$id";			
+		" WHERE el.id=$id";
 $ds = $modx->db->query($sql);
 if(!$ds) {
 	echo "Error while load event log";

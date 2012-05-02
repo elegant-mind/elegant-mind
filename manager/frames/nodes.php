@@ -6,59 +6,59 @@
  */
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-    // save folderstate
-    if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
+	// save folderstate
+	if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 	if (isset($_GET['savestateonly']))
 	{
-        echo 'send some data'; //??
-        exit;
-    }
+		echo 'send some data'; //??
+		exit;
+	}
 
-    $indent    = $_GET['indent'];
-    $parent    = $_GET['parent'];
-    $expandAll = $_GET['expandAll'];
+	$indent    = $_GET['indent'];
+	$parent    = $_GET['parent'];
+	$expandAll = $_GET['expandAll'];
 	$output    = '';
-    $theme = $manager_theme ? "$manager_theme/":"";
+	$theme = $manager_theme ? "$manager_theme/":"";
 
-    // setup sorting
+	// setup sorting
 	if(isset($_REQUEST['tree_sortby']))
 	{
-        $_SESSION['tree_sortby'] = $_REQUEST['tree_sortby'];
-    }
+		$_SESSION['tree_sortby'] = $_REQUEST['tree_sortby'];
+	}
 	if(isset($_REQUEST['tree_sortdir']))
 	{
-        $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
-    }
+		$_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
+	}
 
     // icons by content type
 
-    $icons = array(
-        'application/rss+xml' => $_style["tree_page_rss"],
-        'application/pdf' => $_style["tree_page_pdf"],
-        'application/vnd.ms-word' => $_style["tree_page_word"],
-        'application/vnd.ms-excel' => $_style["tree_page_excel"],
-        'text/css' => $_style["tree_page_css"],
-        'text/html' => $_style["tree_page_html"],
-        'text/plain' => $_style["tree_page"],
-        'text/xml' => $_style["tree_page_xml"],
-        'text/javascript' => $_style["tree_page_js"],
-        'image/gif' => $_style["tree_page_gif"],
-        'image/jpg' => $_style["tree_page_jpg"],
-        'image/png' => $_style["tree_page_png"]
-    );
+	$icons = array(
+		'application/rss+xml'      => $_style["tree_page_rss"],
+		'application/pdf'          => $_style["tree_page_pdf"],
+		'application/vnd.ms-word'  => $_style["tree_page_word"],
+		'application/vnd.ms-excel' => $_style["tree_page_excel"],
+		'text/css'   => $_style["tree_page_css"],
+		'text/html'  => $_style["tree_page_html"],
+		'text/plain' => $_style["tree_page"],
+		'text/xml'   => $_style["tree_page_xml"],
+		'text/javascript' => $_style["tree_page_js"],
+		'image/gif'  => $_style["tree_page_gif"],
+		'image/jpg'  => $_style["tree_page_jpg"],
+		'image/png'  => $_style["tree_page_png"]
+	);
 	$iconsPrivate = array(
-	    'application/rss+xml' => $_style["tree_page_rss_secure"],
-	    'application/pdf' => $_style["tree_page_pdf_secure"],
-	    'application/vnd.ms-word' => $_style["tree_page_word_secure"],
-	    'application/vnd.ms-excel' => $_style["tree_page_excel_secure"],
-	    'text/css' => $_style["tree_page_css_secure"],
-	    'text/html' => $_style["tree_page_html_secure"],
-	    'text/plain' => $_style["tree_page_secure"],
-	    'text/xml' => $_style["tree_page_xml_secure"],
-	    'text/javascript' => $_style["tree_page_js_secure"],
-	    'image/gif' => $_style["tree_page_gif_secure"],
-	    'image/jpg' => $_style["tree_page_jpg_secure"],
-	    'image/png' => $_style["tree_page_png_secure"]
+		'application/rss+xml'      => $_style["tree_page_rss_secure"],
+		'application/pdf'          => $_style["tree_page_pdf_secure"],
+		'application/vnd.ms-word'  => $_style["tree_page_word_secure"],
+		'application/vnd.ms-excel' => $_style["tree_page_excel_secure"],
+		'text/css'   => $_style["tree_page_css_secure"],
+		'text/html'  => $_style["tree_page_html_secure"],
+		'text/plain' => $_style["tree_page_secure"],
+		'text/xml'   => $_style["tree_page_xml_secure"],
+		'text/javascript' => $_style["tree_page_js_secure"],
+		'image/gif'  => $_style["tree_page_gif_secure"],
+		'image/jpg'  => $_style["tree_page_jpg_secure"],
+		'image/png'  => $_style["tree_page_png_secure"]
 	);
 
 	if (isset($_SESSION['openedArray']))
@@ -67,11 +67,11 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	}
 	else
 	{
-            $opened = array();
-    }
-    $opened2 = array();
-    $closed2 = array();
-
+		$opened = array();
+	}
+	$opened2 = array();
+	$closed2 = array();
+	
 	$tree_orderby = get_tree_orderby();
 	if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
 	$in_docgrp = !$docgrp ? '':"OR dg.document_group IN ({$docgrp})";
@@ -79,8 +79,8 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	// get document groups for current user
 	$mgrRole= (isset ($_SESSION['mgrRole']) && (string) $_SESSION['mgrRole']==='1') ? '1' : '0';
 	
-    makeHTML($indent,$parent,$expandAll,$theme);
-    echo $output;
+	makeHTML($indent,$parent,$expandAll,$theme);
+	echo $output;
 
     // check for deleted documents on reload
 	if ($expandAll==2)
@@ -88,49 +88,49 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 		$tbl_site_content = $modx->getFullTableName('site_content');
 		$rs = $modx->db->select('COUNT(id)',$tbl_site_content,"deleted=1");
 		if ($modx->db->getValue($rs) > 0) echo '<span id="binFull"></span>'; // add a special element to let system now that the bin is full
-    }
+	}
 	function makeHTML($indent,$parent,$expandAll,$theme)
 	{
-    	global $modx;
+		global $modx;
 		global $icons, $iconsPrivate, $theme, $_style,$modx_textdir;
 		global $output, $_lang, $opened, $opened2, $closed2, $tree_orderby,$docgrp,$in_docgrp,$mgrRole; //added global vars
-
+		
 		$pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 
-        // setup spacer
+		// setup spacer
 		$spacer = get_spacer($indent);
 		
 		$tblsc  = $modx->getFullTableName('site_content');
 		$tbldg  = $modx->getFullTableName('document_groups');
 		$tbldgn = $modx->getFullTableName('documentgroup_names');
-
+		
 		$access = get_where_mydocs($mgrRole,$in_docgrp);
-
+		
 		$field  = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
 		$field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access";
 		$from   = "{$tblsc} AS sc LEFT JOIN {$tbldg} dg on dg.document = sc.id";
 		$where  = "(parent={$parent}) {$access} GROUP BY sc.id";
 		$result = $modx->db->select($field,$from,$where,$tree_orderby);
-
+		
 		if(100<$modx->db->getRecordCount($result) && $modx->config['tree_page_click']==='auto')
 		{
 			$where  = "(parent={$parent}) AND isfolder=1 {$access} GROUP BY sc.id";
 			$result = $modx->db->select($field,$from,$where,$tree_orderby);
 			$status = 'too_many';
-        }
+		}
 		if($modx->db->getRecordCount($result)==0)
 		{
 			if(isset($status) && $status==='too_many')
 			{
 				$msg = $_lang['too_many_resources'];
-        }
+			}
 			else $msg = $_lang['empty_folder'];
-
+			
 			$output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
 		}
-
+		
 		while($row = $modx->db->getRow($result,'num'))
-        {
+		{
 			list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
 			if($modx->config['resource_tree_node_name']==='menutitle') $nodetitle = $menutitle ? $menutitle : $pagetitle; //jp-edition only
 			elseif($modx->config['resource_tree_node_name']==='alias') 
@@ -146,14 +146,14 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			else                                                       $nodetitle = $pagetitle;
 			
 			$nodetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $nodetitle));
-            $protectedClass = $hasAccess==0 ? ' protectedNode' : '';
+			$protectedClass = $hasAccess==0 ? ' protectedNode' : '';
 			
 			if    ($deleted==1)   $class = 'deletedNode';
 			elseif($published==0) $class = 'unpublishedNode';
 			elseif($hidemenu==1)  $class = "notInMenuNode{$protectedClass}";
 			else                  $class = "publishedNode{$protectedClass}";
 			$nodetitleDisplay = '<span class="' . $class . '">' . $nodetitle . '</span>';
-            $weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
+			$weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
 			$pageIdDisplay = '<small>('.($modx_textdir ? '&rlm;':'').$id.')</small>';
 			$url = $modx->makeUrl($id,'','','full');
 
@@ -177,24 +177,24 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			$ph['weblinkDisplay']   = $weblinkDisplay;
 			$ph['pageIdDisplay']    = $pageIdDisplay;
 			$ph['_lang_click_to_context'] = $_lang['click_to_context'];
-
+			
 			if (!$isfolder)
 			{
-                $icon = ($privateweb||$privatemgr) ? $_style["tree_page_secure"] : $_style["tree_page"];
+				$icon = ($privateweb||$privatemgr) ? $_style["tree_page_secure"] : $_style["tree_page"];
 				
 				if ($privateweb||$privatemgr)
 				{
 					if (isset($iconsPrivate[$contenttype])) $icon = $iconsPrivate[$contenttype];
-                    }
+				}
 				else
 				{
 					if (isset($icons[$contenttype]))        $icon = $icons[$contenttype];
-                }
+				}
 				
-                if($id == $modx->config['site_start'])                $icon = $_style["tree_page_home"];
-                elseif($id == $modx->config['error_page'])            $icon = $_style["tree_page_404"];
-                elseif($id == $modx->config['site_unavailable_page']) $icon = $_style["tree_page_hourglass"];
-                elseif($id == $modx->config['unauthorized_page'])     $icon = $_style["tree_page_info"];
+				if($id == $modx->config['site_start'])                $icon = $_style["tree_page_home"];
+				elseif($id == $modx->config['error_page'])            $icon = $_style["tree_page_404"];
+				elseif($id == $modx->config['site_unavailable_page']) $icon = $_style["tree_page_hourglass"];
+				elseif($id == $modx->config['unauthorized_page'])     $icon = $_style["tree_page_info"];
 				
 				$ph['pid']       = "'p{$id}'";
 				$ph['pad']       = $pad;
@@ -207,22 +207,22 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 				}
 				$tpl = get_src_page_node();
 				$output .= parse_ph($ph,$tpl);
-            }
+			}
 			else
 			{
 				$ph['fid']       = "'f{$id}'";
 				$ph['indent'] = $indent+1;
 				switch($modx->config['tree_page_click'])
-                {
+				{
 					case '27': $ph['ca'] = 'open';   break;
 					case '3' : $ph['ca'] = 'docinfo';break;
 					default  : $ph['ca'] = 'docinfo';
-                    }
+				}
 				
-                    if($id == $modx->config['site_start'])                $icon = $_style["tree_page_home"];
-                    elseif($id == $modx->config['error_page'])            $icon = $_style["tree_page_404"];
-                    elseif($id == $modx->config['site_unavailable_page']) $icon = $_style["tree_page_hourglass"];
-                    elseif($id == $modx->config['unauthorized_page'])     $icon = $_style["tree_page_info"];
+				if($id == $modx->config['site_start'])                $icon = $_style["tree_page_home"];
+				elseif($id == $modx->config['error_page'])            $icon = $_style["tree_page_404"];
+				elseif($id == $modx->config['site_unavailable_page']) $icon = $_style["tree_page_hourglass"];
+				elseif($id == $modx->config['unauthorized_page'])     $icon = $_style["tree_page_info"];
 				
 				// expandAll: two type for partial expansion
 				if ($expandAll ==1 || ($expandAll == 2 && in_array($id, $opened)))
@@ -234,9 +234,9 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 					$ph['private_status']         = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fopen_node();
 					$output .= parse_ph($ph,$tpl);
-                    makeHTML($indent+1,$id,$expandAll,$theme);
-                    $output .= '</div></div>';
-                }
+					makeHTML($indent+1,$id,$expandAll,$theme);
+					$output .= '</div></div>';
+				}
 				else
 				{
 					$ph['_style_tree_plusnode'] = $_style["tree_plusnode"];
@@ -244,30 +244,30 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 					$ph['private_status'] = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fclose_node();
 					$output .= parse_ph($ph,$tpl);
-                    array_push($closed2, $id);
-                }
-            }
-            // store vars in Javascript
+					array_push($closed2, $id);
+				}
+			}
+			// store vars in Javascript
 			if ($expandAll == 1)
 			{
-                echo '<script type="text/javascript"> ';
+				echo '<script type="text/javascript"> ';
 				foreach ($opened2 as $item)
 				{
-                         printf("parent.openedArray[%d] = 1; ", $item);
-                }
-                echo '</script> ';
+					printf("parent.openedArray[%d] = 1; ", $item);
+				}
+				echo '</script> ';
 			}
 			elseif ($expandAll == 0)
 			{
-                echo '<script type="text/javascript"> ';
+				echo '<script type="text/javascript"> ';
 				foreach ($closed2 as $item)
 				{
-                         printf("parent.openedArray[%d] = 0; ", $item);
-                }
-                echo '</script> ';
-            }
-        }
-    }
+					printf("parent.openedArray[%d] = 0; ", $item);
+				}
+				echo '</script> ';
+			}
+		}
+	}
 	
 	function parse_ph($ph,$tpl)
 	{

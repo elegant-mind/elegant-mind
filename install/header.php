@@ -36,10 +36,10 @@ function get_src_header()
 	<div class="container_10">
 		<span class="help"><a href="[+help_link+]" target="_blank" title="[+help_title+]">[+help+]</a></span>
 		<span class="version">[+version+] ([+release_date+])</span>
-        <div id="mainheader">
+		<div id="mainheader">
 			<h1 id="logo"><span>MODX CMS</span></h1>
-        </div>
-    </div>
+		</div>
+	</div>
 </div>
 <!-- end header -->
 

@@ -139,7 +139,7 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
 
 // Create a MySQL-safe list from an array
 function makeSqlList($arr) {
-    global $modx;
+	global $modx;
 	$arr = makeArray($arr);
 	foreach($arr as $k=>$tv) {
 		$arr[$k] = "'".$modx->db->escape($tv)."'"; // Escape them for MySQL

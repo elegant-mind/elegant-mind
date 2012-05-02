@@ -6,8 +6,8 @@
 $gpc = array_merge($_GET, $_POST, $_COOKIE);
 if(FindDangerValue($gpc)!==false)
 {
-    header('Status: 422 Unprocessable Entity');
-    die();
+	header('Status: 422 Unprocessable Entity');
+	die();
 }
 
 // Null is evil
@@ -36,20 +36,20 @@ if (!function_exists('modx_sanitize_gpc'))
 				{
 					echo 'too many nested array';
 					exit;
-                        }
+				}
 				modx_sanitize_gpc($value, $count);
-                    }
+			}
 			else
 			{
 				$value = str_replace($s,$r,$value);
 				$value = preg_replace('/<script/i', 'sanitized_by_modx<s cript', $value);
 				$value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
-                $target[$key] = $value;
-            }
+				$target[$key] = $value;
+			}
 			$count=0;
-        }
-        return $target;
-    }
+		}
+		return $target;
+	}
 }
 modx_sanitize_gpc($_GET);
 if (!defined('IN_MANAGER_MODE') || (defined('IN_MANAGER_MODE') && (!IN_MANAGER_MODE || IN_MANAGER_MODE == 'false')))

@@ -89,10 +89,10 @@ echo $cm->render();
 <h1><?php echo $_lang['user_management_title']; ?></h1>
 <div class="sectionBody">
 	<p><?php echo $_lang['user_management_msg']; ?></p>
-	<div class="searchbar">
+	<div class="actionButtons">
 		<table border="0" style="width:100%">
 			<tr>
-			<td><a class="searchtoolbarbtn" href="index.php?a=11"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['new_user']; ?></a></td>
+			<td><a href="index.php?a=11"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_user']; ?></a></td>
 			<td nowrap="nowrap">
 				<table border="0" style="float:right"><tr><td><?php echo $_lang["search"]; ?></td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query; ?>" /></td>
 				<td><a href="#" class="searchbutton" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang['go']; ?></a></td>
@@ -104,7 +104,6 @@ echo $cm->render();
 			</tr>
 		</table>
 	</div>
-	<br />
 	<div>
 	<?php
 	$tbl_manager_users   = $modx->getFullTableName('manager_users');
@@ -126,20 +125,20 @@ echo $cm->render();
 		{
 			$where = 'mua.role != 1';
 		}
-	    }
+	}
 	else
 	{
 		if(!empty($keyword))
 		{
 			$where = "(mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')";
-	}
+		}
 		else $where = '';
 	}
 	$orderby = 'mua.blocked ASC, mua.thislogin DESC';
 	$ds = $modx->db->select($field,$from,$where,$orderby);
 	
 	include_once MODX_BASE_PATH . 'manager/includes/controls/datagrid.class.php';
-
+	
 	$grd = new DataGrid('',$ds,$modx->config['number_of_results']); // set page size to 0 t show all items
 	$grd->noRecordMsg       = $_lang['no_records_found'];
 	$grd->cssClass          = 'grid';

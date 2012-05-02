@@ -33,16 +33,16 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		<label><input type="radio" name="includenoncache" value="0"><?php echo $_lang['no'];?></label></td>
   </tr>
   <tr>
-    <td class="head">Target</td>
-    <td><label><input type="radio" name="target" value="0" checked="checked">Only edited resources</label>
-		<label><input type="radio" name="target" value="1">All resources</label></td>
+    <td class="head"><?php echo $_lang['export_site.static.php1']; ?></td>
+    <td><label><input type="radio" name="target" value="0" checked="checked"><?php echo $_lang['export_site.static.php2']; ?></label>
+		<label><input type="radio" name="target" value="1"><?php echo $_lang['export_site.static.php3']; ?></label></td>
   </tr>
   <tr>
-    <td class="head">Replace string (before)</td>
+    <td class="head"><?php echo $_lang['export_site.static.php4']; ?></td>
     <td><input type="text" name="repl_before" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
   </tr>
   <tr>
-    <td class="head">Replace string (after)</td>
+    <td class="head"><?php echo $_lang['export_site.static.php5']; ?></td>
     <td><input type="text" name="repl_after" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
   </tr>
 <?php
@@ -80,7 +80,7 @@ if($modx->config['friendly_urls']!=1 || $modx->config['use_alias_path']!=1)
 else
 {
 	$export = new EXPORT_SITE();
-
+	
 	$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
 	@set_time_limit($maxtime);
 	$exportstart = $export->get_mtime();
@@ -95,17 +95,17 @@ else
 	}
 	elseif(strpos($modx->config['base_path'],$filepath)===0 && 0 <= strlen(str_replace($filepath,'',$modx->config['base_path'])))
 	{
-		echo 'Files cannot be outputted to the class above /manager/ directory.';
+		echo $_lang['export_site.static.php6'];
 		include "footer.inc.php";
 		exit;
 	}
 	elseif($modx->config['rb_base_dir'] === $filepath)
 	{
-		echo 'Files cannot be outputted to ' . $modx->config['base_url'] . $modx->config['rb_base_url'];
+		echo $_lang['export_site.static.php7'];
 		include "footer.inc.php";
 		exit;
 	}
-
+	
 	$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
 	
 	// Support export alias path
@@ -123,9 +123,9 @@ else
 	}
 	else
 	{
-	$prefix = $_POST['prefix'];
-	$suffix = $_POST['suffix'];
-
+		$prefix = $_POST['prefix'];
+		$suffix = $_POST['suffix'];
+	
 	// Modified for export alias path  2006/3/24 end
 		$fields = 'id, alias, pagetitle';
 		$where = "deleted=0 AND published=1 AND type='document' {$noncache}";
@@ -194,12 +194,12 @@ class EXPORT_SITE
 	}
 	
 	function get_mtime()
-		{
+	{
 		$mtime = microtime();
 		$mtime = explode(' ', $mtime);
 		$mtime = $mtime[1] + $mtime[0];
 		return $mtime;
-		}
+	}
 	
 	function removeDirectoryAll($directory)
 	{
@@ -220,9 +220,9 @@ class EXPORT_SITE
 			foreach(glob($directory . '/*') as $path)
 			{
 				if(is_dir($path)) $this->removeDirectoryAll($path);// call myself
-					else              @unlink($path);
-				}
+				else              @unlink($path);
 			}
+		}
 		return (@rmdir($directory));
 	}
 
@@ -244,8 +244,8 @@ class EXPORT_SITE
 			else
 			{
 				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> " . $_lang["export_site_failed_no_write"] . ' - ' . $filepath . '</span><br />';
-					return FALSE;
-				}
+				return FALSE;
+			}
 		}
 		else
 		{
@@ -291,14 +291,14 @@ class EXPORT_SITE
 			if(0 < count($files))
 			{
 				foreach($files as $filepath)
-			{
-				$filename = substr($filepath,strlen($path . '/'));
-				if(!in_array($filename, $docnames))
 				{
-					if(is_dir($filepath)) $this->removeDirectoryAll($filepath);
-					else                  @unlink($filepath);
-						}
+					$filename = substr($filepath,strlen($path . '/'));
+					if(!in_array($filename, $docnames))
+					{
+						if(is_dir($filepath)) $this->removeDirectoryAll($filepath);
+						else                  @unlink($filepath);
 					}
+				}
 			}
 			return TRUE;
 		}
@@ -308,7 +308,7 @@ class EXPORT_SITE
 	{
 		global $_lang;
 		global $modx;
-
+		
 		$tbl_site_content = $modx->getFullTableName('site_content');
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published";
 		$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';

@@ -85,8 +85,8 @@ function mm_widget_showimagetvs($tvs='', $w=300, $h=100, $thumbnailerUrl='', $ro
 				SetUrl = function(url, width, height, alt) {	// Redefine it to also tell the preview to update
 					OriginalSetUrl(url, width, height, alt);
 					$j(".imageField").trigger("change");
-						}						
-			}	
+				}
+			}
 		';
 		
 		

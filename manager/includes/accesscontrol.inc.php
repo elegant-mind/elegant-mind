@@ -3,7 +3,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 
 if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager')
 {
-		@session_destroy();
+	@session_destroy();
 }
 
 // andrazk 20070416 - if installer is running, destroy active sessions
@@ -43,13 +43,13 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
 		{
 			if (isset($_COOKIE[session_name()]))
 			{
-						session_unset();
-						@session_destroy();
-					}
-					header('HTTP/1.0 307 Redirect');
-					header('Location: '.MODX_MANAGER_URL.'index.php?installGoingOn=2');
-				}
+				session_unset();
+				@session_destroy();
 			}
+			header('HTTP/1.0 307 Redirect');
+			header('Location: '.MODX_MANAGER_URL.'index.php?installGoingOn=2');
+		}
+	}
 }
 
 if(!isset($_SESSION['mgrValidated'])){
@@ -73,15 +73,15 @@ if(!isset($_SESSION['mgrValidated'])){
 	$evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
 	if(!isset($tpl) || empty($tpl))
 	{
-	// load template file
-	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
-	if(file_exists($tplFile)==false)
-	{
-		$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
-	}
+		// load template file
+		$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
+		if(file_exists($tplFile)==false)
+		{
+			$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
+		}
 		$tpl = file_get_contents($tplFile);
 	}
-
+	
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
 	$modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
 
@@ -145,11 +145,11 @@ if(!isset($_SESSION['mgrValidated'])){
 	$_SESSION['ip'] = $ip;
 
     $itemid = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
-    $lasthittime = time();
+	$lasthittime = time();
     $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
     if($action !== 1) {
-			if (!intval($itemid)) $itemid= null;
+		if (!intval($itemid)) $itemid= null;
 		$sql = sprintf('REPLACE INTO %s (internalKey, username, lasthit, action, id, ip)
 			VALUES (%d, \'%s\', \'%d\', \'%s\', %s, \'%s\')',
 			$modx->getFullTableName('active_users'), // Table

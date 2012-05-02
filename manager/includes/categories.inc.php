@@ -5,7 +5,7 @@
 //Create a new category
 function newCategory($newCat)
 {
-    global $modx;
+	global $modx;
 	$tbl_categories = $modx->getFullTableName('categories');
 	$field['category'] = $modx->db->escape($newCat);
 	$newCatid = $modx->db->insert($field,$tbl_categories);
@@ -16,7 +16,7 @@ function newCategory($newCat)
 	//check if new category already exists
 function checkCategory($newCat = '')
 {
-    global $modx;
+	global $modx;
 	$tbl_categories = $modx->getFullTableName('categories');
 	$rs = $modx->db->select('id,category',$tbl_categories,'','category');
 	if($rs)
@@ -25,37 +25,37 @@ function checkCategory($newCat = '')
 		{
 			if ($row['category'] == $newCat)
 			{
-            return $row['id'];
-        }
-    }
+				return $row['id'];
+			}
+		}
 	}
-    return 0;
+	return 0;
 }
 
 	//Get all categories
 	function getCategories()
 	{
-    global $modx;
+		global $modx;
 		$tbl_categories = $modx->getFullTableName('categories');
 		$cats = $modx->db->select('id, category', $tbl_categories, '', 'category');
-    $resourceArray = array();
+		$resourceArray = array();
 		if($cats)
 		{
 			while($row = $modx->db->getRow($cats))
 			{
 				$resourceArray[] = array('id' => $row['id'], 'category' => stripslashes( $row['category'] )); // pixelchutes
 			}
-    }
-    return $resourceArray;
+		}
+		return $resourceArray;
 	}
 
 	//Delete category & associations
 	function deleteCategory($catId=0)
 	{
-    global $modx;
+		global $modx;
 		if ($catId)
 		{
-        $resetTables = array('site_plugins', 'site_snippets', 'site_htmlsnippets', 'site_templates', 'site_tmplvars', 'site_modules');
+			$resetTables = array('site_plugins', 'site_snippets', 'site_htmlsnippets', 'site_templates', 'site_tmplvars', 'site_modules');
 			foreach ($resetTables as $n=>$v)
 			{
 				$tbl = $modx->getFullTableName($v);

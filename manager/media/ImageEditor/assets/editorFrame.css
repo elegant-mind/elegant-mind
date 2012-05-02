@@ -4,7 +4,7 @@ table td { text-align: center; }
 .selection { border: dotted 1px #000000; position:absolute; width: 0px; height: 1px; z-index:5; }
 .selectionWhite{ border: dotted 1px #FFFFFF; position:absolute; width: 0px; height: 1px; z-index:5; }
 .handleBox{ z-index:105; }
-.error { font-size:large; font-weight:bold; color:#c00; font-family: Helvetica, sans-serif; } 
+.error { font-size:large; font-weight:bold; color:#c00; font-family: Helvetica, sans-serif; }
 
 #n-resize  {cursor:n-resize;}
 #e-resize  {cursor:e-resize;}

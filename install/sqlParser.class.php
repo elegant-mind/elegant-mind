@@ -30,7 +30,7 @@ class SqlParser {
 			$ver = mysql_get_server_info();
 			$this->dbVersion = (float) $ver; // Typecasting (float) instead of floatval() [PHP < 4.2]
 		}
-
+		
 		// check to make sure file exists
 		if (!file_exists($filename)) {
 			$this->mysqlErrors[] = array("error" => "File '$filename' not found");
@@ -49,7 +49,7 @@ class SqlParser {
 			$e = strpos($idata,"]]non-upgrade-able")+17;
 			if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed non upgradeable items",$idata);
 		}
-
+		
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
 		{
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
@@ -58,18 +58,18 @@ class SqlParser {
 		
 		// replace {} tags
 		$ph = array();
-		$ph['PREFIX'] = $this->prefix;
-		$ph['ADMINNAME'] = $this->adminname;
-		$ph['ADMINFULLNAME'] = substr($this->adminemail,0,strpos($this->adminemail,'@'));
-		$ph['ADMINEMAIL'] = $this->adminemail;
-		$ph['ADMINPASS'] = $this->adminpass;
-		$ph['MANAGERLANGUAGE'] = $this->managerlanguage;
+		$ph['PREFIX']            = $this->prefix;
+		$ph['ADMINNAME']         = $this->adminname;
+		$ph['ADMINFULLNAME']     = substr($this->adminemail,0,strpos($this->adminemail,'@'));
+		$ph['ADMINEMAIL']        = $this->adminemail;
+		$ph['ADMINPASS']         = $this->adminpass;
+		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
 		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
-		$ph['DATE_NOW'] = time();
+		$ph['DATE_NOW']          = time();
 		$idata = parse($idata,$ph,'{','}');
 		
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
-
+		
 		$num = 0;
 		foreach($sql_array as $sql_entry)
 		{

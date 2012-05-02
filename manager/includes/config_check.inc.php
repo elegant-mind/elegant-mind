@@ -116,7 +116,7 @@ if (0 < count($warnings))
 				if(isset($_SESSION['mgrPermissions']['save_plugin']) && $_SESSION['mgrPermissions']['save_plugin'] == '1')
 				{
 					$msg .= '<br />' . $_lang["configcheck_templateswitcher_present_disable"];
-        }
+				}
 				if(isset($_SESSION['mgrPermissions']['delete_plugin']) && $_SESSION['mgrPermissions']['delete_plugin'] == '1')
 				{
 					$msg .= '<br />' . $_lang["configcheck_templateswitcher_present_delete"];
@@ -126,7 +126,7 @@ if (0 < count($warnings))
 				break;
 			default :
 				$output = $_lang['configcheck_default_msg'];
-    }
+		}
 		
 		$admin_warning = $_SESSION['mgrRole']!=1 ? $_lang['configcheck_admin'] : "" ;
 		$config_check_result[] = "
@@ -153,15 +153,15 @@ function deleteTemplateSwitcher(){
     if(confirm('{$_lang["confirm_delete_plugin"]}')) {
 	var myAjax = new Ajax('index.php?a=118',
 	{
-            method: 'post',
-            data: 'action=updateplugin&key=_delete_&lang=$tplName'
-        });
-        myAjax.addEvent('onComplete', function(resp){
+		method: 'post',
+        data: 'action=updateplugin&key=_delete_&lang=$tplName'
+	});
+	myAjax.addEvent('onComplete', function(resp){
             fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();
-            var sl = new Fx.Slide(fieldset);
-            sl.slideOut();
-        });
-        myAjax.request();
+		var sl = new Fx.Slide(fieldset);
+		sl.slideOut();
+	});
+	myAjax.request();
     }
 }
 function disableTemplateSwitcher(){
@@ -183,7 +183,7 @@ return $script;
 
 function get_sc_value($field,$where)
 {
-        global $modx;
+	global $modx;
 	$tbl_site_content = $modx->getFullTableName('site_content');
 	$where = "id={$where}";
 	return $modx->db->getValue($modx->db->select($field,$tbl_site_content,$where));

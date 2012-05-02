@@ -27,9 +27,9 @@ if ($files = scandir($help_dir))
 	{
 		if ($file != "." && $file != ".." && $file != ".svn")
 		{
-            $help[] = $file;
-        }
-    }
+			$help[] = $file;
+		}
+	}
 }
 
 

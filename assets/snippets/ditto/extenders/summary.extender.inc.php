@@ -289,7 +289,7 @@ if (!class_exists("truncate")) {
 			$this->link = false;
 			$closeTags = true;
 			// summary is turned off
-
+			
 			if ((strstr($resource['content'], $splitter)) && $truncsplit) {
 				$summary = array ();
 
