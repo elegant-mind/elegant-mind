@@ -2330,35 +2330,27 @@ class DocumentParser {
         }
     } // getDocuments
 
-    function sendmail($params=array(), $msg='')
-    {
-        if(isset($params) && is_string($params))
-        {
-            if(strpos($params,'=')===false)
-            {
-                if(strpos($params,'@')!==false) $p['sendto']  = $params;
-                else                            $p['subject'] = $params;
-            }
-            else
-            {
+    function sendmail($params=array(), $msg='') {
+        if (isset($params) && is_string($params)) {
+            if (strpos($params,'=')===false) {
+                if (strpos($params,'@')!==false) $p['sendto']  = $params;
+                else                             $p['subject'] = $params;
+            } else {
                 $params_array = explode(',',$params);
-                foreach($params_array as $k=>$v)
-                {
+                foreach($params_array as $k=>$v) {
                     $k = trim($k);
                     $v = trim($v);
                     $p[$k] = $v;
                 }
             }
-        }
-        else
-        {
+        } else {
             $p = $params;
             unset($params);
         }
         include_once $this->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
         $mail = new MODxMailer();
         $mail->IsMail();
-        $mail->IsHTML(0);
+        $mail->IsHTML(1);
         $mail->From     = (!isset($p['from']))     ? $this->config['emailsender']  : $p['from'];
         $mail->FromName = (!isset($p['fromname'])) ? $this->config['site_name']    : $p['fromname'];
         $mail->Subject  = (!isset($p['subject']))  ? $this->config['emailsubject'] : $p['subject'];
@@ -2369,30 +2361,26 @@ class DocumentParser {
         return $rs;
     }
     
-    function purge_log($target='event_log',$limit=2000, $trim=100)
-    {
+    function purge_log($target='event_log',$limit=2000, $trim=100) {
         global $dbase;
         
-        if($limit < $trim) $trim = $limit;
+        if ($limit < $trim) $trim = $limit;
         
         $target = $this->getFullTableName($target);
         $count = $this->db->getValue($this->db->select('COUNT(id)',$target));
         $over = $count - $limit;
-        if(0 < $over)
-        {
+        if (0 < $over) {
             $trim = ($over + $trim);
             $this->db->delete($target,'',$trim);
         }
         $result = $this->db->query("SHOW TABLE STATUS FROM {$dbase}");
-        while ($row = $this->db->getRow($result))
-        {
+        while ($row = $this->db->getRow($result)) {
             $tbl_name = $row['Name'];
             $this->db->query("OPTIMIZE TABLE {$tbl_name}");
         }
     }
     
-    function remove_locks($action=27,$limit_time=86400)
-    {
+    function remove_locks($action=27,$limit_time=86400) {
         $limit_time = time() - $limit_time;
         $action     = intval($action);
         $tbl_active_users = $this->getFullTableName('active_users');
