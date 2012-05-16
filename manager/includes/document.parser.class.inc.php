@@ -198,10 +198,10 @@ class DocumentParser {
 			$this->documentMethod= $this->getDocumentMethod();
 			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
 		}
-		
-		if ($this->documentMethod == 'none')
+		if ($this->documentMethod == 'none' || $_SERVER['REQUEST_URI']===$this->config['base_url'])
 		{
 			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
+			$this->documentIdentifier = $this->config['site_start'];
 		}
 		elseif ($this->documentMethod == 'alias')
 		{
@@ -1005,7 +1005,7 @@ class DocumentParser {
 		$tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
 		$cacheRefreshTime = 0;
 		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
-		include_once($cache_path);
+		if(file_exists($cache_path)) include_once($cache_path);
 		$timeNow= time() + $this->config['server_offset_time'];
 		
 		if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) return;
@@ -1216,7 +1216,8 @@ class DocumentParser {
 		$phpTime= sprintf("%2.4f s", $phpTime);
 		$source= ($this->documentGenerated == 1 || $this->config['cache_type'] ==0) ? 'database' : 'full_cache';
 		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
+		$total_mem = $this->nicesize($mem - $this->mstart);
 		
 		$content= str_replace('[^q^]', $queries, $content);
 		$content= str_replace('[^qt^]', $queryTime, $content);
@@ -1916,6 +1917,7 @@ class DocumentParser {
 		$fields['description'] = $msg;
 		$fields['user']        = $LoginUserID;
 		$insert_id = $this->db->insert($fields,$this->getFullTableName('event_log'));
+		if(!$this->db->conn) $source = 'DB connect error';
 		if(isset($this->config['send_errormail']) && $this->config['send_errormail'] !== '0')
 		{
 			if($this->config['send_errormail'] <= $type)
@@ -1935,7 +1937,7 @@ class DocumentParser {
 			if(($insert_id % $trim) == 0)
 			{
 				$limit = (isset($this->config['event_log_limit'])) ? intval($this->config['event_log_limit']) : 2000;
-				$this->purge_log('event_log',$limit,$trim);
+				$this->rotate_log('event_log',$limit,$trim);
 			}
 		}
 	}
@@ -1979,7 +1981,7 @@ class DocumentParser {
 		return $rs;
 	}
 	
-	function purge_log($target='event_log',$limit=2000, $trim=100)
+	function rotate_log($target='event_log',$limit=2000, $trim=100)
 	{
 		global $dbase;
 		
@@ -2001,12 +2003,20 @@ class DocumentParser {
 		}
 	}
 	
-	function remove_locks($action=27,$limit_time=86400)
+	function remove_locks($action='all',$limit_time=86400)
 	{
 		$limit_time = time() - $limit_time;
+		if($action === 'all')
+		{
+			$action = '';
+		}
+		else
+		{
 		$action     = intval($action);
+			$action = "action={$action} and";
+		}
 		$tbl_active_users = $this->getFullTableName('active_users');
-		$this->db->delete($tbl_active_users,"action={$action} and lasthit < {$limit_time}");
+		$this->db->delete($tbl_active_users,"{$action} lasthit < {$limit_time}");
 	}
 
     # Returns true if parser is executed in backend (manager) mode
@@ -2935,10 +2945,13 @@ class DocumentParser {
 		}
 		if(isset($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups']) && isset($_SESSION['mgrValidated']))
 		{
+			if($this->config['allow_mgr2web']==='1' || $this->isBackend())
+			{
 			$dg = array_merge($dg, $_SESSION['mgrDocgroups']);
 			if(isset($_SESSION['mgrDocgrpNames']))
 			{
 				$dgn = array_merge($dgn, $_SESSION['mgrDocgrpNames']);
+				}
 			}
 		}
 		if(!$resolveIds)
@@ -3566,7 +3579,8 @@ class DocumentParser {
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
 
-		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
+		$total_mem = $this->nicesize($mem - $this->mstart);
 		
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;

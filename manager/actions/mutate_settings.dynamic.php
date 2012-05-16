@@ -42,6 +42,7 @@ $resource_tree_node_name = 'pagetitle';
 $suffix_mode             = '0';
 $cache_type              = '1';
 $send_errormail          = '3';
+$limit_by_container       = '100';
 
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
@@ -603,8 +604,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr id='furlRow13' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["automatic_alias_title"] ?></th>
 <td>
-	<?php echo wrap_label($_lang["yes"],form_radio('automatic_alias','1', $automatic_alias=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('automatic_alias','0', $automatic_alias=='0'));?><br />
+	<?php echo wrap_label('pagetitle',form_radio('automatic_alias','1', $automatic_alias=='1'));?><br />
+	<?php echo wrap_label('numbering in each folder',form_radio('automatic_alias','2', $automatic_alias=='2'));?><br />
+	<?php echo wrap_label($_lang["disabled"],form_radio('automatic_alias','0', $automatic_alias=='0'));?><br />
 	<?php echo $_lang["automatic_alias_message"] ?>
 </td>
 </tr>
@@ -638,6 +640,14 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo wrap_label($_lang["yes"],form_radio('udperms_allowroot','1', $udperms_allowroot=='1'));?><br />
 	<?php echo wrap_label($_lang["no"],form_radio('udperms_allowroot','0', $udperms_allowroot=='0'));?><br />
 	<?php echo $_lang["udperms_allowroot_message"] ?>
+</td>
+</tr>
+<tr>
+<th><?php echo $_lang["allow_mgr2web_title"] ?></th>
+<td>
+	<?php echo wrap_label($_lang["yes"],form_radio('allow_mgr2web','1', $allow_mgr2web=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('allow_mgr2web','0', $allow_mgr2web=='0'));?><br />
+	<?php echo $_lang["allow_mgr2web_message"] ?>
 </td>
 </tr>
 <tr>
@@ -786,6 +796,12 @@ $dir->close();
 	<?php echo wrap_label($_lang["everybody"],form_radio('warning_visibility','1',$warning_visibility=='1'));?><br />
 	<?php echo $_lang["warning_visibility_message"]?>
 </td>
+</tr>
+<tr>
+<th><?php echo $_lang["limit_by_container"] ?></th>
+<td>
+	<?php echo form_text('limit_by_container',$limit_by_container,4);?><br />
+<?php echo $_lang["limit_by_container_message"]?></td>
 </tr>
 
 <tr>

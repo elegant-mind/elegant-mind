@@ -1,11 +1,12 @@
 <?php 
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-if(!$modx->hasPermission('save_document')||!$modx->hasPermission('publish_document')) {
+if(!$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document'))
+{
 	$e->setError(3);
 	$e->dumpError();	
 }
 
-$id = $_REQUEST['id'];
+$id = intval($_REQUEST['id']);
 $tbl_site_content     = $modx->getFullTableName('site_content');
 
 // check permissions on the document
@@ -25,12 +26,23 @@ if(!$udperms->checkPermissions()) {
 	exit;	
 }
 
+if(!$modx->hasPermission('view_unpublished'))
+{
+	$uid = $modx->db->getValue($modx->db->select('publishedby',$tbl_site_content,"id='{$id}'"));
+	if($modx->getLoginUserID() != $uid)
+	{
+		$e->setError(3);
+		$e->dumpError();
+	}
+}
+
 // update the document
 $field['published']   = 1;
 $field['pub_date']    = 0;
 $field['unpub_date']  = 0;
 $field['publishedby'] = $modx->getLoginUserID();
 $field['publishedon'] = time();
+$field['editedby']    = $modx->getLoginUserID();
 $rs = $modx->db->update($field,$tbl_site_content,"id={$id}");
 if(!$rs)
 {
