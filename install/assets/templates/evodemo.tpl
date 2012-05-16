@@ -3,7 +3,7 @@
  *
  * Demo template for Evolution
  *
- * @category	Template
+ * @category	template
  * @version 	1.0
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@lock_template 0
