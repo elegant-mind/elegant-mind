@@ -5,7 +5,11 @@
  * Author:         changkong.org rerbin@gmail.com
  * Date:           2006/11/10
  * Version:        2.01
- * MODx version:   0.9.5
+ * MODX version:   0.9.5
+ * @package MODX
+ * @subpackage translation
+ * @version 0.9.5
+ * @author changkong.org rerbin@gmail.com
 */
 //$modx_textdir = 'ltr'; // only needed for RTL langauges
 $modx_lang_attribute = 'zh'; // Manager HTML and XML Language Attribute

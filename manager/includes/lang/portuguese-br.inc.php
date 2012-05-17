@@ -6,7 +6,11 @@
  * Author:         MODxCMS.com.br
  * Date:           17 Aug 2009
  * Version:        1.2
- * MODx version:   1.0.0
+ * MODX version:   1.0.0
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.0
+ * @author MODxCMS.com.br
 */
 $modx_lang_attribute = 'pt';
 $modx_manager_charset = 'UTF-8';

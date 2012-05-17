@@ -1,16 +1,16 @@
 <?php
 /**
-/**
- * MODx language File
+ * MOD language File
  *
  * @author modxcms.cz
- * @package MODx
  * @version 1.5
  * @updated 2010-12-11
  *
  * Filename:       /install/lang/czech.inc.php
  * Language:       Czech
  * Encoding:       utf-8
+ * @package MODX
+ * @subpackage translation
  */
 
 $modx_lang_attribute = 'cs'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1

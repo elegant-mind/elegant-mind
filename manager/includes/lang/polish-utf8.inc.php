@@ -17,7 +17,14 @@
  *
  * Date:           14 May 2010
  * Version:        1.3
- * MODx version:   Evolution 1.0.4
+ * MODX version:   Evolution 1.0.4
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.4
+ * @author Radosław Włodkowski - radoslaw@wlodkowski.net
+ * @author Piotr Grzeszykowski - piotrek@gawinet.pl 
+ * @author Piotr Łukańko - piotr.lukanko@gmail.com
+ * @author Łukasz Kowalczyk - lukasz@pixeligence.com
 */
 
 $modx_lang_attribute = 'pl'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1

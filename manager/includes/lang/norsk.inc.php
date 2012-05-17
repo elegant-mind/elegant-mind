@@ -6,7 +6,11 @@
  * Author:         The MODx Project Team
  * Date:           03 Oct 2006
  * Version:        2.01
- * MODx version:   0.9.5
+ * MODX version:   0.9.5
+ * @package MODX
+ * @subpackage translation
+ * @version 0.9.5
+ * @author The MODx Project Team
 */
 $_lang["about_msg"] = 'MODx er et <a href="http://modxcms.com/what-is-modx.html" target="_blank">PHP applikasjonsrammeverk og system for innholdshåndtering</a> som er lisensiert under <a href=\'../assets/docs/license.txt\'>GPL</a>.';
 $_lang["about_title"] = 'Om MODx';

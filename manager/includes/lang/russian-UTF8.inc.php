@@ -6,7 +6,15 @@
  * Author:         Russian MODx community, gabdullin, Jaroslav Sidorkin, Safronovich Victor, MARDEN
  * Date:           30 December 2010
  * Version:        2.0.5
- * MODx version:   Evolution 1.0.5
+ * MODX version:   Evolution 1.0.5
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.5
+ * @author Russian MODx community
+ * @author gabdullin
+ * @author Jaroslav Sidorkin
+ * @author Safronovich Victor
+ * @author MARDEN
 */
 $modx_lang_attribute = 'ru'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';

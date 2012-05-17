@@ -5,7 +5,11 @@
  * Author:         The MODx Project Team (originally by Alex Butter)
  * Date:           2006/09/28
  * Version:        2.1
- * MODx version:   0.9.5
+ * MODX version:   0.9.5
+ * @package MODX
+ * @subpackage translation
+ * @version 0.9.5
+ * @author The MODx Project Team (originally by Alex Butter)
 */
 $_lang["help_msg"] = '<p>You can obtain free community support by <a href="http://modxcms.com/forums" target="_blank">visiting the MODx Forums</a>. There is also a growing body of <a href="http://modxcms.com/documentation" target="_blank">MODx Documentation and Guides</a> that touch on virtually every aspect of MODx.</p><p>We are planning to offer commercial support services for MODx as well. Please <a href="mailto:modx@vertexworks.com?subject=MODx Commercial Support Enquiry">email us if you\'re interested</a>.';
 $_lang["no_category"] = 'uncategorised';

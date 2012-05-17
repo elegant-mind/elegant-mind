@@ -9,7 +9,14 @@
  * Anpassungen für MODx 1.0.5 durch Anselm Hannemann
  * Date: 2011/01/11
  * Version: 4.0
- * MODx version: 1.0.5
+ * MODX version: 1.0.5
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.5
+ * @author Rainer Bachmaier und Marc Hinse 0.9.5
+ * @author Bogdan Günther 0.9.6.3 und 1.0 
+ * @author Anselm Hannemann 1.0.5 
+ * @
 */
 $modx_lang_attribute = 'de'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';

@@ -5,7 +5,11 @@
  * Author:         Yossi Bengigi (www.MODx.co.il)
  * Date:           17 June 2009
  * Version:        2.01
- * MODx version:   Evolution 1.0
+ * MODX version:   Evolution 1.0
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0
+ * @author Yossi Bengigi (www.MODx.co.il)
 */
 $modx_textdir = 'rtl';
 $modx_lang_attribute = 'he'; // Manager HTML and XML Language Attribute

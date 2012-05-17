@@ -5,8 +5,15 @@
  * Encoding:       UTF8
  * Author:         The MODx Project Team
  * Date:           27 December 2010
- * MODx version:   Evolution 1.0.5
+ * MODX version:   Evolution 1.0.5
  * Translation:    Nicola Lambathakis (Banzai), Kudolink, Diego Meozzi, Luigif 
+ * @package MODX
+ * @subpackage translation
+ * @version 1.0.5
+ * @author Nicola Lambathakis (Banzai)
+ * @author Kudolink
+ * @author Diego Meozzi
+ * @author Luigif
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'it'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
