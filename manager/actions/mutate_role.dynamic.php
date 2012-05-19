@@ -26,12 +26,11 @@ $role = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the role editor isn't locked
 $tbl_active_users = $modx->getFullTableName('active_users');
-$sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=35 and id={$role}";
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
-if($limit>1) {
-	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=35 and id={$role}");
+$total = $modx->db->getRecordCount($rs);
+if($total>1) {
+	for ($i=0;$i<$total;$i++) {
+		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_msg"],$lock['username'],"role");
 			$e->setError(5, $msg);
@@ -46,18 +45,17 @@ if($limit>1) {
 if($_REQUEST['a']=='35')
 {
 	$tbl_user_roles = $modx->getFullTableName('user_roles');
-	$sql = "SELECT * FROM {$tbl_user_roles} WHERE id={$role}";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit>1) {
+	$rs = $modx->db->select('*',$tbl_user_roles,"id={$role}");
+	$total = $modx->db->getRecordCount($rs);
+	if($total>1) {
 		echo "More than one role returned!<p>";
 		exit;
 	}
-	if($limit<1) {
+	if($total<1) {
 		echo "No role returned!<p>";
 		exit;
 	}
-	$roledata = mysql_fetch_assoc($rs);
+	$roledata = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$roledata['name'];
 } else {
 	$roledata = 0;
@@ -94,12 +92,11 @@ function deletedocument() {
 <div id="actions">
 	<ul class="actionButtons">
 			<li><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save'] ?></a></li>
-			<li id="btn_del"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang['delete'] ?></a></li>
 			<li><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=86';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a></li>
-	</ul>
-	<?php if($_GET['a']=='38') { ?>
-	<script type="text/javascript">document.getElementById("btn_del").className='disabled';</script>
+	<?php if($_GET['a']=='35') { ?>
+			<li><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang['delete'] ?></a></li>
 	<?php } ?>
+	</ul>
 </div>
 
 <div class="sectionBody">
@@ -119,7 +116,11 @@ function deletedocument() {
 </fieldset>
 <style type="text/css">
 label {display:block;}
+table td {vertical-align:top;}
 </style>
+<table>
+<tr>
+<td>
 <fieldset>
 <h3><?php echo $_lang['page_data_general']; ?></h3>
 <?php
@@ -136,7 +137,8 @@ label {display:block;}
 	echo render_form('save_password',   $_lang['role_save_password']);
 ?>
 </fieldset>
-
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_content_management']; ?></h3>
 <?php
@@ -152,7 +154,13 @@ label {display:block;}
 	echo render_form('view_unpublished',  $_lang['role_view_unpublished']);
 ?>
 </fieldset>
+</td>
+</tr>
+</table>
 
+<table>
+<tr>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_template_management']; ?></h3>
 <?php
@@ -162,7 +170,8 @@ label {display:block;}
 	echo render_form('delete_template', $_lang['role_delete_template']);
 ?>
 </fieldset>
-
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_snippet_management']; ?></h3>
 <?php
@@ -172,7 +181,8 @@ label {display:block;}
 	echo render_form('delete_snippet', $_lang['role_delete_snippet']);
 ?>
 </fieldset>
-
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_chunk_management']; ?></h3>
 <?php
@@ -182,7 +192,8 @@ label {display:block;}
 	echo render_form('delete_chunk', $_lang['role_delete_chunk']);
 ?>
 </fieldset>
-
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_plugin_management']; ?></h3>
 <?php
@@ -192,6 +203,9 @@ label {display:block;}
 	echo render_form('delete_plugin', $_lang['role_delete_plugin']);
 ?>
 </fieldset>
+</td>
+</tr>
+</table>
 
 <fieldset>
 <h3><?php echo $_lang['role_module_management']; ?></h3>
@@ -204,14 +218,9 @@ label {display:block;}
 ?>
 </fieldset>
 
-<fieldset>
-<h3><?php echo $_lang['role_eventlog_management']; ?></h3>
-<?php
-	echo render_form('view_eventlog',   $_lang['role_view_eventlog']);
-	echo render_form('delete_eventlog', $_lang['role_delete_eventlog']);
-?>
-</fieldset>
-
+<table>
+<tr>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_user_management']; ?></h3>
 <?php
@@ -221,7 +230,8 @@ label {display:block;}
 	echo render_form('delete_user', $_lang['role_delete_user']);
 ?>
 </fieldset>
-
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_web_user_management']; ?></h3>
 <?php
@@ -231,7 +241,8 @@ label {display:block;}
 	echo render_form('delete_web_user', $_lang['role_delete_web_user']);
 ?>
 </fieldset>
-
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_udperms']; ?></h3>
 <?php
@@ -239,7 +250,8 @@ label {display:block;}
 	echo render_form('web_access_permissions', $_lang['role_web_access_persmissions']);
 ?>
 </fieldset>
-
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_role_management']; ?></h3>
 <?php
@@ -249,7 +261,22 @@ label {display:block;}
 	echo render_form('delete_role', $_lang['role_delete_role']);
 ?>
 </fieldset>
+</td>
+</tr>
+</table>
 
+<table>
+<tr>
+<td>
+<fieldset>
+<h3><?php echo $_lang['role_eventlog_management']; ?></h3>
+<?php
+	echo render_form('view_eventlog',   $_lang['role_view_eventlog']);
+	echo render_form('delete_eventlog', $_lang['role_delete_eventlog']);
+?>
+</fieldset>
+</td>
+<td>
 <fieldset>
 <h3><?php echo $_lang['role_config_management']; ?></h3>
 <?php
@@ -263,6 +290,9 @@ label {display:block;}
 	echo render_form('remove_locks',    $_lang['role_remove_locks']);
 ?>
 </fieldset>
+</td>
+</tr>
+</table>
 
 <input type="submit" name="save" style="display:none">
 </form>

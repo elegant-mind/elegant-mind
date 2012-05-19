@@ -4,6 +4,7 @@
  *
  * @author davaeron
  * @package MODX
+ * @subpackage installer_translations
  * @version 1.0
  * 
  * Filename:       /install/lang/english/english.inc.php

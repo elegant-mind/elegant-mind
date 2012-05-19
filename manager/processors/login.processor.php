@@ -1,33 +1,29 @@
 <?php
 $base_path = str_replace('\\','/',realpath('../../')) . '/';
-define("IN_MANAGER_MODE", "true");
+define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE',true);
 include_once("{$base_path}index.php");
 $modx->db->connect();
 
-include("{$base_path}manager/includes/settings.inc.php");
-include_once "{$base_path}manager/includes/version.inc.php";
-include_once "{$base_path}manager/includes/log.class.inc.php";
+include_once("{$base_path}manager/includes/settings.inc.php");
+include_once("{$base_path}manager/includes/version.inc.php");
+include_once("{$base_path}manager/includes/log.class.inc.php");
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// include_once the error handler
-include_once "{$base_path}manager/includes/error.class.inc.php";
-$e = new errorHandler;
-
 // initiate the content manager class
-$modx->loadExtension("ManagerAPI");
+$modx->loadExtension('ManagerAPI');
 $modx->getSettings();
 
 $username = $modx->db->escape($_REQUEST['username']);
 $givenPassword = $modx->db->escape($_REQUEST['password']);
 $captcha_code = $_REQUEST['captcha_code'];
 $rememberme= $_REQUEST['rememberme'];
-$failed_allowed = $modx->config["failed_login_attempts"];
+$failed_allowed = $modx->config['failed_login_attempts'];
 
-$tbl_user_settings = $modx->getFullTableName("user_settings");
+$tbl_user_settings   = $modx->getFullTableName('user_settings');
 $tbl_manager_users = $modx->getFullTableName('manager_users');
 $tbl_user_attributes = $modx->getFullTableName('user_attributes');
 $tbl_user_roles = $modx->getFullTableName('user_roles');
@@ -46,6 +42,14 @@ $where = "BINARY {$tbl_manager_users}.username='{$username}' and {$tbl_user_attr
 
 $rs = $modx->db->select($field,$from,$where);
 $limit = $modx->db->getRecordCount($rs);
+
+if(!isset($modx->config['manager_language'])) $modx->config['manager_language'] = 'english';
+$_lang = array();
+include_once("{$base_path}manager/includes/lang/{$modx->config['manager_language']}.inc.php");
+
+// include_once the error handler
+include_once("{$base_path}manager/includes/error.class.inc.php");
+$e = new errorHandler;
 
 if($limit==0 || $limit>1) {
     jsAlert($e->errors[900]);
@@ -194,7 +198,6 @@ $_SESSION['mgrEmail'] = $email;
 $_SESSION['mgrValidated'] = 1;
 $_SESSION['mgrInternalKey'] = $internalKey;
 $_SESSION['mgrFailedlogins'] = $failedlogins;
-$_SESSION['mgrLastlogin'] = $lastlogin;
 $_SESSION['mgrLogincount'] = $nrlogins; // login count
 $_SESSION['mgrRole'] = $role;
 $rs = $modx->db->select('* ',$tbl_user_roles,"id={$role}");
@@ -209,6 +212,7 @@ if(isset($_SESSION['mgrValidated']))
 	$field = "failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin={$now}, sessionid='{$currentsessionid}'";
     $sql = "update {$tbl_user_attributes} SET {$field} where internalKey={$internalKey}";
     $rs = $modx->db->query($sql);
+	$_SESSION['mgrLastlogin'] = $now;
 }
 
 // get user's document groups
@@ -248,6 +252,10 @@ else
 	setcookie ('modx_remember_manager', "", time() - 3600, MODX_BASE_URL);
 }
 
+if($modx->hasPermission('remove_locks')) {
+	$modx->remove_locks();
+}
+
 $log = new logHandler;
 $log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $_SESSION['mgrShortname'], "58", "-", "MODX");
 
@@ -276,8 +284,9 @@ else {
 // show javascript alert
 function jsAlert($msg){
 	global $modx;
-    if($_POST['ajax']==1) echo $msg."\n";
+    if($_POST['ajax']==1) echo "{$msg}\n";
     else {
-        echo "<script>window.setTimeout(\"alert('".addslashes($modx->db->escape($msg))."')\",10);history.go(-1)</script>";
+    	$msg = addslashes($modx->db->escape($msg));
+        echo "<script>window.setTimeout(\"alert('{$msg}')\",10);history.go(-1)</script>";
     }
 }

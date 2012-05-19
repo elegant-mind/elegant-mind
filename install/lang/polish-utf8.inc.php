@@ -14,6 +14,9 @@
  * Date:           23 May 2010
  * Version:        1.0
  * MODx version:   Evolution 1.0.4
+ * @package MODX
+ * @subpackage installer_translations
+ * @version 1.0.4
  */
 $_lang["agree_to_terms"] = 'Akceptuję warunki umowy licencyjnej';
 $_lang["alert_database_test_connection"] = 'Musisz utworzyć nową bazę danych lub sprawdzić czy wybrana przez Ciebie nazwa bazy jest poprawna!';

@@ -5,6 +5,7 @@ html,body,div,span,h1,h2,h3,h4,h5,h6,p,ol,ul,li,form,label,legend,caption,aside,
 aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}
 ol,ul{list-style:none;}
 a img{border:none}
+input,textarea,select{font:inherit;}
 /***************************************************
 			      Global styles
 ***************************************************/
@@ -73,9 +74,13 @@ nav ul li.active a:hover{background: url(../img/menu-active.jpg) repeat-x center
 #mainLeft .sideBlock .ditto_postLink{display:block;text-align:right;}
 #mainLeft .sideBlock .ditto_documentInfo{display:none;}
 /***************************************************
+				 eForm
+***************************************************/
+#EmailForm label{display:block;}
+
+/***************************************************
 				 JOT COMMENTS
 ***************************************************/
-
 /***************************************************
 				 RIGHT COLUMN
 ***************************************************/

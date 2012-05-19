@@ -1,11 +1,12 @@
 <?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author Daniel Miguel de Melo
- * @package MODx installer
- * @version 1.0
+ * @package MODX
+ * @subpackage installer_translations
  * @translation
+ * @version 1.0
  * Filename:       /install/lang/portuguese-br/portuguese-br.inc.php
  * Language:       Português do Brasil
  * Encoding:       iso-8859-1

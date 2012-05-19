@@ -24,6 +24,7 @@ else                                     $manager_language = $default_language;
 $_lang = array ();
 if($install_language!==$default_language && file_exists("lang/{$install_language}.inc.php"))
 {
+	 require_once("lang/{$default_language}.inc.php");
 	 require_once("lang/{$install_language}.inc.php");
 }
 else require_once("lang/{$default_language}.inc.php");

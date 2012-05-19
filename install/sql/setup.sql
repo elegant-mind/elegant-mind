@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   PRIMARY KEY  (`id`),
   KEY `id` (`id`),
   KEY `parent` (`parent`),
-  KEY aliasidx (alias),
+  KEY aliasidx (`alias`),
   KEY typeidx (`type`),
   FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
 ) ENGINE=MyISAM COMMENT='Contains the site document tree.';
@@ -296,7 +296,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_contentvalues` (
 	`value` text,
 	PRIMARY KEY  (id),
 	KEY idx_tmplvarid (tmplvarid),
-	KEY idx_id (contentid)
+	KEY idx_id (contentid),
+	FULLTEXT KEY `value_ft_idx` (`value`)
 ) ENGINE=MyISAM COMMENT='Site Template Variables Content Values Link Table';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_templates` (
@@ -563,10 +564,15 @@ ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `disabled` tinyint NOT NULL DEFAUL
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `moduleguid` varchar(32) NOT NULL DEFAULT '' COMMENT 'GUID of module from which to import shared parameters' AFTER `disabled`;
 
 ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`;
+
 ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`;
+
 ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
+
 ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`;
+
 ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`;
+
 ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `unpub_date` int(20) NOT NULL default '0' AFTER `pub_date`;
 
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
@@ -740,6 +746,7 @@ ALTER TABLE `{PREFIX}site_content_metatags`
  DROP PRIMARY KEY,
  ADD PRIMARY KEY ( `content_id` , `metatag_id` );
 
+ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
@@ -782,14 +789,9 @@ REPLACE INTO `{PREFIX}site_templates`
 
 # Default Site Documents
 
-
 REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','MODX CMS Install Success','Welcome to the MODX Content Management System','','minimal-base','',1,0,0,0,0,'','<h3>Install Successful!</h3>\r\n<p>You have successfully installed MODX.</p>\r\n\r\n<h3>Getting Help</h3>\r\n<p>The <a href=\"http://modxcms.com/forums/\" target=\"_blank\">MODX Community</a> provides a great starting point to learn all things MODX, or you can also <a href=\"http://modxcms.com/learn/it.html\">see some great learning resources</a> (books, tutorials, blogs and screencasts).</p>\r\n<p>Welcome to MODX!</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'Base Install',0,0,0,0,0,0,0);
 
-
-REPLACE INTO `{PREFIX}manager_users` 
-(id, username, password)VALUES 
-(1, '{ADMINNAME}', MD5('{ADMINPASS}'));
-
+REPLACE INTO `{PREFIX}manager_users` (id, username, password) VALUES (1, '{ADMINNAME}', MD5('{ADMINPASS}'));
 
 REPLACE INTO `{PREFIX}user_attributes` 
 (id, internalKey, fullname, role, email, phone, mobilephone, blocked, blockeduntil, blockedafter, logincount, lastlogin, thislogin, failedlogincount, sessionid, dob, gender, country, state, zip, fax, photo, comment) VALUES 
@@ -882,7 +884,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('datepicker_offset','-10'),
 ('xhtml_urls','1'),
 ('allow_duplicate_alias','0'),
-('automatic_alias','0'),
+('automatic_alias','2'),
 ('datetime_format','dd-mm-YYYY'),
 ('warning_visibility', '0'),
 ('remember_last_tab', '1'),
