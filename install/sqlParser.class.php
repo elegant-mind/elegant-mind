@@ -53,10 +53,9 @@ class SqlParser {
 		
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
 		{
-			$engine!=='MyISAM';
+			$engine='MyISAM';
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
 			$idata = str_replace('ENGINE=MyISAM', "ENGINE={$engine} {$char_collate}", $idata);
-			$engine!=='MyISAM';
 			if ($this->mode==='upd')
 			{
 				$sql = "show table status where Name='{$this->prefix}site_content'";
@@ -64,7 +63,7 @@ class SqlParser {
 				$row = mysql_fetch_assoc($rs);
 				$current_engine = $row['Engine'];
 			}
-			if($engine!=='MyISAM'))
+			if($engine!=='MyISAM')
 			{
 				$s = strpos($idata,'forMyISAM[[');
 				$e = strpos($idata,']]forMyISAM')+10;
