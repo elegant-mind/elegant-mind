@@ -1,5 +1,5 @@
 <?php
-$class_version = '1.0.2';
+$class_version = '1.0.3';
 if(!isset($version) || $version !== $class_version) echo 'TopicPath version error';
 
 class TopicPath
@@ -112,7 +112,7 @@ class TopicPath
 		* published, hidemenu
 		*/
 		$topics = array();
-		$parent = &$modx->documentObject['parent'];
+		$parent = $modx->documentObject['parent'];
 		$output = '';
 		$display += ($showCurrentTopic) ? 1 : 0;
 		
@@ -124,7 +124,7 @@ class TopicPath
 		// Decide if current page is to be a topic
 		if ( $showCurrentTopic )
 		{
-			$topics[] = &$modx->documentObject;
+			$topics[] = $modx->documentObject;
 		}
 		
 		// Intermediate topics ---------------------------------------------------------
