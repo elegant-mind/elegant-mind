@@ -47,14 +47,6 @@ if(!function_exists('startCMSSession'))
 	}
 }
 
-function assign_base_url()
-{
-	$init_path = str_replace("\\", '/',__FILE__);
-	$base_path = substr($init_path, 0, strpos($init_path, '/manager/includes/initialize.inc.php'));
-	$docroot = get_DOCUMENT_ROOT();
-	return substr($base_path, strlen($docroot)) . '/';
-}
-
 function assign_base_path()
 {
 	$conf_dir = str_replace("\\", '/', realpath(dirname(__FILE__)));
@@ -63,7 +55,35 @@ function assign_base_path()
 	return rtrim($base_path,'/') . '/';
 }
 
-// assign site_url
+function assign_base_url()
+{
+	$init_path = str_replace("\\", '/',__FILE__);
+	$modx_base_path = substr($init_path, 0, strpos($init_path, 'manager/includes/initialize.inc.php'));
+	$_ = $_SERVER['REQUEST_URI'];
+	if(strpos($_, '?')) $_ = substr($_, 0, strpos($_, '?'));
+	if($_ !== '/') $_ = substr($_, 0, strrpos($_,'/'));
+	else           $result = '/';
+	
+	$limit = 10;
+	while(0 < $limit && $_ !== '/')
+	{
+		if(strpos($modx_base_path,"{$_}/")!==false)
+		{
+			$result = "{$_}/";
+			break;
+		}
+		else $_ = substr($_, 0, strrpos($_, '/'));
+		
+		$limit--;
+	}
+	if(!isset($result))
+	{
+		echo 'base_url error';
+		exit;
+	}
+	return $result;
+}
+
 function assign_site_url($base_url)
 {
 	if(is_https()) $scheme = 'https://';
@@ -88,30 +108,6 @@ function is_https()
 		return true;
 	}
 	else return false;
-}
-
-function get_DOCUMENT_ROOT()
-{
-	$init_path = str_replace("\\", '/',__FILE__);
-	$_1 = substr($init_path, 0, strpos($init_path, '/manager/includes/initialize.inc.php'));
-	$_2 = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'],'/'));
-	$limit = 10;
-	while(0 < $limit)
-	{
-		$pos = strlen($_2);
-		if($_2==='')                    $docroot = $_1;
-		elseif(substr($_1,-$pos)===$_2) $docroot = substr($_1, 0, -$pos);
-		else $_2 = substr($_2, 0, strrpos($_2, '/'));
-		
-		if(isset($docroot)) break;
-		$limit--;
-	}
-	if(!isset($docroot))
-	{
-		echo 'DOCUMENT_ROOT error';
-		exit;
-	}
-	return rtrim($docroot,'/');
 }
 
 function set_parser_mode()

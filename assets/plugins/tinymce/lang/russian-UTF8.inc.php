@@ -23,5 +23,12 @@ $_lang['mce_theme_editor'] = "Редактор контента";
 $_lang['mce_theme_custom'] = "Индивидуальная";
 $_lang['mce_theme_creative'] = 'Creative';
 $_lang['mce_theme_logic'] = 'xhtml';
+$_lang['mce_theme_legacy'] = 'Наследование стилей';
 $_lang['mce_theme_global_settings'] = "Использовать глобальные настройки";
+$_lang['mce_editor_skin_title'] = 'Шаблон';
+$_lang['mce_editor_skin_message'] = 'Дизайн панели. смотреть тут: tinymce/jscripts/tiny_mce/themes/advanced/skins/<br />';
+$_lang['mce_editor_entermode_title'] = 'Действие на Enter';
+$_lang['mce_editor_entermode_message'] = 'Действие по нажатию клавиши Enter.';
+$_lang['mce_entermode_opt1'] = 'Обернуть в &lt;p&gt;&lt;/p&gt;';
+$_lang['mce_entermode_opt2'] = 'Добавить &lt;br /&gt;';
 

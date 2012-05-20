@@ -39,17 +39,6 @@ if ($_SESSION['test'] != 1) {
 }
 echo '</p>';
 
-// check sessions
-echo "<p>Check file_put_contents function: ";
-if (!function_exists('file_put_contents')) {
-    echo echo_failed() . "</p><p><strong>Cannot use file_put_contents function</strong>";
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
-echo '</p>';
-
-// check directories
 // cache exists?
 echo "<p>" . $_lang['checking_if_cache_exist'];
 if (!file_exists("{$assets_path}cache") || !file_exists("{$assets_path}cache/rss")) {

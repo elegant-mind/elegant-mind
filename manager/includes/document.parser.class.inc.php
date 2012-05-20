@@ -241,7 +241,8 @@ class DocumentParser {
             if ($responseCode) {
                 header($responseCode);
             }
-            $this->prepareResponse();
+            $result = $this->prepareResponse();
+            echo $result;
         } else {
             header('HTTP/1.0 500 Internal Server Error');
             die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
@@ -775,7 +776,8 @@ class DocumentParser {
         } else { 
             echo $this->documentOutput;
         }
-        ob_end_flush();
+        $result = ob_get_clean();
+        return $result;
     } // outputContent
     
     /**
@@ -1498,7 +1500,8 @@ class DocumentParser {
             if (!$this->config['site_unavailable_page']) {
                 // display offline message
                 $this->documentContent= $this->config['site_unavailable_message'];
-                $this->outputContent();
+                $result = $this->outputContent();
+                echo $result;
                 exit; // stop processing here, as the site's offline
             } else {
                 // setup offline page document settings
@@ -1539,7 +1542,8 @@ class DocumentParser {
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
         
-        $this->prepareResponse();
+        $result = $this->prepareResponse();
+        return $result;
     } // executeParser
     
     /**
@@ -1616,7 +1620,8 @@ class DocumentParser {
             & $this,
             'postProcess'
         )); // tell PHP to call postProcess when it shuts down
-        $this->outputContent();
+        $result = $this->outputContent();
+        return $result;
     } // evalSnippets
     
     /**
@@ -2905,7 +2910,7 @@ class DocumentParser {
             switch($this->config['datetime_format']) {
                 case 'YYYY/mm/dd':
                     if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
-                        $result = '';
+                        $str = '';
                     } else {
                         list ($Y, $m, $d, $H, $M, $S) = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
                     }
@@ -2913,7 +2918,7 @@ class DocumentParser {
 
                 case 'dd-mm-YYYY':
                     if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {
-                        $result = '';
+                        $str = '';
                     } else {
                         list ($d, $m, $Y, $H, $M, $S) = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
                     }
@@ -2921,22 +2926,13 @@ class DocumentParser {
 
                 case 'mm/dd/YYYY':
                     if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {
-                        $result = '';
+                        $str = '';
                     } else {
                         list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
                     }
                     break;
-                /*
-                case 'dd-mmm-YYYY':
-                    if (!preg_match('/^[0-9]{2}-[0-9a-z]+-[0-9]{4}[0-9 :]*$/i', $str)) {
-                        $result = '';
-                    } else {
-                        list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d-%3s-%4d %2d:%2d:%2d');
-                    }
-                    break;
-                */
             }
-            if (!empty($result)) {
+            if (!empty($str)) {
                 if (!$H && !$M && !$S) {
                     $H = 0;
                     $M = 0;
@@ -2947,7 +2943,6 @@ class DocumentParser {
                 $result = $timeStamp;
             }
         }
-
         return $result;
     } // toTimeStamp
 
@@ -4039,16 +4034,20 @@ class DocumentParser {
      * @param string $suffix Default: }
      * @return boolean|string
      */
-    function parseChunk($chunkName, $chunkArr, $prefix="{", $suffix="}") {
-        $result = false;
-        if (is_array($chunkArr)) {
-            $chunk= $this->getChunk($chunkName);
-            foreach ($chunkArr as $key => $value) {
-                $chunk= str_replace($prefix . $key . $suffix, $value, $chunk);
-            }
-            $result = $chunk;
+    function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
+    {
+        if (!is_array($chunkArr)) return false;
+        
+        if($mode==='chunk') {
+            $_ = $this->getChunk($chunkName);
+        } else {
+            $_ = $chunkName;
         }
-
+        
+        foreach ($chunkArr as $key => $value) {
+            $_ = str_replace("{$prefix}{$key}{$suffix}", $value, $_);
+        }
+        $result = $_;
         return $result;
     } // parseChunk
 
@@ -4079,9 +4078,8 @@ class DocumentParser {
                 list($k,$v) = explode('=',$pair);
                 $ph[$k] = $v;
             }
-            $result = $this->parseChunk($src, $ph, $left, $right, $mode);
         }
-
+        $result = $this->parseChunk($src, $ph, $left, $right, $mode);
         return $result;
     } // parsePlaceholder
     
@@ -4460,6 +4458,7 @@ class DocumentParser {
      */
     public function messageQuit($msg='unspecified error', $query='', $is_error=true, $nr='', $file='', $source='', $text='', $line='') {
 
+        if(!empty($file)) $file = str_replace('\\', '/', $file);
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
         $release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
         $request_uri = $_SERVER['REQUEST_URI'];
@@ -4731,6 +4730,12 @@ class SystemEvent {
     public $_output;
     
     /**
+     * Replaces $GLOBALS
+     * @var array
+     */
+    public $_globalVariables;
+    
+    /**
      * Whether the event is active, or not
      * @var false
      */
@@ -4778,6 +4783,38 @@ class SystemEvent {
     public function output($msg) {
         $this->_output .= $msg;
     } // output
+    
+    /**
+     * Set $GLOBALS
+     *
+     * @param string $key
+     * @param string $val
+     * @param string $now
+     */
+    public function setGlobalVariable($key,$val,$now=0) {
+        if (! isset( $GLOBALS[$key] ) ) {
+            return false;
+        }
+        if ( $now === 1 || $now === 'now' ) {
+            $GLOBALS[$key] = $val;
+        } else {
+            $this->_globalVariables[$key]=$val;
+        }
+        return true;
+    }
+    
+    /**
+     * Set all $GLOBALS
+     */
+    public function setAllGlobalVariables() {
+        if (empty($this->_globalVariables)) {
+            return false;
+        }
+        foreach ( $this->_globalVariables as $key => $val ) {
+            $GLOBALS[$key] = $val;
+        }
+        return true;
+    }
 
     /**
      * Sets _propagate to false

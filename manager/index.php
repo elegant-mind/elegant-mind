@@ -93,7 +93,7 @@ define("IN_ETOMITE_SYSTEM", "true"); // for backward compatibility with 0.6
 $config_path = "{$core_path}config.inc.php";
 if (!file_exists($config_path)) {
 	echo "<h3>Unable to load configuration settings</h3>";
-    echo "Please run the MODx <a href='../install'>install utility</a>";
+    echo "Please run the MODx <a href='../install/'>install utility</a>";
 	exit;
 }
 
@@ -121,6 +121,7 @@ extract($modx->config);
 // include_once the language file
 if(!isset($manager_language)) $manager_language = 'english';
 $_lang = array();
+include_once "{$core_path}lang/english.inc.php";
 include_once("{$core_path}lang/{$manager_language}.inc.php");
 
 // send the charset header
@@ -716,8 +717,15 @@ switch ($action)
 }
 
 // log action, unless it's a frame request
-if($action!=1 && $action!=7 && $action!=2)
+switch($action)
 {
+	case 1:
+	case 7:
+	case 2:
+	case 998:
+	case 999:
+		break;
+	default:
 	include_once "log.class.inc.php";
 	$log = new logHandler;
 	$log->initAndWriteLog();

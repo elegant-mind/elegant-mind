@@ -1089,4 +1089,104 @@ $_lang["yourinfo_role"] = 'Ваша роль:';
 $_lang["yourinfo_title"] = 'Информация о вас';
 $_lang["yourinfo_total_logins"] = 'Всего авторизаций:';
 $_lang["yourinfo_username"] = 'Вы авторизованы как:';
+
+// modx_ja
+$_lang["day_names"] = 'Вс,Пн,Вт,Ср,Чт,Пт,Сб';
+$_lang["month_names"] = 'Янв,Фев,Мар,Апр,Мая,Июн,Июл,Авг,Сен,Окт,Ноя,Дек';
+$_lang["tree_page_click_option_auto"] = 'Автоматически';
+$_lang["too_many_resources"] = 'Скрыто, тут очень много ресурсов';
+$_lang['setting_resource_tree_node_name'] = 'Имя ресурса в дереве документов';
+$_lang['setting_resource_tree_node_name_desc'] = 'Укажите поле документа, из которого выводить информацию в дерево ресурсов. По умолчанию pagetilte, можно использовать другое поле к примеру menutitle.';
+$_lang['setting_cache_type'] = 'Режим кеширования';
+$_lang['setting_cache_type_desc'] = 'Выбор "Без Кеша" отключит все кеширование. Не рекомендуется';
+$_lang['duplicate_title_string'] = '[+title+] копия';
+$_lang["confirm_delete_category"] = 'Удалить эту категорию?';
+$_lang["site_url_title"] = 'URL сайта';
+$_lang["site_url_message"] = 'Пример: <b>' . MODX_SITE_URL . '</b><br />Если оставить пустым, заполнится автоматически (динамически дополняется http/https и т.д.)';
+$_lang["chunk_opt_published"] = 'Опубликован';
+$_lang["delete_category"] = 'Вы уверены, что хотите удалить эту категорию?';
+
+// bkmanager.static.php
+$_lang["bkmgr_alert_mkdir"] = 'Фаил не может быть создан.  Праверьте права на папку ' . $modx->config['snapshot_path'];
+$_lang["bkmgr_restore_msg"] = '<p>Сайт может быть восстановление с помощью файла SQL. </p>';
+$_lang["bkmgr_restore_title"] = 'Восстановить';
+$_lang["bkmgr_import_ok"] = 'SQL восстановление было выполнено нормально.';
+$_lang["bkmgr_snapshot_ok"] = 'Бекап был сохранен.';
+$_lang["bkmgr_run_sql_file_label"] = 'Выполнить SQL файл';
+$_lang["bkmgr_run_sql_direct_label"] = 'Выполнить произвольную комманду SQL';
+$_lang["bkmgr_run_sql_submit"] = 'Отправить';
+$_lang["bkmgr_run_sql_result"] = 'Результат';
+$_lang["bkmgr_snapshot_title"] = 'Резервное копирование';
+$_lang["bkmgr_snapshot_msg"] = '<p>Содержимое базы данных сохраняются и восстанавливаются на сервер.<br />Путь для бекапов : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_submit"] = 'Создать бекап';
+$_lang["bkmgr_snapshot_list_title"] = 'Список бекапов';
+$_lang["bkmgr_restore_submit"] = 'Восстановить эти данные';
+$_lang["bkmgr_snapshot_nothing"] = 'Нет бекапов';
+$_lang["settings_friendlyurls_alert"] = 'Необходимо переименовать файл sample.htaccess в каталоге установки MODX на .htaccess для использования дружественных URL.';
+$_lang["settings_friendlyurls_alert2"] = 'необходимо обновить файл .htaccess. ';
+
+$_lang["configcheck_rb_base_dir"] = 'Неправильный путь к папке сайта.';
+$_lang["configcheck_filemanager_path"] = 'неправильный путь к файлам.';
+
+$_lang["document_data.static.php1"] = 'Переместить отмеченные ресурсы';
+$_lang["export_site.static.php1"] = 'Цель';
+$_lang["export_site.static.php2"] = 'Только выбранные ресурсы';
+$_lang["export_site.static.php3"] = 'Все ресурсы';
+$_lang["export_site.static.php4"] = 'Заменить строку (до)';
+$_lang["export_site.static.php5"] = 'Заменить строку (после)';
+$_lang["export_site.static.php6"] = 'Цель';
+$_lang["export_site.static.php7"] = 'Нельзя переместить файлы в ' . $modx->config['base_url'] . $modx->config['rb_base_url'];
+$_lang["files.dynamic.php1"] = 'Создать текстовый файл';
+$_lang["files.dynamic.php2"] = 'Этот каталог не может быть отображен.';
+$_lang["files.dynamic.php3"] = 'Ошибка в имени файла.';
+$_lang["files.dynamic.php4"] = 'Текстовый файл был создан.';
+$_lang["import_site.static.php1"] = 'Обновить дерево ресурсов';
+$_lang["import_site.static.php2"] = 'Обновить дерево ресурсов, IDs are initialized.';
+$_lang["import_site.static.php3"] = 'Цель';
+$_lang["import_site.static.php4"] = 'только <body></body>';
+$_lang["import_site.static.php5"] = 'Файл содержит все';
+$_lang["mutate_content.dynamic.php1"] = 'pub_date и unpub_date обнулены.';
+$_lang["mutate_htmlsnippet.dynamic.php1"] = 'pub_date и unpub_date обнулены.';
+$_lang["mutate_settings.dynamic.php1"] = 'Стандартный';
+$_lang["mutate_settings.dynamic.php2"] = 'Продвинутый режим';
+$_lang["mutate_settings.dynamic.php3"] = 'Кеш отключен';
+$_lang["mutate_settings.dynamic.php4"] = 'Индивидуальные настройки';
+$_lang["mutate_settings.dynamic.php5"] = 'Префикс может не добавляться, если в псевдониме будет использована "." (точка).';
+$_lang["mutate_settings.dynamic.php6"] = 'email для уведомления про системные ошибки.';
+$_lang["mutate_settings.dynamic.php7"] = 'Не уведомлять';
+$_lang["mutate_settings.dynamic.php8"] = 'Отправка уведомлений  [(emailsender)](' . $modx->config['emailsender'] . ') во время генерации ошибки. Подробный текст ошибки можно найти в системном логе событий.';
+$_lang["save_user.processor.php1"] = 'Пожалуйста, выйдите из системы и войдите снова, чтобы изменения вступили в силу.';
+
+$_lang["disabled"] = 'отключено';
+
+$_lang["limit_by_container"] = 'Лимит для отображения документов в дереве ресурсов.';
+$_lang["limit_by_container_message"] = 'Будет контролироваться, не превышает ли количество ресурсов в контейнере указанное число.<br />(пусто) - Не ограничивать<br />0 - Только контейнеры.';
+$_lang["allow_mgr2web_title"]   = 'Обновить состояние пользователя';
+$_lang["allow_mgr2web_message"] = 'Когда менеджер авторизуется, он будет также авторизован в качестве веб-пользователя.';
+
+$_lang["No errors occured."] = "Ошибок не обнаружено.";
+$_lang["An error occured!"] = "Обнаружена ошибка!";
+$_lang["Document's ID not passed in request!"] = "ID документа не передан в запросе!";
+$_lang["You don't have enough privileges for this action!"] = "У вас нет прав на выполнение этих действий!";
+$_lang["ID passed in request is NaN!"] = "Переданный в запросе ID неопределен (NaN)!";
+$_lang["The document is locked!"] = "Документ заблокирован!";
+$_lang["Too many results returned from database!"] = "Запрос в БД вернул слишком много результатов!";
+$_lang["Not enough/ no results returned from database!"] = "Запрос в БД не вернул результатов!";
+$_lang["Couldn't find parent document's name!"] = "Невозможно найти имя родительского документа!";
+$_lang["Logging error!"] = "Ошибка записи в лог!";
+$_lang["Table to optimise not found in request!"] = "В запросе не определена таблица для оптимизации!";
+$_lang["No settings found in request!"] = "В запросе не определена настройка!";
+$_lang["The document must have a title!"] = "Документ должен иметь название!";
+$_lang["No user selected as recipient of this message!"] = "Для этого сообщения не определен пользователь-получатель!";
+$_lang["No group selected as recipient of this message!"] = "Для этого сообщения не определена группа-получатель!";
+$_lang["The document was not found!"] = "Документ не найден!";
+$_lang["Double action (GET & POST) posted!"] = "Двойной запрос (GET и POST)!";
+$_lang["Document cannot be it's own parent!"] = "Документ не может быть собственным родителем!";
+$_lang["New parent not set in request!"] = "В запросе не передан новый родитель!";
+$_lang["don't know the user!" ] = "Введен неверный логин или пароль!";
+$_lang["wrong password!"] = "Введен неверный логин или пароль!";
+$_lang["Due to too many failed logins, you have been blocked!"] = "Вход заблокирован из-за превышения допустимого количества ошибок авторизации!";
+$_lang["You are blocked and cannot log in!"] = "Вы блокированы и не можете быть авторизованы!";
+$_lang["You are blocked and cannot log in! Please try again later."] = "Вы блокированы и не можете быть авторизованы! Повторите попытку позже.";
+$_lang["The security code you entered didn't validate! Please try to login again!"] = "Введен неверный код подтверждения! Повторите попытку авторизации!";
 ?>
