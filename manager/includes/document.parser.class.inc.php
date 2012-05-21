@@ -4017,9 +4017,9 @@ class DocumentParser {
      *
      * @category API-Function
      * @param string $action Default: all
-     * @param int $limit_time Default: 86400
+     * @param int $limit_time Default: 120
      */
-    public function remove_locks($action='all', $limit_time=86400) {
+    public function remove_locks($action='all', $limit_time=120) {
         $limit_time = time() - $limit_time;
         if ($action === 'all') {
             $action = '';
