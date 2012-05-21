@@ -21,6 +21,7 @@ $create = false;
 $base_path = str_replace("\\", '/', realpath('../')) . '/';
 if(@file_exists("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
 
+require_once("{$base_path}manager/includes/default.config.php");
 require_once('functions.php');
 
 echo "<p>{$_lang['setup_database']}</p>\n";
