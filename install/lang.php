@@ -10,7 +10,7 @@
  * Filename:       /install/lang.php
  */
 
-$default_language = 'english';
+$default_language = $config['manager_language'];
 
 if    (isset($_POST['language'])) $install_language = $_POST['language'];
 elseif(isset($_GET['language']))  $install_language = $_GET['language'];
