@@ -56,13 +56,6 @@ class SqlParser {
 			$engine='MyISAM';
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
 			$idata = str_replace('ENGINE=MyISAM', "ENGINE={$engine} {$char_collate}", $idata);
-			if ($this->mode==='upd')
-			{
-				$sql = "show table status where Name='{$this->prefix}site_content'";
-				$rs = mysql_query($sql);
-				$row = mysql_fetch_assoc($rs);
-				$current_engine = $row['Engine'];
-			}
 			if($engine!=='MyISAM')
 			{
 				$s = strpos($idata,'forMyISAM[[');
