@@ -21,6 +21,7 @@ $_SESSION['test'] = 1;
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
+require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$installer_path}lang.php");
 require_once("{$base_path}manager/includes/version.inc.php");
 require_once("{$installer_path}functions.php");
