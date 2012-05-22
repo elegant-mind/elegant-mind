@@ -643,6 +643,8 @@ if ($installData && $moduleSQLDataFile)
 	}
 }
 
+if(file_exists("{$base_path}install/sql/override.sql")) $sqlParser->process('override.sql');
+
 // call back function
 if ($callBackFnc != '') $callBackFnc ($sqlParser);
 
