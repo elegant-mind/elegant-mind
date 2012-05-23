@@ -231,7 +231,7 @@ class DBAPI {
      * @param string $dbtype Default; MySQL MyISAM
      */
     public function setDatabaseType($dbtype=self::DB_MYSQL_MYISAM) {
-        if (in_array($db_type, $this->_dbTypes)) {
+        if (in_array($dbtype, $this->_dbTypes)) {
             $this->_currentDBEngine = $db_type;
         } else {
             throw new Exception($db_type . ' is not a valid database engine!');
@@ -659,18 +659,6 @@ class DBAPI {
         return (is_object($ds)) ? $ds->rowCount() : 0;
     } // getRecordCount
 
-    /**
-    * @name:  getRow
-    * @desc:  returns an array of column values
-    * @param: $ds - dataset
-    *
-    */
-    /**
-     *
-     * @global type $modx
-     * @param type $ds
-     * @param type $mode 
-     */
     /**
      * Returns the current record and increases the current record position.
      *
