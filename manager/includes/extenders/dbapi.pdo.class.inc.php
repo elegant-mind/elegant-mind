@@ -51,6 +51,26 @@ class DBAPI {
     const POSTGRESQL_DEFAULT_PORT = '5432';
 
     /**
+     * Constant for prepareTime method. 
+     */
+    const PREP_DATETIME = 'DATETIME';
+    
+    /**
+     * Constant for prepareTime method 
+     */
+    const PREP_DATE = 'DATE';
+    
+    /**
+     * Constant for prepareTime method 
+     */
+    const PREP_TIME = 'TIME';
+    
+    /**
+     * Constant for prepareTime method 
+     */
+    const PREP_YEAR = 'YEAR';
+
+    /**
      * The name of the current database engine.
      * @var string Default: emptystr
      */
@@ -97,7 +117,12 @@ class DBAPI {
     protected $_dbTypes = array();
 
     var $isConnected=false;
-    var $dbtype='mysql';
+    /**
+     * The current RDBMS.
+     * @var string
+     */
+    protected $_dbtype;
+
     var $pdo=null;
 
     /**
@@ -652,7 +677,7 @@ class DBAPI {
     /**
      * Returns the recordcount of the a result.
      *
-     * @param object $ds
+     * @param stdObject $ds dataset
      * @return int
      */
      public function getRecordCount($ds) {
@@ -691,108 +716,132 @@ class DBAPI {
     } // getRow
 
     /**
-    * @name:  getColumn
-    * @desc:  returns an array of the values found on colun $name
-    * @param: $dsq - dataset or query string
-    */
-    function getColumn($name, $dsq)
-    {
-        if (!is_object($dsq)) $dsq = $this->query($dsq);
-        if ($dsq)
-        {
+     * Returns the result of a column.
+     *
+     * @param string $name The name of the column
+     * @param string|stdObject $dsq dataset or query string
+     * @return variant
+     */
+    public function getColumn($name, $dsq) {
+        $result = null;
+        if (!is_object($dsq)) {
+            $dsq = $this->query($dsq);
+        }
+        if ($dsq) {
             $col = array ();
-            while ($row = $this->getRow($dsq))
-            {
+            while ($row = $this->getRow($dsq)) {
                 $col[] = $row[$name];
             }
-            return $col;
+            $result = $col;
         }
-    }
+
+        return $result;
+    } // getColumn
 
     /**
-    * @name:  getColumnNames
-    * @desc:  returns an array containing the column $name
-    * @param: $dsq - dataset or query string
-    */
-    function getColumnNames($dsq)
-    {
-        if (!is_object($dsq)) $dsq = $this->query($dsq);
-        if ($dsq)
-        {
-            $names = array ();
+     * Returns the column names for the query.
+     * 
+     * @param string|stdObject $dsq dataset or query string
+     * @return array
+     */
+    public function getColumnNames($dsq) {
+        $names = array ();
+        if (!is_object($dsq)) {
+            $dsq = $this->query($dsq);
+        }
+        if ($dsq) {
             $limit = $dsq->columnCount();
-            for ($i = 0; $i < $limit; $i++)
-            {
+            for ($i = 0; $i < $limit; $i++) {
                 $md=$dsq->getColumnMeta($i);
                 $names[] = $md['name'];
             }
-            return $names;
-        }
+        } // getColumnNames
 
-    }
+        return $names;
+    } // getColumnNames
 
     /**
-    * @name:  getValue
-    * @desc:  returns the value from the first column in the set
-    * @param: $dsq - dataset or query string
-    */
-    function getValue($dsq)
-    {
-        if (!is_object($dsq)) $dsq = $this->query($dsq);
-        if ($dsq)
-        {
-            $r = $this->getRow($dsq, 'num');
-            return $r[0];
+     * Returns the value from the first column in the set.
+     * 
+     * @param string|stdObject $dsq dataset or query string
+     * @return variant
+     */
+    public function getValue($dsq) {
+        $result = null;
+
+        if (!is_object($dsq)) {
+            $dsq = $this->query($dsq);
         }
-    }
+        if ($dsq) {
+            $r = $this->getRow($dsq, 'num');
+            $result = $r[0];
+        }
+
+        return $result;
+    } // getValue
 
     /**
     * @name:  getXML
     * @desc:  returns an XML formay of the dataset $ds
     */
-    function getXML($dsq)
-    {
-        if (!is_object($dsq)) $dsq = $this->query($dsq);
-        $xmldata = "<xml>\r\n<recordset>\r\n";
-        while ($row = $this->getRow($dsq, 'both'))
-        {
-            $xmldata .= "<item>\r\n";
-            for ($j = 0; $line = each($row); $j++)
-            {
-                if ($j % 2)
-                {
-                    $xmldata .= "<{$line[0]}>{$line[1]}</{$line[0]}>\r\n";
+    /**
+     * Returns an XML formay of the dataset $ds
+     *
+     * @param string|stdObject $dsq dataset or query string
+     * @return string
+     */
+    public function getXML($dsq) {
+        if (!is_object($dsq)) {
+            $dsq = $this->query($dsq);
+        }
+        $result = "<xml>\r\n<recordset>\r\n";
+        while ($row = $this->getRow($dsq, 'both')) {
+            $result .= "<item>\r\n";
+            for ($j = 0; $line = each($row); $j++) {
+                if ($j % 2) {
+                    $result .= "<{$line[0]}>{$line[1]}</{$line[0]}>\r\n";
                 }
             }
-            $xmldata .= "</item>\r\n";
+            $result .= "</item>\r\n";
         }
-        $xmldata .= "</recordset>\r\n</xml>";
-        return $xmldata;
-    }
+        $result .= "</recordset>\r\n</xml>";
+
+        return $result;
+    } // getXML
 
     /**
-    * @name:  getTableMetaData
-    * @desc:  returns an array of MySQL structure detail for each column of a
-    *         table
-    * @param: $table: the full name of the database table
-    */
-    function getTableMetaData($table)
-    {
-        $metadata = false;
-        if (!empty ($table))
-        {
-            $sql = "SHOW FIELDS FROM {$table}";
-            if ($ds = $this->query($sql))
-            {
-                while ($row = $this->getRow($ds))
-                {
-                    $fieldName = $row['Field'];
-                    $metadata[$fieldName] = $row;
-                }
+     * Returns an array of MySQL structure detail for each column of a table.
+     * ONLY MySQL is supported by now, for other RDBMS the result is an empty
+     * array.
+     *
+     * @param string $table The full name of the database table.
+     * @return array
+     * @todo Support PostgreSQL and SQLite
+     */
+    public function getTableMetaData($table) {
+        $result = false;
+
+        if (!empty ($table)) {
+            switch ($this->_dbtype) {
+                case self::DB_MYSQL_MYISAM:
+                case self::DB_MYSQL_INNODB:
+                    $sql = "SHOW FIELDS FROM {$table}";
+                    if ($ds = $this->query($sql)) {
+                        while ($row = $this->getRow($ds)) {
+                            $fieldName = $row['Field'];
+                            $result[$fieldName] = $row;
+                        }
+                    }
+
+                    break;
+
+                default:
+                    break;
             }
         }
-        return $metadata;
-    }
+
+        return $result;
+    } // getTableMetaData
 
     /**
     * @name:  prepareDate
@@ -802,30 +851,39 @@ class DBAPI {
     * @param: $fieldType: the type of field to format the date for
     *         (in MySQL, you have DATE, TIME, YEAR, and DATETIME)
     */
-    function prepareDate($timestamp, $fieldType = 'DATETIME')
-    {
-        $date = '';
-        if (!$timestamp !== false && $timestamp > 0)
-        {
-            switch ($fieldType)
-            {
-                case 'DATE' :
-                $date = date('Y-m-d', $timestamp);
-                break;
-                case 'TIME' :
-                $date = date('H:i:s', $timestamp);
-                break;
-                case 'YEAR' :
-                $date = date('Y', $timestamp);
-                break;
-                case 'DATETIME' :
+    /**
+     * Prepares a date in the proper format for specific database types given a 
+     * UNIX timestamp.
+     *
+     * @param timestamp $timestamp A UNIX timestamp
+     * @param string $fieldType Default: DATETIME
+     * @return string
+     */
+    public function prepareDate($timestamp, $fieldType=self::PREP_DATETIME) {
+        $result = '';
+        if (!$timestamp !== false && $timestamp > 0) {
+            switch ($fieldType) {
+                case self::PREP_DATE:
+                    $result = date('Y-m-d', $timestamp);
+                    break;
+                
+                case self::PREP_TIME:
+                    $result = date('H:i:s', $timestamp);
+                    break;
+                
+                case self::PREP_YEAR:
+                    $result = date('Y', $timestamp);
+                    break;
+                
+                case self::PREP_DATETIME:
                 default :
-                $date = date('Y-m-d H:i:s', $timestamp);
-                break;
+                    $result = date('Y-m-d H:i:s', $timestamp);
+                    break;
             }
-        }
-        return $date;
-    }
+        } // prepareDate
+
+        return $result ;
+    } // prepareDate
 
     /**
     * @name:  getHTMLGrid
@@ -852,10 +910,9 @@ class DBAPI {
     *         pagerLocation
     *         pagerClass
     *         pagerStyle
-    *
+    * @deprecated visible is set to private, if it is not in use, it will be removed.
     */
-    function getHTMLGrid($dsq, $params)
-    {
+    private function getHTMLGrid($dsq, $params) {
         //The PDO version is not write.
         return false;
 
@@ -899,36 +956,36 @@ class DBAPI {
             return $grd->render();
         }
         */
-    }
+    } // getHTMLGrid
 
     /**
-    * @name:  makeArray
-    * @desc:  turns a recordset into a multidimensional array
-    * @return: an array of row arrays from recordset, or empty array
-    *          if the recordset was empty, returns false if no recordset
-    *          was passed
-    * @param: $rs Recordset to be packaged into an array
-    */
-    function makeArray($rs='')
-    {
-        if(!$rs) return false;
-        $rsArray = array();
-        $qty = $this->getRecordCount($rs);
-        for ($i = 0; $i < $qty; $i++)
-        {
-            $rsArray[] = $this->getRow($rs);
+     * Turns a recordset into a multidimensional array.
+     * 
+     * @param stdType $rs Recordset to be packaged into an array
+     *                    Default: Empty string
+     * @return boolean|array An array of row arrays from recordset, or empty 
+     *                       array if the recordset was empty, returns false if 
+     *                       no recordset was passed
+     */
+    public function makeArray($rs='') {
+        if (!$rs) {
+            $result = false;
         }
-        return $rsArray;
-    }
+        $result = array();
+        $qty = $this->getRecordCount($rs);
+        for ($i = 0; $i < $qty; $i++) {
+            $result[] = $this->getRow($rs);
+        }
+
+        return $result;
+    } // makeArray
 
     /**
-    * @name    getVersion
-    * @desc    returns a string containing the database server version
-    *
-    * @return string
-    */
-    function getVersion()
-    {
+     * Returns a string containing the database server version.
+     *
+     * @return string 
+     */
+    public function getVersion() {
         return $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
-    }
-}
+    } // getVersion
+} // DBAPI
