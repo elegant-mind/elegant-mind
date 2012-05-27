@@ -1051,3 +1051,6 @@ UPDATE `{PREFIX}user_roles` SET
 	remove_locks = 1
 	WHERE `id`=1;
 
+# Update any invalid Manager Themes reset the default theme
+
+REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','{MANAGER_THEME}');
