@@ -1770,13 +1770,15 @@ class DocumentParser {
               . '<tr align="center"><td>#</td><td>call</td><td>path</td></tr>';
         foreach ($backtrace as $key => $val) {
             $key++;
-            $path = str_replace('\\', '/', $val['file']);
-            if (strpos($path, MODX_BASE_PATH) === 0) {
-                $path = substr($path, strlen(MODX_BASE_PATH));
+            if (in_array('file', $val)) {
+                $path = str_replace('\\', '/', $val['file']);
+                if (strpos($path, MODX_BASE_PATH) === 0) {
+                    $path = substr($path, strlen(MODX_BASE_PATH));
+                }
+                $result .= "<tr><td>{$key}</td>"
+                        . "<td>{$val['function']}()</td>"
+                        . "<td>{$path} on line {$val['line']}</td></tr>";
             }
-            $result .= "<tr><td>{$key}</td>"
-                    . "<td>{$val['function']}()</td>"
-                    . "<td>{$path} on line {$val['line']}</td></tr>";
         }
         $result .= '</table>';
 
