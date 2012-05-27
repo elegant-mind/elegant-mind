@@ -10,6 +10,13 @@ if(!$modx->hasPermission('export_static'))
 ?>
 
 <h1><?php echo $_lang['export_site_html']; ?></h1>
+
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
 <?php
 
@@ -18,7 +25,7 @@ if(!isset($_POST['export']))
 	echo '<p>'.$_lang['export_site_message'].'</p>';
 ?>
 
-<fieldset style="padding:10px;border:1px solid #ccc;"><legend style="font-weight:bold;"><?php echo $_lang['export_site']; ?></legend>
+<fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;"><legend style="font-weight:bold;"><?php echo $_lang['export_site']; ?></legend>
 <form action="index.php" method="post" name="exportFrm">
 <input type="hidden" name="export" value="export" />
 <input type="hidden" name="a" value="83" />
@@ -64,7 +71,7 @@ if($modx->config['friendly_urls']!=1 || $modx->config['use_alias_path']!=1)
     <td class="head"><?php echo $_lang['export_site_maxtime']; ?></td>
     <td><input type="text" name="maxtime" value="60" />
 		<br />
-		<small><?php echo $_lang['export_site_maxtime_message']; ?></small>
+		<?php echo $_lang['export_site_maxtime_message']; ?>
 	</td>
   </tr>
 </table>

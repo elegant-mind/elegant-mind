@@ -140,8 +140,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   KEY `id` (`id`),
   KEY `parent` (`parent`),
   KEY aliasidx (`alias`),
-  KEY typeidx (`type`),
-  FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
+  KEY typeidx (`type`)
 ) ENGINE=MyISAM COMMENT='Contains the site document tree.';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_content_metatags` (
@@ -296,8 +295,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_contentvalues` (
 	`value` text,
 	PRIMARY KEY  (id),
 	KEY idx_tmplvarid (tmplvarid),
-	KEY idx_id (contentid),
-	FULLTEXT KEY `value_ft_idx` (`value`)
+	KEY idx_id (contentid)
 ) ENGINE=MyISAM COMMENT='Site Template Variables Content Values Link Table';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_templates` (
@@ -746,8 +744,6 @@ ALTER TABLE `{PREFIX}site_content_metatags`
  DROP PRIMARY KEY,
  ADD PRIMARY KEY ( `content_id` , `metatag_id` );
 
-ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
-
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
   LEFT JOIN `{PREFIX}membergroup_access` AS mga ON mga.documentgroup = dgn.id
@@ -758,8 +754,6 @@ UPDATE `{PREFIX}documentgroup_names` AS dgn
 UPDATE `{PREFIX}site_plugins` SET `disabled` = '1' WHERE `name` IN ('Bottom Button Bar');
 
 UPDATE `{PREFIX}site_plugins` SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template');
-
-UPDATE `{PREFIX}system_settings` SET `setting_value` = '' WHERE `setting_name` = 'settings_version';
 
 UPDATE `{PREFIX}system_settings` SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00';
 
@@ -776,6 +770,14 @@ UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/html' W
 
 # end related to #MODX-1321
 # ]]upgrade-able
+
+# forMyISAM[[ - This block of code will be executed during MyISAM storage
+
+ALTER TABLE `{PREFIX}site_content` ADD FULLTEXT `content_ft_idx` (`pagetitle`,`description`,`content`);
+
+ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
+
+# ]]forMyISAM
 
 # Insert / Replace system records
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -807,7 +809,7 @@ REPLACE INTO `{PREFIX}user_roles`
 # Default Site Settings
 INSERT IGNORE INTO `{PREFIX}system_settings` 
 (setting_name, setting_value) VALUES 
-('manager_theme','MODxCarbon'),
+('manager_theme','{MANAGER_THEME}'),
 ('settings_version',''),
 ('show_meta','0'),
 ('server_offset_time','0'),
@@ -1049,8 +1051,6 @@ UPDATE `{PREFIX}user_roles` SET
 	remove_locks = 1
 	WHERE `id`=1;
 
-# Update any invalid Manager Themes in User Settings and reset the default theme
+# Update any invalid Manager Themes reset the default theme
 
-UPDATE `{PREFIX}user_settings` SET `setting_value`='MODxCarbon' WHERE `setting_name`='manager_theme';
-
-REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','MODxCarbon');
+REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','{MANAGER_THEME}');

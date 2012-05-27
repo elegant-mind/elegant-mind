@@ -24,6 +24,12 @@ $allowedfiles = array('html','htm','shtml','xml');
 
 <h1><?php echo $_lang['import_site_html']; ?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
 <?php
 
@@ -31,7 +37,7 @@ if(!isset($_POST['import'])) {
     echo "<p>".$_lang['import_site_message']."</p>";
 ?>
 
-<fieldset style="padding:10px"><legend><?php echo $_lang['import_site']; ?></legend>
+<fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;"><legend><?php echo $_lang['import_site']; ?></legend>
 <form action="index.php" method="post" name="importFrm">
 <input type="hidden" name="import" value="import" />
 <input type="hidden" name="a" value="95" />
@@ -47,7 +53,7 @@ if(!isset($_POST['import'])) {
     <td>&nbsp;</td>
     <td><input type="text" name="maxtime" value="30" />
         <br />
-        <small><?php echo $_lang['import_site_maxtime_message']; ?></small>
+        <?php echo $_lang['import_site_maxtime_message']; ?>
     </td>
   </tr>
   <tr>

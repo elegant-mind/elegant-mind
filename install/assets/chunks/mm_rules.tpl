@@ -12,5 +12,6 @@
  */
 
 // more example rules are in assets/plugins/managermanager/example_mm_rules.inc.php
+if($modx->config['track_visitors']==='0') mm_hideFields('log');
 
 mm_widget_showimagetvs(); // Always give a preview of Image TVs

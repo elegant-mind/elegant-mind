@@ -6,7 +6,7 @@ run_update($simple_version);
 
 if(!isset($modx->config['manager_theme']) || substr($settings_version,0,4)=='0.9.')
 {
-	$manager_theme = 'MODxCarbon';
+	$manager_theme = 'RevoStyle';
 }
 
 function run_update($version)

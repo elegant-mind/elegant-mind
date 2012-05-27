@@ -85,6 +85,7 @@ class DocumentParser {
     var $documentMap_cache;
     var $safeMode;
     var $qs_hash;
+    var $cacheRefreshTime;
 
     /**
      * Document constructor
@@ -786,12 +787,18 @@ class DocumentParser {
     public function checkPublishStatus() {
         $tbl_site_content = $this->getFullTableName('site_content');
         $tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
-        $cacheRefreshTime = 0;
         $cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
-        if(file_exists($cache_path)) include_once($cache_path);
+        if($this->cacheRefreshTime=='') {
+            if(file_exists($cache_path)) {
+                include_once($cache_path);
+                $this->cacheRefreshTime = $cacheRefreshTime;
+            } else {
+                $this->cacheRefreshTime = 0;
+            }
+        }
         $timeNow= time() + $this->config['server_offset_time'];
         
-        if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) {
+        if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) {
             return;
         }
         
@@ -4010,9 +4017,9 @@ class DocumentParser {
      *
      * @category API-Function
      * @param string $action Default: all
-     * @param int $limit_time Default: 86400
+     * @param int $limit_time Default: 120
      */
-    public function remove_locks($action='all', $limit_time=86400) {
+    public function remove_locks($action='all', $limit_time=120) {
         $limit_time = time() - $limit_time;
         if ($action === 'all') {
             $action = '';

@@ -294,6 +294,18 @@ else
 		  <li id="Button1">
 			<a href="#" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a>
 		  </li>
+		  <li id="Button2">
+			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
+		  </li>
+		  <li id="Button4">
+		    <a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a>
+		  </li>
+		  <li id="Button3">
+		    <a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a>
+		  </li>
+		  <li id="Button6">
+			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['preview']?></a>
+		  </li>
           <li id="Button5"><a href="#" onclick="documentDirty=false;<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
           	 {
@@ -309,18 +321,6 @@ else
           		echo "document.location.href='index.php?a=2';";
           	 }
           	?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-		  <li id="Button2">
-			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
-		  </li>
-		  <li id="Button4">
-		    <a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a>
-		  </li>
-		  <li id="Button3">
-		    <a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a>
-		  </li>
-		  <li id="Button6">
-			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['preview']?></a>
-		  </li>
 	  </ul>
 	</div>
 
@@ -378,7 +378,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td><?php echo $content['pagetitle']?></td>
 			</tr>
 			<tr><td><?php echo $_lang['long_title']?>: </td>
-				<td><small><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></small></td>
+				<td><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_description']?>: </td>
 				<td><?php echo $content['description']!='' ? $content['description'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>

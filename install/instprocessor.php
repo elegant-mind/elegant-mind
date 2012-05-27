@@ -21,6 +21,7 @@ $create = false;
 $base_path = str_replace("\\", '/', realpath('../')) . '/';
 if(@file_exists("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
 
+require_once("{$base_path}manager/includes/default.config.php");
 require_once('functions.php');
 
 echo "<p>{$_lang['setup_database']}</p>\n";
@@ -114,6 +115,7 @@ $sqlParser->connection_collation = $database_collation;
 $sqlParser->connection_method = $database_connection_method;
 $sqlParser->managerlanguage = $managerlanguage;
 $sqlParser->autoTemplateLogic = $auto_template_logic;
+$sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->mode = ($installMode < 1) ? 'new' : 'upd';
 
 $sqlParser->ignoreDuplicateErrors = true;
@@ -178,11 +180,11 @@ else
 	echo '<span class="ok">' . $_lang['ok'] . "</span></p>";
 }
 
-// generate new site_id and set manager theme to MODxCarbon
+// generate new site_id
 if ($installMode == 0)
 {
 	$siteid = uniqid('');
-	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid'),('manager_theme','MODxCarbon')");
+	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid')");
 }
 else
 {
@@ -640,6 +642,8 @@ if ($installData && $moduleSQLDataFile)
 		echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
 	}
 }
+
+if(file_exists("{$base_path}install/sql/override.sql")) $sqlParser->process('override.sql');
 
 // call back function
 if ($callBackFnc != '') $callBackFnc ($sqlParser);

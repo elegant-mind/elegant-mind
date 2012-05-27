@@ -5,7 +5,7 @@
 
 class SqlParser {
 	var $prefix, $mysqlErrors;
-	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
+	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage, $manager_theme;
 	var $mode;
 	var $dbVersion;
     var $connection_charset, $connection_collation, $autoTemplateLogic,$ignoreDuplicateErrors;
@@ -44,17 +44,24 @@ class SqlParser {
 		$idata = str_replace("\r", '', $idata);
 
 		// check if in upgrade mode
-		if ($this->mode=="upd") {
+		if ($this->mode=='upd') {
 			// remove non-upgradeable parts
-			$s = strpos($idata,"non-upgrade-able[[");
-			$e = strpos($idata,"]]non-upgrade-able")+17;
+			$s = strpos($idata,'non-upgrade-able[[');
+			$e = strpos($idata,']]non-upgrade-able')+17;
 			if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed non upgradeable items",$idata);
 		}
 		
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
 		{
+			$engine='MyISAM';
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
-			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
+			$idata = str_replace('ENGINE=MyISAM', "ENGINE={$engine} {$char_collate}", $idata);
+			if($engine!=='MyISAM')
+			{
+				$s = strpos($idata,'forMyISAM[[');
+				$e = strpos($idata,']]forMyISAM')+10;
+				if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed MyISAM items",$idata);
+			}
 		}
 		
 		// replace {} tags
@@ -66,6 +73,7 @@ class SqlParser {
 		$ph['ADMINPASS']         = $this->adminpass;
 		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
 		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
+		$ph['MANAGER_THEME']     = $this->manager_theme;
 		$ph['DATE_NOW']          = time();
 		$idata = parse($idata,$ph,'{','}');
 		

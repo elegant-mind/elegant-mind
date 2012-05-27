@@ -94,6 +94,12 @@ echo $cm->render();
 
 <h1><?php echo $_lang['eventlog_viewer']?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
 	<!-- load modules -->
 	<p><?php echo $_lang['eventlog_msg']?></p>
@@ -105,9 +111,9 @@ echo $cm->render();
 				<table border="0" style="float:right">
 				    <tr>
 				        <td><?php echo $_lang['search']?> </td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query?>" /></td>
-				        <td><a href="#" class="searchbutton" title="<?php echo $_lang['search']?>" onclick="searchResource();return false;"><?php echo $_lang['go']?></a></td>
-				        <td><a href="#" class="searchbutton" title="<?php echo $_lang['reset']?>" onclick="resetSearch();return false;"><img src="media/style/<?php echo $manager_theme?>images/icons/refresh.gif" width="16" height="16"/></a></td>
-				        <td><a href="#" class="searchbutton" title="<?php echo $_lang['list_mode']?>" onclick="changeListMode();return false;"><img src="media/style/<?php echo $manager_theme?>images/icons/table.gif" width="16" height="16"/></a></td>
+				        <td><a href="#" title="<?php echo $_lang['search']?>" onclick="searchResource();return false;"><?php echo $_lang['go']?></a></td>
+				        <td><a href="#" title="<?php echo $_lang['reset']?>" onclick="resetSearch();return false;"><img src="media/style/<?php echo $manager_theme?>images/icons/refresh.gif" width="16" height="16"/></a></td>
+				        <td><a href="#" title="<?php echo $_lang['list_mode']?>" onclick="changeListMode();return false;"><img src="media/style/<?php echo $manager_theme?>images/icons/table.gif" width="16" height="16"/></a></td>
 				    </tr>
 				</table>
 			</td>
