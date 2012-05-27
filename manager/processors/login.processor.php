@@ -14,7 +14,7 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque']
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // initiate the content manager class
-$modx->loadExtension('ManagerAPI');
+$modx->loadExtension(DocumentParser::EXTENSION_MANAGAERAPI);
 $modx->getSettings();
 
 $username = $modx->db->escape($_REQUEST['username']);

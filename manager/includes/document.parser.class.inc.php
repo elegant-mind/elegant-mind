@@ -37,6 +37,16 @@ class DocumentParser {
     const PAGE_BY_ID = 'id';
 
     /**
+     * Constant string Extension name
+     */
+    const EXTENSION_DBAPI = 'DBAPI';
+
+    /**
+     * Constant string Extension name
+     */
+    const EXTENSION_MANAGAERAPI = 'ManagerAPI';
+
+    /**
      * Database object
      * @var DBAPI
      */
@@ -103,7 +113,7 @@ class DocumentParser {
             $_REQUEST['q'] = '';
         }
         
-        $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
+        $this->loadExtension(self::EXTENSION_DBAPI) or die('Could not load DBAPI class.'); // load DBAPI class
         // events
         $this->event= new SystemEvent();
         $this->Event= & $this->event; //alias for backward compatibility
@@ -136,7 +146,7 @@ class DocumentParser {
 
         switch ($extname) {
             // Database API
-            case 'DBAPI' :
+            case self::EXTENSION_DBAPI:
                 if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/dbapi.' . $database_type . '.class.inc.php')
                     return false;
                 $this->db= new DBAPI;
@@ -144,7 +154,7 @@ class DocumentParser {
                 break;
 
                 // Manager API
-            case 'ManagerAPI' :
+            case self::EXTENSION_MANAGAERAPI:
                 if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php') {
                     $result = false;
                 } else {
