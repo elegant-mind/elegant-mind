@@ -333,7 +333,7 @@ class synccache {
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
 		{
-			$name = $modx->db->escape($row['name']);
+			$name = $row['name'];
 			$tmpPHP .= "\$c['{$name}'] = " . "'{$this->escapeSingleQuotes($row['snippet'])}';\n";
 			$modx->chunkCache[$name] = $row['snippet'];
 		}
