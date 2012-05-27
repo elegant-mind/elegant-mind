@@ -2119,7 +2119,7 @@ class DocumentParser {
         }
         $msg= $this->db->escape($msg);
         $source= $this->db->escape($source);
-        if (function_exists('mb_substr')) {
+        if (function_exists('mb_substr') && isset($this->config['modx_charset'])) {
             $source = mb_substr($source, 0, 50 , $this->config['modx_charset']);
         } else {
             $source = substr($source, 0, 50);
