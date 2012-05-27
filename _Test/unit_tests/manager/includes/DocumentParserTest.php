@@ -49,14 +49,10 @@ class DocumentParserTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DocumentParser::getMicroTime
-     * @todo Implement testGetMicroTime().
      */
     public function testGetMicroTime() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->assertTrue(is_float($this->object->getMicroTime()));
+    } // testGetMicroTime
 
     /**
      * @covers DocumentParser::sendRedirect
