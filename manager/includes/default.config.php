@@ -35,6 +35,7 @@ $config['number_of_logs']           = '100';
 $config['number_of_messages']       = '30';
 $config['number_of_results']        = '20';
 $config['publish_default']          = '1';
+$config['pwd_hash_method']          = 'sha1';
 $config['rb_webuser']               = '0';
 $config['remember_last_tab']        = '1';
 $config['resource_tree_node_name']  = 'pagetitle';
