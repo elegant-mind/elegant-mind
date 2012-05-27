@@ -1,9 +1,10 @@
 <?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author davaeron, German translation by Marc Hinse and Bogdan Günther
- * @package MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version 2.0
  * @translation
  * Filename:       /install/lang/german.inc.php

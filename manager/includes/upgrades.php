@@ -182,7 +182,7 @@ function update_tbl_user_attributes()
 	$sql = "ALTER TABLE {$tbl_user_attributes} 
 	        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
 	        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
-	        MODIFY COLUMN `comment` text;";
+	        MODIFY COLUMN `comment` text";
 	$modx->db->query($sql);
 }
 
@@ -194,7 +194,7 @@ function update_tbl_web_user_attributes()
 	$sql = "ALTER TABLE {$tbl_web_user_attributes} 
 	        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
 	        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
-	        MODIFY COLUMN `comment` text;";
+	        MODIFY COLUMN `comment` text";
 	$modx->db->query($sql);
 }
 

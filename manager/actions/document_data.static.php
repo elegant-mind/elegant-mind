@@ -28,6 +28,7 @@ $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 $from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
 $where = "sc.id ='{$id}' AND ({$access})";
 $rs = $modx->db->select('DISTINCT sc.*',$from,$where);
+$content = $modx->db->getRow($rs);
 $total = $modx->db->getRecordCount($rs);
 if ($total > 1)
 {
@@ -41,7 +42,6 @@ elseif ($total == 0)
 	$e->setError(3);
 	$e->dumpError();
 }
-$content = $modx->db->getRow($rs);
 
 /**
  * "General" tab setup
@@ -294,15 +294,6 @@ else
 		  <li id="Button1">
 			<a href="#" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a>
 		  </li>
-		  <li id="Button2">
-			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
-		  </li>
-		  <li id="Button4">
-		    <a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a>
-		  </li>
-		  <li id="Button3">
-		    <a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a>
-		  </li>
           <li id="Button5"><a href="#" onclick="documentDirty=false;<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
           	 {
@@ -318,6 +309,15 @@ else
           		echo "document.location.href='index.php?a=2';";
           	 }
           	?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+		  <li id="Button2">
+			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
+		  </li>
+		  <li id="Button4">
+		    <a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a>
+		  </li>
+		  <li id="Button3">
+		    <a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a>
+		  </li>
 		  <li id="Button6">
 			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['preview']?></a>
 		  </li>

@@ -47,23 +47,43 @@ if(!function_exists('startCMSSession'))
 	}
 }
 
-function assign_base_url()
-{
-	$conf_dir = str_replace("\\", '/', realpath(dirname(__FILE__)));
-	$docroot = get_DOCUMENT_ROOT();
-	$conf_dir = substr($conf_dir,strlen($docroot));
-	$mgr_pos = strlen($conf_dir) - strlen('manager/includes');
-	return substr($conf_dir,0,$mgr_pos);
-}
-
 function assign_base_path()
 {
 	$conf_dir = str_replace("\\", '/', realpath(dirname(__FILE__)));
 	$mgr_pos = strlen($conf_dir) - strlen('manager/includes');
-	return substr($conf_dir,0,$mgr_pos);
+	$base_path = substr($conf_dir,0,$mgr_pos);
+	return rtrim($base_path,'/') . '/';
 }
 
-// assign site_url
+function assign_base_url()
+{
+	$init_path = str_replace("\\", '/',__FILE__);
+	$modx_base_path = substr($init_path, 0, strpos($init_path, 'manager/includes/initialize.inc.php'));
+	$_ = $_SERVER['REQUEST_URI'];
+	if(strpos($_, '?')) $_ = substr($_, 0, strpos($_, '?'));
+	if($_ !== '/') $_ = substr($_, 0, strrpos($_,'/'));
+	else           $result = '/';
+	
+	$limit = 10;
+	while(0 < $limit && $_ !== '/')
+	{
+		if(strpos($modx_base_path,"{$_}/")!==false)
+		{
+			$result = "{$_}/";
+			break;
+		}
+		else $_ = substr($_, 0, strrpos($_, '/'));
+		
+		$limit--;
+	}
+	if(!isset($result))
+	{
+		echo 'base_url error';
+		exit;
+	}
+	return $result;
+}
+
 function assign_site_url($base_url)
 {
 	if(is_https()) $scheme = 'https://';
@@ -76,7 +96,8 @@ function assign_site_url($base_url)
 	{
 		$host= substr($host,0,$pos);
 	}
-	return $scheme . $host . $base_url;
+	$site_url = $scheme . $host . $base_url;
+	return rtrim($site_url,'/') . '/';
 }
 
 function is_https()
@@ -87,18 +108,6 @@ function is_https()
 		return true;
 	}
 	else return false;
-}
-
-function get_DOCUMENT_ROOT()
-{
-	if(!isset($_SERVER['SCRIPT_NAME']) || !isset($_SERVER['SCRIPT_FILENAME']))
-	{
-		return false;
-	}
-	$pos = strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']);
-	$docroot = substr($_SERVER['SCRIPT_FILENAME'], 0, $pos);
-	$docroot = realpath($docroot);
-	return str_replace("\\", '/',$docroot);
 }
 
 function set_parser_mode()

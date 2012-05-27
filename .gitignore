@@ -3,6 +3,12 @@
 
 # and any files in the cache directory
 assets/cache/rss/*
+!assets/cache/rss/index.html
+assets/cache/*
+!assets/cache/index.html
+!assets/cache/siteCache.idx.php
+!assets/cache/sitePublishing.idx.php
+
 
 # and the config file
 manager/includes/config.inc.php

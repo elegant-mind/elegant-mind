@@ -1,9 +1,10 @@
 ﻿<?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author MODx Team
- * @package MODx
+ * @package MODX
+ * @subpackage installer_translations
  * @version 1.0.3
  *
  * Filename:       /install/lang/spanish/spanish.inc.php

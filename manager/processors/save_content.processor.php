@@ -9,131 +9,17 @@ if (!$modx->hasPermission('save_document')) {
 
 fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes');
 
-// preprocess POST values
-$id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
-$introtext       = $modx->db->escape($_POST['introtext']);
-$content         = $modx->db->escape($_POST['ta']);
-$pagetitle       = $modx->db->escape($_POST['pagetitle']);
-$longtitle       = $modx->db->escape($_POST['longtitle']);
-$menutitle       = $modx->db->escape($_POST['menutitle']);
-$description     = $modx->db->escape($_POST['description']);
-$alias           = $modx->db->escape($_POST['alias']);
-$link_attributes = $modx->db->escape($_POST['link_attributes']);
-$isfolder        = $_POST['isfolder'];
-$richtext        = $_POST['richtext'];
-$published       = $_POST['published'];
-$parent          = $_POST['parent'] != '' ? $_POST['parent'] : 0;
-$template        = $_POST['template'];
-$menuindex       = !empty($_POST['menuindex']) ? $_POST['menuindex'] : 0;
-$searchable      = $_POST['searchable'];
-$cacheable       = $_POST['cacheable'];
-$syncsite        = $_POST['syncsite'];
-$pub_date        = $_POST['pub_date'];
-$unpub_date      = $_POST['unpub_date'];
-$document_groups = (isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on') ? array() : $_POST['docgroups'];
-$type            = $_POST['type'];
-$keywords        = $_POST['keywords'];
-$metatags        = $_POST['metatags'];
-$contentType     = $modx->db->escape($_POST['contentType']);
-$contentdispo    = intval($_POST['content_dispo']);
-$donthit         = intval($_POST['donthit']);
-$hidemenu        = intval($_POST['hidemenu']);
+extract(getValues());    // preprocess POST values
+extract(get_tblnames()); // get table names
 
-if (trim($pagetitle) == '')
-{
-	if ($type == "reference") $pagetitle = $_lang['untitled_weblink'];
-	else                      $pagetitle = $_lang['untitled_resource'];
-}
+if($_POST['mode'] == '27') $actionToTake = 'edit';
+else                       $actionToTake = 'new';
 
-// get table names
-$tbl_document_groups            = $modx->getFullTableName('document_groups');
-$tbl_documentgroup_names        = $modx->getFullTableName('documentgroup_names');
-$tbl_member_groups              = $modx->getFullTableName('member_groups');
-$tbl_membergroup_access         = $modx->getFullTableName('membergroup_access');
-$tbl_keyword_xref               = $modx->getFullTableName('keyword_xref');
-$tbl_site_content               = $modx->getFullTableName('site_content');
-$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
-$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
+$alias = get_alias($id,$alias,$parent,$pagetitle);
 
-switch($_POST['mode'])
-{
-	case '73':
-	case '27':
-		$actionToTake = 'edit';
-		break;
-	default:
-		$actionToTake = 'new';
-}
-
-// friendly url alias checks
-if ($modx->config['friendly_urls'])
-{	// auto assign alias
-	if (!$alias && $modx->config['automatic_alias'])
-	{
-		$alias = strtolower($modx->stripAlias(trim($pagetitle)));
-		if(!$modx->config['allow_duplicate_alias'])
-		{
-			if(0 != $modx->db->getValue($modx->db->select('COUNT(id)',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}'")))
-			{
-				$cnt = 1;
-				$tempAlias = $alias;
-				while(0 != $modx->db->getValue($modx->db->select('COUNT(id)',$tbl_site_content,"id<>'{$id}' AND alias='{$tempAlias}'")))
-				{
-					$tempAlias = $alias;
-					$tempAlias .= $cnt;
-					$cnt++;
-				}
-				$alias = $tempAlias;
-			}
-		}
-	}
-	// check for duplicate alias name if not allowed
-	elseif ($alias && !$allow_duplicate_alias)
-	{
-		$alias = $modx->stripAlias($alias);
-		if ($use_alias_path) {
-			// only check for duplicates on the same level if alias_path is on
-			$docid = $modx->db->getValue($modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1"));
-		} else {
-			$docid = $modx->db->getValue($modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' LIMIT 1"));
-		}
-		if ($docid > 0)
-		{
-			if ($actionToTake == 'edit')
-			{
-				$modx->manager->saveFormValues(27);
-				$url = "index.php?a=27&id={$id}";
-			}
-			else
-			{
-				$modx->manager->saveFormValues(4);
-				$url = 'index.php?a=4';
-			}
-			include_once "header.inc.php";
-			$modx->webAlert(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
-			include_once "footer.inc.php";
-			exit;
-		}
-	}
-	// strip alias of special characters
-	elseif ($alias)
-	{
-		$alias = $modx->stripAlias($alias);
-	}
-}
-elseif ($alias)
-{
-	$alias = $modx->stripAlias($alias);
-}
-
-// determine published status
 $currentdate = time();
 
-if(empty($pub_date))
-{
-	$pub_date = 0;
-}
+if(empty($pub_date)) $pub_date = 0;
 else
 {
 	$pub_date = $modx->toTimeStamp($pub_date);
@@ -146,20 +32,11 @@ else
 		include_once "footer.inc.php";
 		exit;
 	}
-	elseif($pub_date < $currentdate)
-	{
-		$published = 1;
-	}
-	elseif ($pub_date > $currentdate)
-	{
-		$published = 0;
-	}
+	elseif($pub_date < $currentdate) $published = 1;
+	elseif($pub_date > $currentdate) $published = 0;
 }
 
-if(empty($unpub_date))
-{
-	$unpub_date = 0;
-}
+if(empty($unpub_date)) $unpub_date = 0;
 else
 {
 	$unpub_date = $modx->toTimeStamp($unpub_date);
@@ -172,10 +49,7 @@ else
 		include_once "footer.inc.php";
 		exit;
 	}
-	elseif ($unpub_date < $currentdate)
-	{
-		$published = 0;
-	}
+	elseif($unpub_date < $currentdate) $published = 0;
 }
 
 // ensure that user has not made this document inaccessible to themselves
@@ -190,19 +64,10 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
 		$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
 		if($count == 0)
 		{
-			if ($actionToTake == 'edit')
-			{
-				$modx->manager->saveFormValues(27);
-				$url = "index.php?a=27&id={$id}";
-				include_once "header.inc.php";
-				$modx->webAlert(sprintf($_lang["resource_permissions_error"]), $url);
-				include_once "footer.inc.php";
-				exit;
-			}
-			else
-			{
-				$modx->manager->saveFormValues(4);
-				$url = "index.php?a=4";
+			if ($actionToTake == 'new') $url = "index.php?a=4";
+			else                        $url = "index.php?a=27&id={$id}";
+			
+			$modx->manager->saveFormValues($_POST['mode']);
 				include_once "header.inc.php";
 				$modx->webAlert(sprintf($_lang["resource_permissions_error"]), $url);
 				include_once "footer.inc.php";
@@ -210,10 +75,10 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
 			}
 		}
 	}
-}
 
 // get the document, but only if it already exists
-if ($actionToTake != "new") {
+if ($actionToTake != 'new')
+{
 	$rs = $modx->db->select('parent', $tbl_site_content, "id={$id}");
 	$limit = $modx->db->getRecordCount($rs);
 	if ($limit > 1)
@@ -234,7 +99,7 @@ if ($use_udperms == 1)
 {
 	if ($existingDocument['parent'] != $parent)
 	{
-		include_once "./processors/user_documents_permissions.class.php";
+		include_once $modx->config['base_path'] . 'manager/processors/user_documents_permissions.class.php';
 		$udperms = new udperms();
 		$udperms->user = $modx->getLoginUserID();
 		$udperms->document = $parent;
@@ -242,40 +107,30 @@ if ($use_udperms == 1)
 
 		if (!$udperms->checkPermissions())
 		{
-			if ($actionToTake == 'edit')
-			{
-				$modx->manager->saveFormValues(27);
-				$url = "index.php?a=27&id={$id}";
-				include_once "header.inc.php";
+			if ($actionToTake == 'new') $url = "index.php?a=4";
+			else                        $url = "index.php?a=27&id={$id}";
+			$modx->manager->saveFormValues($_POST['mode']);
+			include_once 'header.inc.php';
 				$modx->webAlert(sprintf($_lang['access_permission_parent_denied'], $docid, $alias), $url);
-				include_once "footer.inc.php";
-				exit;
-			}
-			else
-			{
-				$modx->manager->saveFormValues(4);
-				$url = "index.php?a=4";
-				include_once "header.inc.php";
-				$modx->webAlert(sprintf($_lang['access_permission_parent_denied'], $docid, $alias), $url);
-				include_once "footer.inc.php";
+			include_once 'footer.inc.php';
 				exit;
 			}
 		}
 	}
-}
 
 switch ($actionToTake)
 {
 	case 'new' :
 
 		// invoke OnBeforeDocFormSave event
-		$modx->invokeEvent("OnBeforeDocFormSave", array (
-			"mode" => "new",
-			"id" => $id
-		));
+		$params = array();
+		$params['mode'] = 'new';
+		$params['id']   = $id;
+		$modx->invokeEvent('OnBeforeDocFormSave', $params);
 		
 		// deny publishing if not permitted
-		if (!$modx->hasPermission('publish_document')) {
+		if (!$modx->hasPermission('publish_document'))
+		{
 			$pub_date = 0;
 			$unpub_date = 0;
 			$published = 0;
@@ -284,36 +139,11 @@ switch ($actionToTake)
 		$publishedon = ($published ? time() : 0);
 		$publishedby = ($published ? $modx->getLoginUserID() : 0);
 
-		$field = array();
-		$field['introtext']       = $introtext;
-		$field['content']         = $content;
-		$field['pagetitle']       = $pagetitle;
-		$field['longtitle']       = $longtitle;
-		$field['type']            = $type;
-		$field['description']     = $description;
-		$field['alias']           = $alias;
-		$field['link_attributes'] = $link_attributes;
-		$field['isfolder']        = $isfolder;
-		$field['richtext']        = $richtext;
-		$field['published']       = $published;
-		$field['parent']          = $parent;
-		$field['template']        = $template;
-		$field['menuindex']       = $menuindex;
-		$field['searchable']      = $searchable;
-		$field['cacheable']       = $cacheable;
-		$field['createdby']       = $modx->getLoginUserID();
-		$field['createdon']       = time();
-		$field['editedby']        = $modx->getLoginUserID();
-		$field['editedon']        = time();
-		$field['publishedby']     = $publishedby;
-		$field['publishedon']     = $publishedon;
-		$field['pub_date']        = $pub_date;
-		$field['unpub_date']      = $unpub_date;
-		$field['contentType']     = $contentType;
-		$field['content_dispo']   = $contentdispo;
-		$field['donthit']         = $donthit;
-		$field['menutitle']       = $menutitle;
-		$field['hidemenu']        = $hidemenu;
+		$createdby = $modx->getLoginUserID();
+		$createdon = time();
+		$editedby = $modx->getLoginUserID();
+		$editedon = time();
+		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		$rs = $modx->db->insert($field,$tbl_site_content);
 		if(!$rs)
 		{
@@ -321,7 +151,7 @@ switch ($actionToTake)
 			echo "An error occured while attempting to save the new document: " . $modx->db->getLastError();
 			exit;
 		}
-		if (!$key = $modx->db->getInsertId())
+		if (!$newid = $modx->db->getInsertId())
 		{
 			$modx->manager->saveFormValues(27);
 			echo "Couldn't get last insert key!";
@@ -337,7 +167,7 @@ switch ($actionToTake)
 			if (is_array($value)) {
 				$tvId = $value[0];
 				$tvVal = $value[1];
-				$tvChanges[] = array('tmplvarid' => $tvId, 'contentid' => $key, 'value' => $modx->db->escape($tvVal));
+				$tvChanges[] = array('tmplvarid' => $tvId, 'contentid' => $newid, 'value' => $modx->db->escape($tvVal));
 			}
 		}
 		if(!empty($tvChanges))
@@ -358,7 +188,7 @@ switch ($actionToTake)
 				// first, split the pair (this is a new document, so ignore the second value
 				$group = intval(substr($value_pair,0,strpos($value_pair,',')));
 				// @see manager/actions/mutate_content.dynamic.php @ line 1138 (permissions list)
-				$new_groups[] = "({$group},{$key})";
+				$new_groups[] = "({$group},{$newid})";
 			}
 			$saved = true;
 			if (!empty($new_groups))
@@ -375,7 +205,7 @@ switch ($actionToTake)
 			if($use_udperms && !($isManager || $isWeb) && $parent != 0)
 			{
 				// inherit document access permissions
-				$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$key} FROM {$tbl_document_groups} WHERE document = {$parent}";
+				$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$newid} FROM {$tbl_document_groups} WHERE document = {$parent}";
 				$saved = $modx->db->query($sql);
 				$docgrp_save_attempt = true;
 			}
@@ -399,22 +229,22 @@ switch ($actionToTake)
 		}
 
 		// save META Keywords
-		saveMETAKeywords($key);
+		saveMETAKeywords($newid);
 
 		// invoke OnDocFormSave event
 		$header=''; // Redirect header
-		$modx->invokeEvent("OnDocFormSave", array (
-			"mode" => "new",
-			"id" => $key
-		));
+		$params = array();
+		$params['mode'] = 'new';
+		$params['id']   = $newid;
+		$modx->invokeEvent('OnDocFormSave', $params);
 
 		// secure web documents - flag as private
 		include "{$base_path}manager/includes/secure_web_documents.inc.php";
-		secureWebDocument($key);
+		secureWebDocument($newid);
 
 		// secure manager documents - flag as private
 		include "{$base_path}manager/includes/secure_mgr_documents.inc.php";
-		secureMgrDocument($key);
+		secureMgrDocument($newid);
 
 		if($syncsite == 1) $modx->clearCache();
 
@@ -425,11 +255,11 @@ switch ($actionToTake)
 			{
 				if ($_POST['mode'] == "72") // weblink
 				{
-					$a = ($_POST['stay'] == '2') ? "27&id={$key}" : "72&pid={$parent}";
+					$a = ($_POST['stay'] == '2') ? "27&id={$newid}" : "72&pid={$parent}";
 				}
 				elseif ($_POST['mode'] == "4") // document
 				{
-					$a = ($_POST['stay'] == '2') ? "27&id={$key}" : "4&pid={$parent}";
+					$a = ($_POST['stay'] == '2') ? "27&id={$newid}" : "4&pid={$parent}";
 				}
 				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
 			}
@@ -441,7 +271,7 @@ switch ($actionToTake)
 				}
 				else
 				{
-					$header = "Location: index.php?a=3&id={$key}&r=1";
+					$header = "Location: index.php?a=3&id={$newid}&r=1";
 				}
 			}
 		}
@@ -540,41 +370,16 @@ switch ($actionToTake)
 		}
 		
 		// invoke OnBeforeDocFormSave event
-		$modx->invokeEvent("OnBeforeDocFormSave", array (
-			"mode" => "upd",
-			"id" => $id
-		));
+		$params = array();
+		$params['mode'] = 'upd';
+		$params['id']   = $id;
+		$modx->invokeEvent('OnBeforeDocFormSave', $params);
 
 		// update the document
-		$fields = array();
-		$fields['introtext']       = $introtext;
-		$fields['content']         = $content;
-		$fields['pagetitle']       = $pagetitle;
-		$fields['longtitle']       = $longtitle;
-		$fields['type']            = $type;
-		$fields['description']     = $description;
-		$fields['alias']           = $alias;
-		$fields['link_attributes'] = $link_attributes;
-		$fields['isfolder']        = $isfolder;
-		$fields['richtext']        = $richtext;
-		$fields['published']       = $published;
-		$fields['pub_date']        = $pub_date;
-		$fields['unpub_date']      = $unpub_date;
-		$fields['parent']          = $parent;
-		$fields['template']        = $template;
-		$fields['menuindex']       = $menuindex;
-		$fields['searchable']      = $searchable;
-		$fields['cacheable']       = $cacheable;
-		$fields['editedby']        = $modx->getLoginUserID();
-		$fields['editedon']        = time();
-		$fields['publishedon']     = $publishedon;
-		$fields['publishedby']     = $publishedby;
-		$fields['contentType']     = $contentType;
-		$fields['content_dispo']   = $contentdispo;
-		$fields['donthit']         = $donthit;
-		$fields['menutitle']       = $menutitle;
-		$fields['hidemenu']        = $hidemenu;
-		$rs = $modx->db->update($fields,$tbl_site_content,"id='{$id}'");
+		$editedby = $modx->getLoginUserID();
+		$editedon = time();
+		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
+		$rs = $modx->db->update($field,$tbl_site_content,"id='{$id}'");
 		if (!$rs)
 		{
 			echo "An error occured while attempting to save the edited document. The generated SQL is: <i> {$sql} </i>.";
@@ -731,10 +536,10 @@ switch ($actionToTake)
 
 		// invoke OnDocFormSave event
 		$header=''; // Redirect header
-		$modx->invokeEvent("OnDocFormSave", array (
-			"mode" => "upd",
-			"id" => $id
-		));
+		$params = array();
+		$params['mode'] = 'upd';
+		$params['id']   = $id;
+		$modx->invokeEvent('OnDocFormSave', $params);
 
 		// secure web documents - flag as private
 		include "{$base_path}manager/includes/secure_web_documents.inc.php";
@@ -929,4 +734,119 @@ function fix_tv_nest($target)
 		$r = "[ *{$tv}* ]";
 		$_POST[$name] = str_replace($s,$r,$_POST[$name]);
 	}
+}
+
+function get_alias($id,$alias,$parent,$pagetitle)
+{
+	global $modx;
+	
+	// friendly url alias checks
+	if ($modx->config['friendly_urls'])
+	{
+		if ($alias && !$modx->config['allow_duplicate_alias'])
+		{ // check for duplicate alias name if not allowed
+			$alias = _check_duplicate_alias($id,$alias,$parent);
+		}
+		elseif (!$alias && $modx->config['automatic_alias'] != '0')
+		{ // auto assign alias
+			switch($modx->config['automatic_alias'])
+			{
+				case '1':
+					$alias = $modx->manager->get_alias_from_title($id,$pagetitle);
+					break;
+				case '2':
+					$alias = $modx->manager->get_alias_num_in_folder($id,$parent);
+					break;
+			}
+			
+		}
+	}
+	return $alias;
+}
+
+function _check_duplicate_alias($id,$alias,$parent)
+{
+	global $modx;
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	
+	if ($modx->config['use_alias_path']==1)
+	{ // only check for duplicates on the same level if alias_path is on
+		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
+		$docid = $modx->db->getValue($rs);
+		if($docid < 1)
+		{
+			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias='' AND parent={$parent}");
+			$docid = $modx->db->getValue($rs);
+		}
+	}
+	else
+	{
+		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
+		$docid = $modx->db->getValue($rs);
+		if($docid < 1)
+		{
+			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias=''");
+			$docid = $modx->db->getValue($rs);
+		}
+	}
+	if ($docid > 0)
+	{
+		if ($actionToTake == 'edit')
+		{
+			$modx->manager->saveFormValues(27);
+			$url = "index.php?a=27&id={$id}";
+		}
+		else
+		{
+			$modx->manager->saveFormValues(4);
+			$url = 'index.php?a=4';
+		}
+		include_once "header.inc.php";
+		$modx->webAlert(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
+		include_once "footer.inc.php";
+		exit;
+	}
+	return $alias;
+}
+
+function getValues()
+{
+	global $modx, $_lang;
+	
+	foreach($_POST as $k=>$v)
+	{
+		$input[$k] = $modx->db->escape($v);
+	}
+	$input['id']              = is_numeric($input['id']) ? $input['id'] : '';
+	$input['content']         = $input['ta'];
+	$input['alias']           = $modx->stripAlias($modx->db->escape($input['alias']));
+	$input['parent']          = $input['parent']!='' ? $input['parent'] : 0;
+	$input['menuindex']       = !empty($input['menuindex']) ? $input['menuindex'] : 0;
+	$input['document_groups'] = (isset($input['chkalldocs']) && $input['chkalldocs'] == 'on') ? array() : $input['docgroups'];
+	$input['content_dispo']    = intval($input['content_dispo']);
+	$input['donthit']         = intval($input['donthit']);
+	$input['hidemenu']        = intval($input['hidemenu']);
+	if (trim($input['pagetitle']) == '')
+	{
+		if ($type == 'reference') $input['pagetitle'] = $_lang['untitled_weblink'];
+		else                      $input['pagetitle'] = $_lang['untitled_resource'];
+	}
+
+	return $input;
+}
+
+function get_tblnames()
+{
+	global $modx;
+	
+	$tbl['tbl_document_groups']            = $modx->getFullTableName('document_groups');
+	$tbl['tbl_documentgroup_names']        = $modx->getFullTableName('documentgroup_names');
+	$tbl['tbl_member_groups']              = $modx->getFullTableName('member_groups');
+	$tbl['tbl_membergroup_access']         = $modx->getFullTableName('membergroup_access');
+	$tbl['tbl_keyword_xref']               = $modx->getFullTableName('keyword_xref');
+	$tbl['tbl_site_content']               = $modx->getFullTableName('site_content');
+	$tbl['tbl_site_content_metatags']      = $modx->getFullTableName('site_content_metatags');
+	$tbl['tbl_site_tmplvar_contentvalues'] = $modx->getFullTableName('site_tmplvar_contentvalues');
+	$tbl['tbl_site_tmplvar_templates']     = $modx->getFullTableName('site_tmplvar_templates');
+	return $tbl;
 }

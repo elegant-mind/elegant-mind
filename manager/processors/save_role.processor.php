@@ -7,11 +7,13 @@ if (!$modx->hasPermission('save_role')) {
 }
 
 foreach ($_POST as $n => $v)
-    $_POST[$n] = $modx->db->escape($v); // escape post values 
-extract($_POST);
+{
+	$input[$n] = $modx->db->escape($v); // escape post values
+}
+extract($input);
 
-if ($name == '' || !isset ($name)) {
-    echo "Please enter a name for this role!";
+if (!isset($name) || empty($name)) {
+    echo 'Please enter a name for this role!';
     exit;
 }
 
@@ -89,26 +91,36 @@ $fields = array (
     'remove_locks' => $remove_locks
 );
 
+$tbl_user_roles = $modx->getFullTableName("user_roles");
 switch ($_POST['mode']) {
     case '38' :
-        $tbl = $modx->getFullTableName("user_roles");
-        $rs = $modx->db->insert($fields, $tbl);
+        $rs = $modx->db->insert($fields, $tbl_user_roles);
         if (!$rs) {
             echo "An error occured while attempting to save the new role.<p>";
             exit;
         }
-        header("Location: index.php?a=86");
+        else $id = $modx->db->getInsertId();
         break;
     case '35' :
-        $tbl = $modx->getFullTableName("user_roles");
-        $rs = $modx->db->update($fields, $tbl, "id=$id");
-        if (!$rs = $modx->db->query($sql)) {
+        $rs = $modx->db->update($fields, $tbl_user_roles, "id={$id}");
+        if (!$rs) {
             echo "An error occured while attempting to update the role. <br />" . mysql_error();
             exit;
         }
-        header("Location: index.php?a=86");
         break;
     default :
     	echo "Erm... You supposed to be here now?";
         exit;
+}
+
+if($rs)
+{
+	$cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
+	if(file_exists($cache_path))
+	{
+		$role = unserialize(file_get_contents($cache_path));
+	}
+	$role[$id] = time();
+	file_put_contents($cache_path, serialize($role));
+	header("Location: index.php?a=86");
 }

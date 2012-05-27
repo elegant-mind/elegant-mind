@@ -1,9 +1,11 @@
 <?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author davaeron
- * @package MODx installer for 0.9.6.2
+ * @package MODX
+ * @subpackage installer_translations
+ * @version 0.9.6.2
  * @revision 3729
  *
  * Filename:       /install/lang/norwegian/norwegian.inc.php
