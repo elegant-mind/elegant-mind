@@ -56,14 +56,14 @@ class DocumentParserTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DocumentParser::sendRedirect
-     * @todo Implement testSendRedirect().
      */
     public function testSendRedirect() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        try {
+            $this->object->sendRedirect('http://localhost/test.html', 0, DocumentParser::REDIRECT_HEADER);
+        } catch (Exception $exc) {
+            $this->assertEquals('Cannot modify header information', substr($exc->getMessage(), 0, 32));
+        }
+    } // testSendRedirect
 
     /**
      * @covers DocumentParser::sendForward
