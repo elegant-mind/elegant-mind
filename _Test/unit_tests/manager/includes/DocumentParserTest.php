@@ -22,12 +22,25 @@ class DocumentParserTest extends PHPUnit_Framework_TestCase {
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
+     * 
+     * You need to set the database connection through global variables here
+     * to the values, that fit your local installation.
      */
     protected function setUp() {
         $_SERVER['REQUEST_URI'] = '';
+        $_SERVER['HTTP_USER_AGENT'] = 'PHPUnit';
+        $_SERVER['HTTP_REFERER'] = '';
         $GLOBALS['database_type'] = 'mysql';
+        $GLOBALS['database_connection_charset'] = 'utf8';
+        $GLOBALS['database_server'] = 'localhost';
+        $GLOBALS['database_user'] = 'evo-db-user';
+        $GLOBALS['database_password'] = 'evo-db-user';
+        $GLOBALS['database_connection_method'] = 'SET CHARACTER SET';
+        $GLOBALS['dbase'] = '`evolution`';
+        $GLOBALS['table_prefix'] = 'modx_';
         
         $this->object = new DocumentParser;
+        $GLOBALS['modx'] = $this->object;
     } // setUp
 
     /**
@@ -100,14 +113,10 @@ class DocumentParserTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DocumentParser::dbConnect
-     * @todo Implement testDbConnect().
      */
     public function testDbConnect() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->assertNull($this->object->dbConnect());
+    } // testDbConnect
 
     /**
      * @covers DocumentParser::dbQuery
