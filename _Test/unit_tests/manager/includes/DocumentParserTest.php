@@ -136,14 +136,11 @@ class DocumentParserTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DocumentParser::fetchRow
-     * @todo Implement testFetchRow().
+     * @deprecated
      */
     public function testFetchRow() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->markTestSkipped('Method is depraceted and already tested in DBAPI');
+    } // testFetchRow
 
     /**
      * @covers DocumentParser::affectedRows
