@@ -152,14 +152,11 @@ class DocumentParserTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DocumentParser::insertId
-     * @todo Implement testInsertId().
+     * @deprecated
      */
     public function testInsertId() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->markTestSkipped('Method is depraceted and already tested in DBAPI');
+    } // testInsertId
 
     /**
      * @covers DocumentParser::dbClose
