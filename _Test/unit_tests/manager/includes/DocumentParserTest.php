@@ -128,14 +128,11 @@ class DocumentParserTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers DocumentParser::recordCount
-     * @todo Implement testRecordCount().
+     * @deprecated
      */
     public function testRecordCount() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
+        $this->markTestSkipped('Method is depraceted and already tested in DBAPI');
+    } // testRecordCount
 
     /**
      * @covers DocumentParser::fetchRow
