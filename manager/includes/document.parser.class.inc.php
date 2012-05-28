@@ -2135,7 +2135,7 @@ class DocumentParser {
         $fields['source']      = $source;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
-        $insert_id = $this->db->insert($fields,$this->getFullTableName('event_log'));
+        $insert_id = $this->db->insert($fields, $this->getFullTableName('event_log'));
         if (!$this->db->conn) {
             $source = 'DB connect error';
         }
