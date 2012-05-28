@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit>
+<php>
+  <const name="REQUEST_URI" value=""/>
+  <const name="MODX_BASE_URL" value="/"/>
+  <const name="MODX_BASE_PATH" value="/home/stefanie/Projects/Evolution/evolution/"/>
+  <const name="MODX_MANAGER_PATH" value="/home/stefanie/Projects/Evolution/evolution/manager/"/>
+  <const name="MODX_MANAGER_URL" value="/manager/"/>
+</php>    
+</phpunit>
