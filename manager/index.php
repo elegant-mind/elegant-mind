@@ -113,7 +113,7 @@ $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
-$modx->loadExtension("ManagerAPI");
+$modx->loadExtension(DocumentParser::EXTENSION_MANAGAERAPI);
 $modx->db->connect();
 $modx->getSettings();
 extract($modx->config);

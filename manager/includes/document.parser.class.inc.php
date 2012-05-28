@@ -37,6 +37,16 @@ class DocumentParser {
     const PAGE_BY_ID = 'id';
 
     /**
+     * Constant string Extension name
+     */
+    const EXTENSION_DBAPI = 'DBAPI';
+
+    /**
+     * Constant string Extension name
+     */
+    const EXTENSION_MANAGAERAPI = 'ManagerAPI';
+
+    /**
      * Database object
      * @var DBAPI
      */
@@ -103,7 +113,7 @@ class DocumentParser {
             $_REQUEST['q'] = '';
         }
         
-        $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
+        $this->loadExtension(self::EXTENSION_DBAPI) or die('Could not load DBAPI class.'); // load DBAPI class
         // events
         $this->event= new SystemEvent();
         $this->Event= & $this->event; //alias for backward compatibility
@@ -136,7 +146,7 @@ class DocumentParser {
 
         switch ($extname) {
             // Database API
-            case 'DBAPI' :
+            case self::EXTENSION_DBAPI:
                 if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/dbapi.' . $database_type . '.class.inc.php')
                     return false;
                 $this->db= new DBAPI;
@@ -144,7 +154,7 @@ class DocumentParser {
                 break;
 
                 // Manager API
-            case 'ManagerAPI' :
+            case self::EXTENSION_MANAGAERAPI:
                 if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php') {
                     $result = false;
                 } else {
@@ -1760,13 +1770,15 @@ class DocumentParser {
               . '<tr align="center"><td>#</td><td>call</td><td>path</td></tr>';
         foreach ($backtrace as $key => $val) {
             $key++;
-            $path = str_replace('\\', '/', $val['file']);
-            if (strpos($path, MODX_BASE_PATH) === 0) {
-                $path = substr($path, strlen(MODX_BASE_PATH));
+            if (in_array('file', $val)) {
+                $path = str_replace('\\', '/', $val['file']);
+                if (strpos($path, MODX_BASE_PATH) === 0) {
+                    $path = substr($path, strlen(MODX_BASE_PATH));
+                }
+                $result .= "<tr><td>{$key}</td>"
+                        . "<td>{$val['function']}()</td>"
+                        . "<td>{$path} on line {$val['line']}</td></tr>";
             }
-            $result .= "<tr><td>{$key}</td>"
-                    . "<td>{$val['function']}()</td>"
-                    . "<td>{$path} on line {$val['line']}</td></tr>";
         }
         $result .= '</table>';
 
@@ -1844,7 +1856,10 @@ class DocumentParser {
         }
         $executedSnippets = $this->evalSnippet($snippetObject['content'], $params);
         if ($this->dumpSnippets == 1) {
-            $this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
+            $this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] 
+                             . '</b></legend><textarea style="width:60%;height:200px">' 
+                             . htmlentities($executedSnippets, ENT_NOQUOTES, $this->config['modx_charset']) 
+                             . '</textarea></fieldset>';
         }
         return $executedSnippets . $except_snip_call;
     } // _get_snip_result
@@ -2104,7 +2119,7 @@ class DocumentParser {
         }
         $msg= $this->db->escape($msg);
         $source= $this->db->escape($source);
-        if (function_exists('mb_substr')) {
+        if (function_exists('mb_substr') && isset($this->config['modx_charset'])) {
             $source = mb_substr($source, 0, 50 , $this->config['modx_charset']);
         } else {
             $source = substr($source, 0, 50);
@@ -2121,7 +2136,9 @@ class DocumentParser {
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
         $insert_id = $this->db->insert($fields,$this->getFullTableName('event_log'));
-        if(!$this->db->conn) $source = 'DB connect error';
+        if (!$this->db->conn) {
+            $source = 'DB connect error';
+        }
         if (isset($this->config['send_errormail']) && $this->config['send_errormail'] !== '0') {
             if ($this->config['send_errormail'] <= $type) {
                 $subject = 'Notice of error from ' . $this->config['site_name'];
