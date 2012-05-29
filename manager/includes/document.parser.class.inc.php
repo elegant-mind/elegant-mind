@@ -4776,7 +4776,7 @@ class SystemEvent {
      *
      * @param string $name Name of the event
      */
-    public function __construct($name= "") {
+    public function __construct($name='') {
         $this->_resetEventObject();
         $this->name = $name;
     } // __construct
@@ -4794,7 +4794,7 @@ class SystemEvent {
             if (is_array($SystemAlertMsgQueque)) {
                 if ($this->name && $this->activePlugin)
                     $title= "<div><b>" . $this->activePlugin . "</b> - <span style='color:maroon;'>" . $this->name . "</span></div>";
-                $SystemAlertMsgQueque[]= "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
+                $SystemAlertMsgQueque[] = "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
             }
         }
     } // alert
@@ -4815,14 +4815,14 @@ class SystemEvent {
      * @param string $val
      * @param string $now
      */
-    public function setGlobalVariable($key,$val,$now=0) {
-        if (! isset( $GLOBALS[$key] ) ) {
+    public function setGlobalVariable($key, $val, $now=0) {
+        if (!isset($GLOBALS[$key])) {
             return false;
         }
-        if ( $now === 1 || $now === 'now' ) {
+        if ($now === 1 || $now === 'now') {
             $GLOBALS[$key] = $val;
         } else {
-            $this->_globalVariables[$key]=$val;
+            $this->_globalVariables[$key] = $val;
         }
         return true;
     }
