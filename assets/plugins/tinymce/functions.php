@@ -205,6 +205,11 @@ class TinyMCE
 		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4);
 		$str .= PHP_EOL;
 		$str .= $this->build_tiny_callback($params);
+		if($params['link_list']=='enabled')
+		{
+			$str .= '<script language="javascript" type="text/javascript" src="' . $params['mce_url'] . 'js/tinymce.linklist.php"></script>' . "\n";
+		}
+
 		
 		return $str;
 	}
