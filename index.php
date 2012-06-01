@@ -53,6 +53,7 @@ $base_path = str_replace('\\', '/', dirname(__FILE__)) . '/';
 
 $cache_type = 1;
 $cacheRefreshTime = 0;
+$site_sessionname = '';
 include_once($base_path . 'assets/cache/sitePublishing.idx.php');
 if ($cache_type == 2 && count($_POST) < 1 && $cacheRefreshTime < time()) {
     session_name($site_sessionname);
