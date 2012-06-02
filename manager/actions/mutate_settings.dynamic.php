@@ -628,14 +628,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </td>
 </tr>
 <tr>
-<th><?php echo $_lang["pwd_hash_method_title"] ?></th>
-<td>
-	<?php echo wrap_label('SHA-1',form_radio('pwd_hash_method','sha1', $pwd_hash_method=='sha1'));?><br />
-	<?php echo wrap_label('MD5',form_radio('pwd_hash_method','md5', $pwd_hash_method=='md5'));?><br />
-	<?php echo $_lang["pwd_hash_method_message"] ?>
-</td>
-</tr>
-<tr>
 <th><?php echo $_lang["allow_mgr2web_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('allow_mgr2web','1', $allow_mgr2web=='1'));?><br />

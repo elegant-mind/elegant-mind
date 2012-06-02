@@ -1186,6 +1186,3 @@ $_lang["Due to too many failed logins, you have been blocked!"] = "ログイン�
 $_lang["You are blocked and cannot log in!"] = "You are blocked and cannot log in!";
 $_lang["You are blocked and cannot log in! Please try again later."] = "You are blocked and cannot log in! Please try again later.";
 $_lang["The security code you entered didn't validate! Please try to login again!"] = "入力されたセキュリティコードが間違っています。";
-
-$_lang["pwd_hash_method_title"] = 'Password hash method';
-$_lang["pwd_hash_method_message"] = 'Password hash method';
