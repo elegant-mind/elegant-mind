@@ -74,9 +74,12 @@ class TinyMCE
 			include_once($params['mce_path'] .'lang/english.inc.php');
 		}
 	
+		include_once $params['mce_path'] . 'settings/default_params.php';
+		$ph += $_lang;
+		
 		if($modx->manager->action == 11 || $modx->manager->action == 12)
 		{
-			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . '</option>' . PHP_EOL;
+			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . "</option>\n";
 		}
 		$themes['simple']   = $_lang['mce_theme_simple'];
 		$themes['editor']   = $_lang['mce_theme_editor'];
@@ -89,14 +92,10 @@ class TinyMCE
 		{
 			$selected = $this->selected($key == $params['theme']);
 			$key = '"' . $key . '"';
-			$theme_options .= "<option value={$key}{$selected}>{$value}</option>" . PHP_EOL;
+			$theme_options .= "<option value={$key}{$selected}>{$value}</option>\n";
 		}
-		
-		$ph = $_lang;
 		$ph['display'] = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block';
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
-		
-		include_once $params['mce_path'] . 'settings/default_params.php';
 		
 		$ph['theme_options'] = $theme_options;
 		$ph['skin_options']  = $this->get_skin_names($params);
@@ -202,8 +201,7 @@ class TinyMCE
 		    break;
 		}
 		
-		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4);
-		$str .= PHP_EOL;
+		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4) . "\n";
 		$str .= $this->build_tiny_callback($params);
 		if($params['link_list']=='enabled')
 		{
