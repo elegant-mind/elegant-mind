@@ -4058,7 +4058,7 @@ class DocumentParser {
      * @param string $suffix Default: }
      * @return boolean|string
      */
-    function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
+    function parseChunk($chunkName, $chunkArr, $prefix= '[+', $suffix= '+]',$mode='chunk')
     {
         if (!is_array($chunkArr)) return false;
         
