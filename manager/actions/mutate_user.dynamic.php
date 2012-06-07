@@ -510,7 +510,7 @@ while ($file = $dir->read()) {
 	if (strpos($file, ".inc.php") > 0) {
 		$endpos = strpos($file, ".");
 		$languagename = trim(substr($file, 0, $endpos));
-		$selectedtext = $languagename == selected($activelang);
+		$selectedtext = selected($activelang===$languagename);
 ?> 
                 <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
                 <?php
