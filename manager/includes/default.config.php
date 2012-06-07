@@ -74,4 +74,10 @@ $default_config['warning_visibility']       = '0';
 $default_config['which_editor']             = 'TinyMCE';
 $default_config['xhtml_urls']               = '1';
 
+if(!isset($_GET['a']) || $_GET['a'] !=='17') return;
+
+$default_config['signupemail_message']    = $_lang['system_email_signup'];
+$default_config['websignupemail_message'] = $_lang['system_email_websignup'];
+$default_config['webpwdreminder_message'] = $_lang['system_email_webreminder'];
+
 return $default_config;
