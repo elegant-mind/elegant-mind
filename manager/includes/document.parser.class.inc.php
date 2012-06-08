@@ -4054,8 +4054,8 @@ class DocumentParser {
      * @category API-Function
      * @param string $chunkName
      * @param array $chunkArr
-     * @param string $prefix Default: {
-     * @param string $suffix Default: }
+     * @param string $prefix Default: [+
+     * @param string $suffix Default: +]
      * @return boolean|string
      */
     function parseChunk($chunkName, $chunkArr, $prefix= '[+', $suffix= '+]',$mode='chunk')
