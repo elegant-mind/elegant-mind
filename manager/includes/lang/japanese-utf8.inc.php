@@ -1131,7 +1131,7 @@ $_lang["export_site.static.php3"] = '全てのページ';
 $_lang["export_site.static.php4"] = '文字列を置換(置換前)';
 $_lang["export_site.static.php5"] = '文字列を置換(置換後)';
 $_lang["export_site.static.php6"] = '/manager/ ディレクトリより上の階層にはファイルを出力できません。';
-$_lang["export_site.static.php7"] = $modx->config['base_url'] . $modx->config['rb_base_url'] . ' ディレクトリにはファイルを出力できません。';
+$_lang["export_site.static.php7"] = '[+rb_base_url+] ディレクトリにはファイルを出力できません。';
 $_lang["files.dynamic.php1"] = 'テキストファイルを新規作成';
 $_lang["files.dynamic.php2"] = 'このディレクトリは参照できません';
 $_lang["files.dynamic.php3"] = 'ファイル名が不正です。';
@@ -1150,7 +1150,7 @@ $_lang["mutate_settings.dynamic.php4"] = '個別の拡張子表現';
 $_lang["mutate_settings.dynamic.php5"] = 'エイリアス名に「 . 」(ドット)を含む時にプレフィックスの追加を省略できます。';
 $_lang["mutate_settings.dynamic.php6"] = 'システムエラーを<br />メールで通知する';
 $_lang["mutate_settings.dynamic.php7"] = '通知しない';
-$_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)](' . $modx->config['emailsender'] . ')に通知します。エラーの内容の詳細は<a href="index.php?a=114">イベントログ</a>を確認してください。';
+$_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)]([+emailsender+])に通知します。エラーの内容の詳細は<a href="index.php?a=114">イベントログ</a>を確認してください。';
 $_lang["save_user.processor.php1"] = '変更したロールの権限設定を読み込むために、再ログインしてください。';
 
 $_lang["disabled"] = '無効';
