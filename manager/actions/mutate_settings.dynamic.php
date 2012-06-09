@@ -6,9 +6,9 @@ if(!$modx->hasPermission('settings'))
 	$e->dumpError();
 }
 // check to see the edit settings page isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=17";
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
+$tbl_active_users = $modx->getFullTableName('active_users');
+$rs = $modx->db->select('internalKey, username', $tbl_active_users, 'action=17');
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++)
 	{
@@ -654,7 +654,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo wrap_label('error',form_radio('send_errormail','3', $send_errormail=='3'));?><br />
 	<?php echo wrap_label('error + warning',form_radio('send_errormail','2', $send_errormail=='2'));?><br />
 	<?php echo wrap_label('error + warning + information',form_radio('send_errormail','1', $send_errormail=='1'));?><br />
-<?php echo $_lang['mutate_settings.dynamic.php8'];?></td>
+<?php echo $modx->parsePlaceholder($_lang['mutate_settings.dynamic.php8'],'emailsender=' . $modx->config['emailsender']);?></td>
 </tr>
 <?php
 // Check for GD before allowing captcha to be enabled
@@ -885,6 +885,14 @@ echo $str;
 <td>
 	<?php echo form_text('number_of_messages',$number_of_messages,5);?><br />
 <?php echo $_lang["nomessages_message"]?></td>
+</tr>
+<tr>
+	<th><?php echo $_lang["pm2email_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('pm2email','1',$xhtml_urls=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('pm2email','0',$xhtml_urls=='0'));?><br />
+		<?php echo $_lang["pm2email_message"] ?>
+	</td>
 </tr>
 <tr>
 <th><?php echo $_lang["noresults_title"]?></th>

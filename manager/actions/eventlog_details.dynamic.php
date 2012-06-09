@@ -40,10 +40,10 @@ else{
 
 <div id="actions">
 	<ul class="actionButtons">
-		<li id="Button4"><a href="index.php?a=114"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
 <?php if($modx->hasPermission('delete_eventlog')) { ?>
 		<li id="Button3"><a href="#" onclick="deletelog();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']; ?></a></li>
 <?php } ?>
+		<li id="Button4"><a href="index.php?a=114"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
 	</ul>
 </div>
 
@@ -60,7 +60,9 @@ else{
 <input type="hidden" name="a" value="<?php echo (int) $_REQUEST['a']; ?>" />
 <input type="hidden" name="listmode" value="<?php echo $_REQUEST['listmode']; ?>" />
 <input type="hidden" name="op" value="" />
-<div class="sectionHeader"><?php echo $content['source']." - ".$_lang['eventlog_viewer']; ?></div><div class="sectionBody">
+<div class="section">
+<div class="sectionHeader"><?php echo $content['source']." - ".$_lang['eventlog_viewer']; ?></div>
+<div class="sectionBody">
 <?php
 $date = $modx->toDateFormat($content["createdon"]);
 if($content["type"]==1) $msgtype = $_lang["information"];
@@ -79,5 +81,6 @@ echo <<<HTML
 	<div>{$content["description"]}</div>
 HTML;
 ?>
+</div>
 </div>
 </form>

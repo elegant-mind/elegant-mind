@@ -3,7 +3,7 @@ $default_config['allow_duplicate_alias']    = '0';
 $default_config['allow_mgr2web']            = '0';
 $default_config['auto_menuindex']           = '1';
 $default_config['auto_template_logic']      = 'system';
-$default_config['automatic_alias']          = '2';
+$default_config['automatic_alias']          = '1';
 $default_config['blocked_minutes']          = '60';
 $default_config['cache_default']            = '1';
 $default_config['cache_type']               = '1';
@@ -73,5 +73,11 @@ $default_config['validate_referer']         = '1';
 $default_config['warning_visibility']       = '0';
 $default_config['which_editor']             = 'TinyMCE';
 $default_config['xhtml_urls']               = '1';
+
+if(!isset($_GET['a']) || $_GET['a'] !=='17') return;
+
+$default_config['signupemail_message']    = $_lang['system_email_signup'];
+$default_config['websignupemail_message'] = $_lang['system_email_websignup'];
+$default_config['webpwdreminder_message'] = $_lang['system_email_webreminder'];
 
 return $default_config;

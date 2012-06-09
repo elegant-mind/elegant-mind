@@ -317,6 +317,12 @@ form textarea
 	.rtl form textarea {
 		padding: 2px 2px 2px 0;
 	}
+.sectionBody input.inputBox[type=text],
+.sectionBody input.inputBox[type=password],
+.sectionBody select.inputBox {
+	width:350px;
+}
+
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="search"]:focus,
@@ -515,10 +521,10 @@ input.submit {
 	margin: 5px 15px 15px;
 	display: block;
 }
-	.tab-page .sectionBody {
+	.tab-page .sectionBody,
+	.section .sectionBody {
 		background: none repeat scroll 0 0 #F7F7F7;
 		border: 1px solid #CCCCCC;
-		border-top:none;
 		margin: 0 3px 15px;
 		padding: 15px;
 	}
@@ -526,6 +532,10 @@ input.submit {
 		direction: rtl;
 		position: inherit;
 	}
+.section .sectionBody {
+	margin:0 15px 15px;
+	background-color:#fff;
+}
 #tabdocInfo .sectionBody {
 	border-top:1px solid #ccc;
 }

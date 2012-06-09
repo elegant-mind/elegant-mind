@@ -262,6 +262,7 @@ class DBAPI {
         if (!$intotable) {
             $result = false;
         } else {
+            $subsql = '';
             if (!is_array($fields)) {
                 $pairs = $fields;
             } else {
@@ -280,16 +281,12 @@ class DBAPI {
                     if ($limit !== '') {
                         $limit = "LIMIT {$limit}";
                     }
-                    $sql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
+                    $subsql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
                 }
             }
-            if (isset($sql)) {
-                $rt = $this->query("INSERT INTO {$intotable} {$pairs} {$sql}");
+            $rt = $this->query("INSERT INTO {$intotable} {$pairs} {$subsql}");
                 $lid = $this->getInsertId();
                 $result = $lid ? $lid : $rt;
-            } else {
-                $result = false;
-            }
         }
 
         return $result;

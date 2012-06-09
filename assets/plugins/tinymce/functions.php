@@ -74,9 +74,12 @@ class TinyMCE
 			include_once($params['mce_path'] .'lang/english.inc.php');
 		}
 	
+		include_once $params['mce_path'] . 'settings/default_params.php';
+		$ph += $_lang;
+		
 		if($modx->manager->action == 11 || $modx->manager->action == 12)
 		{
-			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . '</option>' . PHP_EOL;
+			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . "</option>\n";
 		}
 		$themes['simple']   = $_lang['mce_theme_simple'];
 		$themes['editor']   = $_lang['mce_theme_editor'];
@@ -89,14 +92,10 @@ class TinyMCE
 		{
 			$selected = $this->selected($key == $params['theme']);
 			$key = '"' . $key . '"';
-			$theme_options .= "<option value={$key}{$selected}>{$value}</option>" . PHP_EOL;
+			$theme_options .= "<option value={$key}{$selected}>{$value}</option>\n";
 		}
-		
-		$ph = $_lang;
 		$ph['display'] = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block';
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
-		
-		include_once $params['mce_path'] . 'settings/default_params.php';
 		
 		$ph['theme_options'] = $theme_options;
 		$ph['skin_options']  = $this->get_skin_names($params);
@@ -109,6 +108,28 @@ class TinyMCE
 			case '12':
 			$ph['entermode_options']  .= '<br />';
 			$ph['entermode_options']  .= '<label><input name="mce_entermode" type="radio" value="" '.  $this->checked(empty($params['mce_entermode'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
+			break;
+		}
+		
+		$ph['element_format_options'] = '<label><input name="mce_element_format" type="radio" value="xhtml" '.  $this->checked($ph['mce_element_format']=='xhtml') . '/>XHTML</label><br />';
+		$ph['element_format_options'] .= '<label><input name="mce_element_format" type="radio" value="html" '. $this->checked($ph['mce_element_format']=='html') . '/>HTML</label>';
+		switch($modx->manager->action)
+		{
+			case '11':
+			case '12':
+			$ph['element_format_options']  .= '<br />';
+			$ph['element_format_options']  .= '<label><input name="mce_element_format" type="radio" value="" '.  $this->checked(empty($params['mce_element_format'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
+			break;
+		}
+		
+		$ph['schema_options'] = '<label><input name="mce_schema" type="radio" value="html4" '.  $this->checked($ph['mce_schema']=='html4') . '/>HTML4(XHTML)</label><br />';
+		$ph['schema_options'] .= '<label><input name="mce_schema" type="radio" value="html5" '. $this->checked($ph['mce_schema']=='html5') . '/>HTML5</label>';
+		switch($modx->manager->action)
+		{
+			case '11':
+			case '12':
+			$ph['schema_options']  .= '<br />';
+			$ph['schema_options']  .= '<label><input name="mce_schema" type="radio" value="" '.  $this->checked(empty($params['mce_schema'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
 			break;
 		}
 		
@@ -134,9 +155,9 @@ class TinyMCE
 			$buttons2 = '';
 		    break;
 		case 'editor':
-			$plugins  = 'autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
+			$plugins  = 'visualblocks,autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 			$buttons1 = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help';
-			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat';
+			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,visualblocks,styleprops,removeformat';
 			$buttons3 = '';
 			$buttons4 = '';
 		    break;
@@ -180,9 +201,13 @@ class TinyMCE
 		    break;
 		}
 		
-		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4);
-		$str .= PHP_EOL;
+		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4) . "\n";
 		$str .= $this->build_tiny_callback($params);
+		if($params['link_list']=='enabled')
+		{
+			$str .= '<script language="javascript" type="text/javascript" src="' . $params['mce_url'] . 'js/tinymce.linklist.php"></script>' . "\n";
+		}
+
 		
 		return $str;
 	}
@@ -261,6 +286,9 @@ class TinyMCE
 			$ph['force_p_newlines']   = 'false';
 			$ph['force_br_newlines']  = 'true';
 		}
+		$ph['element_format']          = $modx->config['mce_element_format'];
+		$ph['schema']                  = $modx->config['mce_schema'];
+		
 		$ph['toolbar_align']           = $params['toolbar_align'];
 		$ph['file_browser_callback']   = 'mceOpenServerBrowser';
 		$ph['plugins']                 = $plugins;
@@ -289,7 +317,7 @@ class TinyMCE
 		}
 		elseif ($params['editor_css_path']!=='') $content_css[] = MODX_BASE_URL . $params['editor_css_path'];
 			$ph['content_css']         = join(',', $content_css);
-		$ph['link_list']               = ($params['link_list']=='enabled') ? "'{$params['mce_url']}inc/tinymce.linklist.php'" : 'false';
+		$ph['link_list']               = ($params['link_list']=='enabled') ? "'{$params['mce_url']}js/tinymce.linklist.php'" : 'false';
 	
 		$mce_init = file_get_contents($params['mce_path'] . 'js/mce_init.js.inc');
 		
