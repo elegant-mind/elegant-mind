@@ -7,9 +7,9 @@
  * Korrekturen und Ergänzungen für MODx 0.9.6.3 durch Bogdan Günther
  * Anpassungen für MODx 1.0 durch Bogdan Günther
  * Anpassungen für MODx 1.0.5 durch Anselm Hannemann
- * Date: 2011/01/11
- * Version: 4.0
- * MODx version: 1.0.5
+ * Date: 2012/06/5
+ * Version: 4.1
+ * MODx version: 1.x
 */
 $modx_lang_attribute = 'de'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';
@@ -91,7 +91,7 @@ $_lang["cfg_site_url"] = 'MODX_SITE_URL';
 $_lang["change_name"] = 'Name ändern';
 $_lang["change_password"] = 'Passwort ändern';
 $_lang["change_password_confirm"] = 'Passwort bestätigen';
-$_lang["change_password_message"] = 'Bitte geben Sie Ihr neues Passwort ein und bestätigen Sie dieses durch erneute Eingabe. Das Passwort muss zwischen 6 und 15 Zeichen lang sein.';
+$_lang["change_password_message"] = 'Bitte geben Sie Ihr neues Passwort ein und bestätigen Sie dieses durch erneute Eingabe. Das Passwort muss zwischen 6 und 32 Zeichen lang sein.';
 $_lang["change_password_new"] = 'Neues Passwort';
 $_lang["charset_message"] = 'Wählen Sie die Zeichenkodierung für die [(modx_charset)]-Systemvariable. Diese Einstellung beeinflusst nicht den Manager.';
 $_lang["charset_title"] = 'Zeichenkodierung:';
@@ -974,7 +974,7 @@ $_lang["tree_page_click_message"] = 'Standardverhalten beim Klicken im Manager T
 $_lang["track_visitors_title"] = 'Besucherprotokollierung';
 $_lang["tree_show_protected"] = 'Zeige geschützte Ressourcen';
 $_lang["tree_show_protected_message"] = 'Wenn auf „Nein“ gesetzt, erscheinen geschützte Ressourcen (inklusive der Unter-Ressourcen) nicht im Strukturbaum, das heißt Manager-Benutzer ohne Berechtigung diese Ressourcen zu bearbeiten sehen sie nicht. „Nein“ ist die Standardeinstellung.';
-$_lang["truncate_table"] = 'Klicken Sie hier, um die Tabelle zu schließen';
+$_lang["truncate_table"] = 'Klicken Sie hier, um die Tabelle zu leeren. Achtung! Alle Datens&auml;tze werden gel&ouml;scht!';
 $_lang["tuesday"] = 'Dienstag';
 $_lang["tv"] = 'TV';
 $_lang["type"] = 'Typ';
