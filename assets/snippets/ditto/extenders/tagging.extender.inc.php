@@ -198,7 +198,7 @@ if(!class_exists("tagging")) {
 		function prepGivenTags ($givenTags) {
 			global $_GET,$dittoID;
 
-			$getTags = !empty($_GET[$dittoID.'tags']) ? trim($_GET[$dittoID.'tags']) : false;
+			$getTags = (!empty($_GET[$dittoID.'tags']) && !is_array($_GET[$dittoID.'tags'])) ? trim($_GET[$dittoID.'tags']) : false;
 				// Get tags from the $_GET array
 
 			$tags1 = array();
