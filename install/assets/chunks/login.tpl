@@ -4,7 +4,7 @@
  * custom loginscreen
  * 
  * @category	chunk
- * @version 	1.0.2
+ * @version 	1.0.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal 	@modx_category Manager and Admin
  * @internal    @installset base
@@ -109,7 +109,7 @@
             else {
                 var cimg = $('captcha_image');
                 if (cimg) {
-                	cimg.src = '../action.php?include=manager/media/captcha/veriword.php&rand=' + Math.random();
+                	cimg.src = 'includes/veriword.php&rand=' + Math.random();
                 }
                 $$('input').removeProperty('readonly');
                 alert(response);
