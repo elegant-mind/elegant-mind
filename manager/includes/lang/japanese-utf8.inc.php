@@ -120,7 +120,7 @@ $_lang["configcheck_errorpage_unavailable"] = '設定した「エラーページ
 $_lang["configcheck_errorpage_unavailable_msg"] = '設定した「エラーページ」が一般的なエンドユーザーからアクセスできないページ（private）かあるいは存在しないことを意味しています。この場合、システムがループ状態に陥り、多くのエラーメッセージをエラーログに記録してしまいます。「エラーページ」には存在するページでかつ、公開ページ、かつ「public」なページを指定してください。';
 $_lang["configcheck_errorpage_unpublished"] = 'グローバル設定で設定されたエラーページは公開されていません。';
 $_lang["configcheck_errorpage_unpublished_msg"] = '設定したエラーページが誰でも見られるようにはなっていないことを意味します。エラーページは全ての人(Public)に公開するようにしてください。';
-$_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning(' . "'%s'" . ');"><em>次からこの警告を表示しない</em></a>';
+$_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>次からこの警告を表示しない</em></a>';
 $_lang["configcheck_images"] = 'イメージディレクトリに書き込みできません';
 $_lang["configcheck_images_msg"] = 'イメージディレクトリが書き込み可能でないか、ディレクトリ自体が存在していません。エディターの画像管理機能が動作しません';
 $_lang["configcheck_installer"] = 'インストーラーが残されています';
