@@ -19,6 +19,9 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
+
+if(!isset($modx) || !is_object($modx)) die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+
 require_once($modx->config['base_path'] . 'manager/includes/sniff/phpSniff.core.php');
 
 //===============================================================
