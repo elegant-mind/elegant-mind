@@ -1098,7 +1098,7 @@ $_lang['setting_cache_type_desc'] = '「バイパスモード」はプラグイ�
 $_lang['duplicate_title_string'] = 'コピー - [+title+]';
 $_lang["confirm_delete_category"] = 'このカテゴリー名を削除してもよろしいですか?';
 $_lang["site_url_title"] = 'サイトのURL';
-$_lang["site_url_message"] = '例：<b>' . MODX_SITE_URL . '</b><br />空白にすると自動的に処理します(wwwの有無・http/httpsの違いなどにより動的に変わります)。';
+$_lang["site_url_message"] = '例：<b>[+MODX_SITE_URL+]</b><br />空白にすると自動的に処理します(wwwの有無・http/httpsの違いなどにより動的に変わります)。';
 $_lang["chunk_opt_published"] = '公開ステータス';
 $_lang["delete_category"] = 'カテゴリー名を削除';
 
