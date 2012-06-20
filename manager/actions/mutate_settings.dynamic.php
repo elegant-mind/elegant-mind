@@ -627,6 +627,14 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo $_lang["udperms_allowroot_message"] ?>
 </td>
 </tr>
+<tr id='udPermsRow2' class="row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["tree_show_protected"] ?></th>
+<td>
+	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('tree_show_protected','0',$tree_show_protected=='0'));?><br />
+	<?php echo $_lang["tree_show_protected_message"]?>
+</td>
+</tr>
 <tr>
 <th><?php echo $_lang["allow_mgr2web_title"] ?></th>
 <td>
@@ -826,14 +834,6 @@ $dir->close();
 ?>
 	</select><br />
 	<?php echo $_lang["setting_resource_tree_node_name_desc"]?>
-</td>
-</tr>
-<tr>
-<th><?php echo $_lang["tree_show_protected"] ?></th>
-<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('tree_show_protected','0',$tree_show_protected=='0'));?><br />
-	<?php echo $_lang["tree_show_protected_message"]?>
 </td>
 </tr>
 <tr>
