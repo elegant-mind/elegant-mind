@@ -1189,3 +1189,5 @@ $_lang["The security code you entered didn't validate! Please try to login again
 
 $_lang["pm2email_title"] = 'PMをメールに転送';
 $_lang["pm2email_message"] = '新着プライベートメッセージをメールで通知します。';
+
+$_lang["a17_warning_opt2"] = 'ロールの更新権限を持つメンバー';
