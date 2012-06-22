@@ -1,12 +1,23 @@
 <?php
-// this simulates magic_quotes_gpc off
-function reverse_magic_quotes($array)
-{
-	if(is_array($array)) return array_map('reverse_magic_quotes', $array);
-	else                 return stripslashes($array);
+
+// this simulates magic_quotes_gpc = 0...
+// Hope it works!
+function & kill_magic_quotes(&$str) {
+   if(is_array($str)) {
+       while(list($key, $val) = each($str)) {
+           $str[$key] = kill_magic_quotes($val); // this basically loops into arrays...
+       }
+   } else {
+       $str = stripslashes($str); // get rid of those slashes!
+   }   
+   return $str;
 }
 
-$_GET     = reverse_magic_quotes($_GET);
-$_POST    = reverse_magic_quotes($_POST);
-$_REQUEST = reverse_magic_quotes($_REQUEST);
-$_COOKIE  = reverse_magic_quotes($_COOKIE);
+if(get_magic_quotes_gpc()) {
+   kill_magic_quotes($_GET);
+   kill_magic_quotes($_POST);
+   kill_magic_quotes($_COOKIE);
+   kill_magic_quotes($_REQUEST);
+}
+
+?>
