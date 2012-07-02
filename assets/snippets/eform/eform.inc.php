@@ -236,11 +236,12 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         $vMsg = $rMsg = $rClass = array();
 
         # get user post back data
-        foreach($_POST as $name => $value){
-            if(is_array($value)){
+        foreach ($_POST as $name => $value){
+            if (is_array($value)){
                 //remove empty values
-                $fields[$name] = array_filter($value,create_function('$v','return (!empty($v));'));
+                $fields[$name] = array_filter($value, create_function('$v','return (!empty($v));'));
             } else {
+                $value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
                 if ($allowhtml || $formats[$name][2]=='html') {
                     $fields[$name] = stripslashes($value);
                 } else {
@@ -250,7 +251,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         }
 
         # get uploaded files
-        foreach($_FILES as $name => $value){
+        foreach ($_FILES as $name => $value){
             $fields[$name] = $value;
         }
 
