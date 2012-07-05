@@ -1,7 +1,7 @@
-MODX-Evolution
+Elegant-Mind
 ==============
 
-These is the code base for an extended Version of Evolution.
+These is the code base for a fork of MOFX Evolution.
 See the start in the MODX forums: http://forums.modx.com/thread/74766/bringing-evo-back-to-life-again
 
 ## Rules ##
